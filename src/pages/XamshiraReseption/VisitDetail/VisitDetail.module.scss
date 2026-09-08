@@ -1,0 +1,214 @@
+.DetailPage {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.BackBtn {
+    border: none;
+    background: transparent;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    width: fit-content;
+    
+    .NotActive {
+        color: #9ba5b3;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    span {
+        font-weight: 500;
+    }
+
+
+    // &:hover { color: #17643c; }
+
+}
+
+.HeaderCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    h1 {
+        font-size: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #1b3050;
+
+        i { color: #1b3050; }
+    }
+}
+
+.StatusBadge {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 14px;
+    border-radius: 20px;
+
+    &.waiting { background-color: #f0f0f0; color: #888; }
+    &.in_progress { background-color: #fff1e9; color: #e0571f; }
+    &.done { background-color: #e9f7ef; color: #17643c; }
+}
+
+.Block {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 20px;
+
+    h3 {
+        font-size: 14px;
+        color: #888;
+        margin-bottom: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+}
+
+.ComplaintText, .NotesText {
+    font-size: 15px;
+    color: #1b3050;
+    line-height: 1.6;
+}
+
+.Empty {
+    color: #999;
+    font-size: 14px;
+}
+
+.Grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+}
+
+.Card {
+    position: relative;
+    background-color: #fff;
+    border: 1.5px solid #eee;
+    border-radius: 14px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+
+    &:hover {
+        border-color: #d5e9db;
+        transform: translateY(-2px);
+    }
+}
+
+.DocProf {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .DocData {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+
+        .Name {
+            text-transform: capitalize;
+        }
+    }
+}
+
+.CheckBadge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #4d7ab2;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.Avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #4d7ab2;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.Name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 4px;
+}
+
+.Specialty {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #4d7ab2;
+    // padding: 3px 8px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+}
+
+.MetaRow {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    span {
+        font-size: 11px;
+        color: #999;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        i {
+            font-size: 11px;
+        }
+    }
+}
+
+.LoadingWrapper, .NotFoundBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    gap: 16px;
+
+    p { color: #888; }
+
+    i { font-size: 44px; color: #e53935; }
+
+    button {
+        padding: 10px 22px;
+        background: linear-gradient(135deg, #FF8A3D, #FF6B35);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+}

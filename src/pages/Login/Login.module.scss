@@ -1,0 +1,338 @@
+.LoginSection {
+    min-height: 100vh;
+    width: 100%;
+    padding: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // Orqa fon — butun sahifada
+    background-image: url(../../assets/images/login-bg.jpg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+
+    // Rasm ustiga yengil qorong'ulashtiruvchi qatlam (matn/karta yaxshi ko'rinishi uchun)
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 30, 22, 0.45);
+    }
+}
+
+.LoginWrap {
+    width: 100%;
+    max-width: 1000px;
+    height: calc(100vh - 80px);
+    max-height: 640px;
+    background-color: #fff;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    display: flex;
+    overflow: hidden;
+
+    // Qorong'ulashtiruvchi qatlamdan tepada turishi uchun
+    position: relative;
+    z-index: 1;
+}
+
+// CHAP PANEL — brendlash
+
+.BrandPanel {
+    flex: 1;
+    background: linear-gradient(120deg, #1b3050 0%, #0e1b33 100%);
+    // background: linear-gradient(155deg, #17643c, #0f4a2b);
+    position: relative;
+    overflow: hidden;
+    padding: 45px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.Circle1,
+.Circle2,
+.Circle3 {
+    position: absolute;
+    border-radius: 50%;
+}
+
+.Circle1 {
+    width: 320px;
+    height: 320px;
+    background: radial-gradient(circle, #ffffff77, transparent 70%);
+    top: -80px;
+    right: -80px;
+}
+
+.Circle2 {
+    width: 240px;
+    height: 240px;
+    background: rgba(255, 255, 255, 0.05);
+    bottom: -60px;
+    left: -60px;
+}
+
+.Circle3 {
+    width: 160px;
+    height: 160px;
+    background: rgba(255, 107, 53, 0.15);
+    bottom: 110px;
+    right: 30px;
+}
+
+.BrandContent {
+    position: relative;
+    z-index: 1;
+    color: #fff;
+}
+
+.LogoImg {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    overflow: hidden;
+    margin-bottom: 20px;
+
+    .LogoMark {
+        width: 45px;
+        height: 45px;
+        border-radius: 9px;
+        background: linear-gradient(135deg, #d9be8f, #b08d57);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: var(--forest-deep);
+    }
+
+    .Brand {
+        color: #F4F0E6;
+        font-weight: 600;
+        font-size: 18px;
+        letter-spacing: 0.2px;
+    }
+}
+
+.Features {
+    margin-top: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.FeatureItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: #e6f5ec;
+
+    i {
+        color: #fff;
+        font-size: 16px;
+    }
+}
+
+// O'NG PANEL — FORMA
+
+.FormPanel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    overflow-y: auto;
+}
+
+.FormInner {
+    width: 100%;
+    max-width: 340px;
+}
+
+.MobileLogo {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 25px;
+
+    img {
+        width: 30px;
+    }
+
+    span {
+        font-size: 18px;
+        font-weight: 700;
+        color: #17643c;
+    }
+}
+
+.FormInner h1 {
+    font-size: 26px;
+    color: #1b3050;
+}
+
+.SubText {
+    font-size: 14px;
+    color: #999;
+    margin-top: 6px;
+    margin-bottom: 30px;
+}
+
+.LoginInputs {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.Input {
+    p {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1b3050;
+        margin-bottom: 6px;
+    }
+}
+
+.InpRow {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    >i {
+        position: absolute;
+        left: 14px;
+        color: #999;
+        font-size: 17px;
+    }
+
+    input {
+        font-size: 14px;
+        width: 100%;
+        height: 48px;
+        padding: 0 45px;
+        border-radius: 10px;
+        background-color: #f7f7f7;
+        outline: none;
+        border: 1.5px solid transparent;
+        transition: border-color 0.2s ease, background-color 0.2s ease;
+        color: #4a7bb5;
+
+        &:focus {
+            border-color: #4a7bb5;
+            background-color: #fff;
+        }
+
+        &:disabled {
+            opacity: 0.6;
+        }
+    }
+}
+
+.ShowBtn {
+    position: absolute;
+    right: 6px;
+    height: 38px;
+    width: 38px;
+    border: none;
+    background-color: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #eee;
+    }
+
+    i {
+        font-size: 18px;
+        color: #888;
+    }
+}
+
+.ErrorText {
+    display: block;
+    color: #e53935;
+    font-size: 12px;
+    margin-top: 6px;
+}
+
+.ServerError {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background-color: #fdecea;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #c0392b;
+
+    i {
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+}
+
+.LoginBtn {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    // background: linear-gradient(135deg, #FF8A3D, #FF6B35);
+    width: 100%;
+    height: 48px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    box-shadow: 0 6px 16px #4a7bb5;
+
+    &:hover {
+        opacity: 0.92;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+// RESPONSIVE
+
+@media (max-width: 850px) {
+    .BrandPanel {
+        display: none;
+    }
+
+    .LoginWrap {
+        max-width: 420px;
+        height: auto;
+        max-height: none;
+    }
+
+    .FormPanel {
+        padding: 35px 25px;
+    }
+
+    .MobileLogo {
+        display: flex;
+    }
+}
+
+@media (max-width: 480px) {
+    .LoginSection {
+        padding: 15px;
+    }
+
+    .LoginWrap {
+        border-radius: 18px;
+    }
+}

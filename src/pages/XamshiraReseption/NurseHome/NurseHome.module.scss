@@ -1,0 +1,266 @@
+.HomeContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.TopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    h1 {
+        font-size: 26px;
+    }
+
+    .Breadcrumb {
+        color: #1b3050;
+        font-size: 13px;
+    }
+
+    p {
+        color: #1b3050;
+        margin-top: 4px;
+        text-transform: capitalize;
+
+        span {
+            font-weight: 600;
+        }
+    }
+}
+
+.AddPatientBtn {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    // background: linear-gradient(135deg, #FF8A3D, #FF6B35);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px #4a7bb5;
+
+    &:hover {
+        opacity: 0.92;
+    }
+}
+
+// STATS
+
+.StatsRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.StatCard {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    h2 {
+        font-size: 26px;
+        color: #1b3050;
+    }
+
+    p {
+        font-size: 13px;
+        color: #888;
+        margin-top: 2px;
+    }
+}
+
+.StatIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    i {
+        font-size: 20px;
+    }
+}
+
+.Variant_orange {
+    .StatIcon {
+        background-color: #fff1e9;
+        color: #FF6B35;
+    }
+}
+
+.Variant_blue {
+    .StatIcon {
+        background-color: #eef3ff;
+        color: #4a7dfc;
+    }
+}
+
+.Variant_green {
+    .StatIcon {
+        background-color: #e9f7ef;
+        color: #17643c;
+    }
+}
+
+// LIST
+
+.ListCard {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 22px;
+}
+
+.ListHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    .ListHeadLeft {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+        color: #1b3050;
+    }
+
+    a {
+        color: #1b3050;
+        font-size: 14px;
+        font-weight: 500;
+        
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    h3 {
+        font-size: 16px;
+    }
+}
+
+.CountBadge {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a7bb5;
+    background-color: #eaf0f7;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.Empty {
+    color: #999;
+    text-align: center;
+    padding: 30px 0;
+    font-size: 14px;
+}
+
+.ListCard ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    li {
+        a {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            border-radius: 10px;
+
+            &:hover {
+                background-color: #f9fbfa;
+            }
+        }
+
+    }
+}
+
+.PatientLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    p {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1b3050;
+    }
+
+    span {
+        font-size: 12px;
+        color: #888;
+    }
+}
+
+.Avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    // background: linear-gradient(135deg, #FF8A3D, #FF6B35);
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.PatientRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.Time {
+    font-size: 12px;
+    color: #999;
+    min-width: 40px;
+}
+
+.DoctorBadge {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background-color: #e9f7ef;
+    color: #17643c;
+
+    &.waiting {
+        background-color: #f0f0f0;
+        color: #888;
+    }
+}
+
+@media (max-width: 900px) {
+    .StatsRow {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .TopRow {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .AddPatientBtn {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -1,0 +1,138 @@
+.Form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    h1 {
+        font-size: 20px;
+        margin-bottom: 4px;
+    }
+}
+
+.StatusPicker {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.StatusCard {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    text-align: center;
+    transition: all .2s ease;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    i {
+        font-size: 20px;
+        color: #999;
+    }
+
+    span {
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        border-color: #4e7bbe;
+    }
+}
+
+.ActiveStatus {
+    border-color: #4e7bbe;
+    background: #f5faf7;
+    box-shadow: 0 4px 14px rgba(23, 100, 60, 0.12);
+
+    i,
+    span {
+        color: #4e7bbe;
+    }
+}
+
+@media (max-width: 600px) {
+    .StatusPicker {
+        grid-template-columns: 1fr;
+    }
+}
+
+.Row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    .Input {
+        flex: 1;
+        min-width: 140px;
+    }
+}
+
+.Input {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    p {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1b3050;
+    }
+
+    select, textarea {
+        border: 1.5px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 15px;
+        outline: none;
+        font-family: inherit;
+        color: #1b3050;
+
+        &:focus { border-color: #4e7bbe; }
+        &:disabled { background-color: #f5f5f5; }
+    }
+
+    textarea { resize: vertical; }
+}
+
+.ErrorText {
+    color: #e53935;
+    font-size: 13px;
+}
+
+.ServerError {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #c0392b;
+    font-size: 14px;
+    background-color: #fdecea;
+    padding: 10px 14px;
+    border-radius: 8px;
+}
+
+.SubmitBtn {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    // background: linear-gradient(135deg, #FF8A3D, #FF6B35);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 6px 16px #4d7ab2;
+
+    &:hover { opacity: 0.92; }
+    &:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+}

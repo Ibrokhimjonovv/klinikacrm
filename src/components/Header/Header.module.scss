@@ -1,0 +1,376 @@
+.aside {
+    min-width: 320px;
+    width: calc(100% - 80%);
+    height: calc(100vh - 40px);
+    // background-color: #fff;
+    background: linear-gradient(180deg, #16274A 0%, #0E1B33 100%);
+    border-radius: 20px;
+    padding: 20px;
+    transition: width 0.35s ease;
+    overflow: hidden;
+    position: relative;
+
+
+    .Logo {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 50px;
+        transition: all 0.35s ease;
+        padding-left: 10px;
+
+
+        .LogoImg {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            overflow: hidden;
+
+            .LogoMark {
+                width: 34px;
+                height: 34px;
+                border-radius: 9px;
+                background: linear-gradient(135deg, #d9be8f, #b08d57);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 15px;
+                color: var(--forest-deep);
+            }
+
+            .Brand {
+                color: #F4F0E6;
+                font-weight: 600;
+                font-size: 18px;
+                letter-spacing: 0.2px;
+            }
+        }
+
+        // .LogoImg {
+        //     display: flex;
+        //     align-items: center;
+        //     gap: 5px;
+        //     overflow: hidden;
+
+        //     img {
+        //         width: 30px;
+        //         flex-shrink: 0;
+        //     }
+
+        //     span {
+        //         font-weight: 600;
+        //         font-size: 22px;
+        //         white-space: nowrap;
+        //         transition: opacity 0.2s ease;
+        //         color: #17643c;
+        //     }
+        // }
+
+        .arrow {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.35s ease;
+            color: #666;
+
+            &:hover {
+                color: #d9be8f;
+            }
+
+            i {
+                font-size: 22px;
+            }
+        }
+    }
+
+    .Name {
+        margin-top: 20px;
+        padding: 0 20px 0;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        border-radius: 7px;
+        position: relative;
+        text-transform: capitalize;
+
+        span {
+            position: absolute;
+            top: -20px;
+            right: 0;
+            background: linear-gradient(135deg, #FF8A3D, #FF6B35);
+            padding: 3px 9px;
+            font-size: 10px;
+            border-radius: 20px;
+            color: #fff;
+            font-weight: 500;
+        }
+    }
+
+    .asosiy {
+        color: rgb(244 240 230 / 35%);
+        font-size: 12px;
+        font-weight: 600;
+        margin: 14px 10px 10px;
+    }
+
+    .AsideLinks {
+        list-style: none;
+        margin-top: 10px;
+
+        li {
+            margin-top: 5px;
+
+            a {
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                padding: 11px 10px;
+                // color: #444;
+                color: rgba(244, 240, 230, 0.68);
+                font-size: 14px;
+                font-weight: 500;
+                position: relative;
+
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.05);
+                    // background-color: #f4f9f6;
+                    // color: orange;
+                }
+
+                .icon {
+                    width: 22px;
+                    flex-shrink: 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    i {
+                        font-size: 18px;
+                    }
+                }
+
+                .text {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    transition: opacity 0.2s ease;
+                }
+
+                p {
+                    position: absolute;
+                    right: 10px;
+                    background-color: rgb(217 190 143 / 20%);
+                    color: #d9be8f;
+                    font-size: 10px;
+                    font-weight: 700;
+                    padding: 2px 7px;
+                    border-radius: 100px;
+                }
+            }
+
+            // Active holat — asosiy yashil + orange chiziq
+            a.ActiveLink {
+                // background: linear-gradient(135deg,  rgb(231, 179, 82), rgb(255, 166, 0));
+                background: linear-gradient(90deg, rgba(143, 183, 158, 0.22), rgba(143, 183, 158, 0.06));
+                color: #fff;
+                // box-shadow: 0 4px 12px rgba(23, 100, 60, 0.25);
+                box-shadow: inset 2px 0 0 #8ab0de;
+                position: relative;
+
+                // &:hover {
+                //     background: linear-gradient(135deg, rgb(231, 179, 82), rgb(255, 166, 0));
+                //     color: #fff;
+                // }
+
+                .icon i {
+                    color: #fff;
+                }
+
+                // Chap tomonda orange urg'u chizig'i
+                &::before {
+                    content: '';
+                    position: absolute;
+                    left: -20px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 4px;
+                    height: 22px;
+                    background-color: #fff;
+                    // background-color: #FF6B35;
+                    border-radius: 0 4px 4px 0;
+                }
+            }
+        }
+    }
+
+    .AsideBottom {
+        width: calc(100% - 40px);
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        .Me {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            // justify-content: center;
+            margin-bottom: 17px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 17px;
+            margin-top: 17px;
+
+            .ProfileLogo {
+                background-color: #4a7bb5;
+                width: 40px !important;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                color: #fff;
+                font-size: 14px;
+            }
+
+            .ProfileDatas {
+                display: flex;
+                justify-content: center;
+                flex-direction: column;
+                line-height: 1.4;
+
+                p {
+                    &:first-child {
+                        color: #fff;
+                        font-weight: 600;
+                        font-size: 15px;
+                    }
+
+                    &:last-child {
+                        color: rgba(244, 240, 230, 0.45);
+                        font-size: 13px;
+                    }
+                }
+            }
+        }
+
+
+        .Logout {
+            width: 100%;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            border-radius: 10px;
+            border: none;
+            background: #f2f2f2;
+            cursor: pointer;
+            color: #1b3050;
+            font-weight: 600;
+            font-size: 14px;
+
+            &:hover {
+                background: linear-gradient(135deg, #4a7bb5, #1b3050);
+                color: #fff;
+            }
+
+            i {
+                font-size: 20px;
+            }
+        }
+    }
+
+
+    &.collapsed {
+        width: 90px;
+        min-width: 90px;
+
+        .Logo {
+            flex-direction: column-reverse;
+            gap: 10px;
+            padding-left: 0;
+            margin-top: 5px;
+
+            .LogoImg {
+                gap: 0;
+                margin-top: 10px;
+            }
+
+            .LogoImg span {
+                opacity: 0;
+                width: 0;
+            }
+        }
+
+        .Name {
+            opacity: 0;
+            width: 0;
+            padding: 0;
+            margin: 0;
+            height: 0;
+        }
+
+        .asosiy {
+            opacity: 0;
+            width: 0;
+            padding: 0;
+            margin: 0;
+            height: 0;
+        }
+
+        .AsideLinks {
+            margin-top: 10px;
+        }
+
+        .AsideLinks a {
+            gap: 0;
+            justify-content: center;
+
+            .icon {
+                width: 100%;
+            }
+
+            .text,
+            p {
+                opacity: 0;
+                width: 0;
+                padding: 0;
+                margin: 0;
+            }
+        }
+
+        // Collapsed holatda chap chiziq ko'rinmasin (joy yo'q)
+        .AsideLinks a.ActiveLink::before {
+            display: none;
+        }
+
+        .AsideBottom {
+            .Me {
+                gap: 0;
+                justify-content: center;
+
+                .ProfileDatas {
+                    opacity: 0;
+                    width: 0;
+                    padding: 0;
+                    margin: 0;
+                }
+            }
+        }
+
+        .Logout {
+            .text {
+                opacity: 0;
+                width: 0;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    }
+}

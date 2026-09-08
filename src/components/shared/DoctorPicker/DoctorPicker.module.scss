@@ -1,0 +1,131 @@
+.LoadingWrap {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.ErrorText {
+    color: #e53935;
+    font-size: 13px;
+    padding: 10px 0;
+}
+
+.Empty {
+    color: #999;
+    font-size: 13px;
+    padding: 10px 0;
+}
+
+.Grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.Card {
+    position: relative;
+    background-color: #fff;
+    border: 1.5px solid #eee;
+    border-radius: 14px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+
+    &:hover {
+        border-color: #d5e9db;
+        transform: translateY(-2px);
+    }
+}
+
+.Selected {
+    border-color: #4d7ab2;
+    background-color: #f5faf7;
+    box-shadow: 0 4px 14px rgba(23, 100, 60, 0.12);
+
+    &:hover {
+        border-color: #4d7ab2;
+    }
+}
+
+.DocProf {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .DocData {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+
+    }
+}
+
+.CheckBadge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: #4d7ab2;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.Avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #4d7ab2;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.Name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 4px;
+}
+
+.Specialty {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #4d7ab2;
+    // padding: 3px 8px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+}
+
+.MetaRow {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    span {
+        font-size: 11px;
+        color: #999;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+
+        i {
+            font-size: 11px;
+        }
+    }
+}
+
+@media (max-width: 500px) {
+    .Grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    }
+}

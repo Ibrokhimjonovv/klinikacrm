@@ -1,0 +1,19 @@
+.AddVisitSection {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    min-width: 480px;
+
+    h1 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #1b3050;
+
+        i { color: #1b3050; }
+    }
+}
+
+@media (max-width: 600px) {
+    .AddVisitSection { min-width: unset; }
+}

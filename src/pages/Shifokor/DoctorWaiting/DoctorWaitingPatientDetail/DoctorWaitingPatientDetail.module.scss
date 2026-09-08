@@ -1,0 +1,1006 @@
+$primary: #0e1b33;
+$primary-light: #16264a;
+$border: #e5e7eb;
+$text-muted: #6b7280;
+$bg-page: #f4f5f7;
+$success-bg: rgba(14, 27, 51, 0.06);
+
+.State {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: $text-muted;
+}
+
+.DetailPage {
+    background: #fff;
+    border-radius: 20px;
+    // max-width: 1200px;
+    // margin: 0 auto;
+}
+
+.BackBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-bottom: 16px;
+
+    &:hover {
+        color: $primary;
+    }
+}
+
+.Banner {
+    background: $primary;
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.BannerLeft {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h1 {
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 14px;
+        margin: 0;
+    }
+}
+
+.Avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.StatusPill {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.InfoRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 560px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.InfoCard {
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    i {
+        color: $primary;
+        font-size: 16px;
+    }
+
+    span {
+        display: block;
+        font-size: 12px;
+        color: $text-muted;
+        margin-bottom: 2px;
+    }
+
+    p, .datt {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+}
+
+.ComplaintsSection {
+    margin-bottom: 20px;
+
+    h2 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 12px;
+        color: #1a1a1a;
+    }
+}
+
+.ComplaintsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+}
+
+.ComplaintsHint {
+    font-size: 13px;
+    color: $text-muted;
+    margin: -6px 0 12px;
+}
+
+// eski .ComplaintCard ni SHU BILAN ALMASHTIRING (endi button):
+.ComplaintCard {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+    border: 1px solid $border;
+    border-left: 3px solid $primary;
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fafbfc;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+
+    &:hover {
+        background: #f3f4f6;
+    }
+
+    p {
+        margin: 6px 0 0;
+        font-size: 14px;
+        color: #1f2937;
+        line-height: 1.4;
+    }
+}
+
+.ComplaintCardSelected {
+    border-color: $primary;
+    background: $success-bg;
+}
+
+.SelectedTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $primary;
+}
+
+.ComplaintTop {
+    display: flex;
+    // flex-direction: column;
+    justify-content: space-between;
+}
+
+.StatusTag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: $success-bg;
+    color: $primary;
+
+    &.waiting {
+        background: #f0f0f0;
+        color: #888;
+    }
+
+    &.in_progress {
+        background: #fff4e0;
+        color: #d99400;
+    }
+
+    &.completed {
+        background: #d1fae5;
+        color: #047857;
+    }
+
+    &.cancelled {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+}
+
+.MainGrid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 16px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.DiagnosisForm,
+.HistoryCard {
+    border: 1px solid $border;
+    border-radius: 14px;
+    padding: 20px;
+
+    h2 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 16px;
+        color: #1a1a1a;
+    }
+}
+
+.Field {
+    margin-bottom: 16px;
+
+    label {
+        display: block;
+        font-size: 13px;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        border: 1px solid $border;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        transition: border-color 0.15s;
+
+        &:focus {
+            outline: none;
+            border-color: $primary;
+        }
+
+        &::placeholder {
+            color: #9ca3af;
+        }
+
+        &:disabled {
+            background: #f9fafb;
+        }
+    }
+}
+
+.FormError {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b91c1c;
+    font-size: 13px;
+    margin: -4px 0 14px;
+}
+
+.DiagnosisForm button {
+    width: 100%;
+    background: $primary;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+        background: $primary-light;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+}
+
+.Empty {
+    color: $text-muted;
+    font-size: 14px;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.Timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    li {
+        border-left: 3px solid $primary;
+        padding-left: 14px;
+    }
+}
+
+.TimelineDate {
+    display: block;
+    font-size: 12px;
+    color: $text-muted;
+    margin-bottom: 4px;
+}
+
+.TimelineTitle {
+    margin: 0 0 2px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.TimelineTreatment {
+    margin: 0;
+    font-size: 13px;
+    color: #374151;
+}
+
+.TimelineNotes {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: $text-muted;
+    font-style: italic;
+}
+
+.PlanForm {
+    border: 1px solid $border;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.PlanFormHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    h2 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 4px;
+        color: #1a1a1a;
+    }
+}
+
+.PlanFormSub {
+    font-size: 13px;
+    color: $text-muted;
+    margin: 0;
+
+    span {
+        color: $primary;
+        font-weight: 600;
+    }
+}
+
+.CancelSelectBtn {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 6px;
+
+    &:hover {
+        background: #f3f4f6;
+        color: #1a1a1a;
+    }
+}
+
+.DaysHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 4px 0 12px;
+
+    label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #374151;
+    }
+}
+
+.AddDayBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: $primary;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: $primary-light;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+}
+
+.DaysList {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.DayCard {
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: #fafbfc;
+}
+
+.DayCardHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.DayBadge {
+    display: inline-block;
+    background: $primary;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.RemoveDayBtn {
+    background: none;
+    border: none;
+    color: #b91c1c;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 6px;
+    border-radius: 6px;
+
+    &:hover {
+        background: #fee2e2;
+    }
+}
+
+.ItemsList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.ItemRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    i {
+        color: $primary;
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+
+    input {
+        flex: 1;
+        border: 1px solid $border;
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 13px;
+        font-family: inherit;
+
+        &:focus {
+            outline: none;
+            border-color: $primary;
+        }
+
+        &::placeholder {
+            color: #9ca3af;
+        }
+    }
+}
+
+.RemoveItemBtn {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 2px 4px;
+    flex-shrink: 0;
+
+    &:hover {
+        color: #b91c1c;
+    }
+}
+
+.AddItemBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px dashed $border;
+    color: $primary;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    align-self: flex-start;
+
+    &:hover:not(:disabled) {
+        background: $success-bg;
+        border-color: $primary;
+    }
+}
+
+.DayNote {
+    width: 100%;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+    color: #374151;
+
+    &:focus {
+        outline: none;
+        border-color: $primary;
+    }
+
+    &::placeholder {
+        color: #9ca3af;
+        font-style: italic;
+    }
+}
+
+.FormSuccess {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #047857;
+    background: #d1fae5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin: -4px 0 14px;
+}
+
+.SubmitPlanBtn {
+    width: 100%;
+    background: $primary;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+        background: $primary-light;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+}
+
+.ModeSwitch {
+    display: flex;
+    gap: 8px;
+    margin: 4px 0 16px;
+    background: #f4f5f7;
+    padding: 4px;
+    border-radius: 10px;
+
+    button {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: none;
+        border: none;
+        border-radius: 8px;
+        padding: 9px 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: $text-muted;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-family: inherit;
+
+        &:hover:not(:disabled) {
+            color: $primary;
+        }
+
+        &:disabled {
+            cursor: default;
+        }
+    }
+}
+
+.ModeActive {
+    background: #fff !important;
+    color: $primary !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.SameModeBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.DayCountInput {
+    max-width: 120px;
+}
+
+.FieldHint {
+    display: block;
+    font-size: 12px;
+    color: $text-muted;
+    margin-top: 6px;
+}
+
+.ItemsLabel {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.HistorySection {
+    margin-top: 24px;
+
+    h2 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 14px;
+        color: #1a1a1a;
+    }
+}
+
+.PlansList {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.PlanCard {
+    border: 1px solid $border;
+    border-radius: 14px;
+    padding: 18px;
+}
+
+.PlanCardHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 14px;
+
+    h3 {
+        font-size: 14px;
+        font-weight: 700;
+        margin: 0 0 2px;
+        color: #1a1a1a;
+    }
+}
+
+.PlanComplaint {
+    font-size: 12px;
+    color: $text-muted;
+    margin: 0;
+}
+
+.DeletePlanBtn {
+    background: none;
+    border: none;
+    color: #b91c1c;
+    cursor: pointer;
+    font-size: 15px;
+    padding: 6px;
+    border-radius: 8px;
+
+    &:hover:not(:disabled) {
+        background: #fee2e2;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+}
+
+.PlanDaysGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.PlanDayCard {
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fafbfc;
+}
+.ItemsPlainList {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    li {
+        display: flex;
+        align-items: center;
+        gap: 2px;
+        font-size: 13px;
+        color: #1f2937;
+
+        i {
+            color: $primary;
+            font-size: 20px;
+            margin-right: -2px;
+        }
+    }
+}
+.PlanDayNote {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: $text-muted;
+    font-style: italic;
+    border-top: 1px dashed $border;
+    padding-top: 8px;
+}
+
+
+
+.ItemTypeSwitch {
+    display: flex;
+    gap: 4px;
+    background: #f4f5f7;
+    border-radius: 8px;
+    padding: 3px;
+    flex-shrink: 0;
+
+    button {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: none;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #6b7280;
+        cursor: pointer;
+        white-space: nowrap;
+
+        &:hover:not(:disabled) {
+            color: #0e1b33;
+        }
+
+        &:disabled {
+            cursor: default;
+        }
+    }
+}
+
+.ItemTypeActive {
+    background: #fff !important;
+    color: #0e1b33 !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.FileInputLabel {
+    flex: 1;
+    position: relative;
+    border: 1px dashed #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+
+    &:hover {
+        border-color: #0e1b33;
+        color: #0e1b33;
+    }
+
+    input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        i {
+            flex-shrink: 0;
+        }
+    }
+}
+
+.MediaPlaceholder {
+    flex: 1;
+    border: 1px dashed #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-style: italic;
+
+    i {
+        color: #0e1b33;
+        font-style: normal;
+    }
+}
+
+.MediaInputWrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0 10px;
+
+    i {
+        color: #0e1b33;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    input {
+        flex: 1;
+        border: none;
+        padding: 8px 0;
+        font-size: 13px;
+        font-family: inherit;
+
+        &:focus {
+            outline: none;
+        }
+
+        &::placeholder {
+            color: #9ca3af;
+        }
+    }
+}
+
+
+.PlanMediaBlock {
+    margin: 4px 0 18px;
+}
+
+.PlanMediaList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.PlanMediaRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.PlanMediaFileLabel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+    max-width: 220px;
+    overflow: hidden;
+
+    &:hover {
+        border-color: #0e1b33;
+    }
+
+    input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    i {
+        color: #0e1b33;
+        flex-shrink: 0;
+    }
+
+    span {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.PlanMediaTextInput {
+    flex: 1;
+    min-width: 160px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+
+    &:focus {
+        outline: none;
+        border-color: #0e1b33;
+    }
+
+    &::placeholder {
+        color: #9ca3af;
+    }
+}

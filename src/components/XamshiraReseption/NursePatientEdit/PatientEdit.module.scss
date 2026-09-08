@@ -1,0 +1,276 @@
+.EditSection {
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.EditHeader {
+    margin-bottom: 24px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 5px;
+
+    h1 {
+        font-size: 22px;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #1b3050;
+
+        i {
+            color: #1b3050;
+        }
+    }
+
+    .PatientName {
+        font-size: 14px;
+        color: #888;
+        margin: 0;
+    }
+}
+
+.LoadingWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    gap: 16px;
+
+    p {
+        color: #888;
+        font-size: 14px;
+    }
+}
+
+.ErrorWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    gap: 16px;
+
+    i {
+        font-size: 44px;
+        color: #e53935;
+    }
+
+    p {
+        color: #666;
+        font-size: 15px;
+    }
+
+    button {
+        padding: 10px 22px;
+        background: linear-gradient(135deg, #FF8A3D, #FF6B35);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+
+        &:hover { opacity: 0.92; }
+    }
+}
+
+.SuccessAlert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #e9f7ef;
+    color: #17643c;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    animation: fadeSlide 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+
+    i {
+        font-size: 20px;
+    }
+}
+
+// FORMA
+
+.EditForm {
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+    animation: fadeSlide 0.3s ease;
+}
+
+// Har bir bo'lim (bemor / tashxis) alohida blok, orasida chiziq bilan ajratilgan
+
+.SectionBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding-bottom: 22px;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-of-type {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1b3050;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+
+        i {
+            font-size: 16px;
+        }
+    }
+}
+
+.Row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    .Input {
+        flex: 1;
+        min-width: 140px;
+    }
+}
+
+.Input {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    p {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1b3050;
+        margin: 0;
+    }
+
+    input, select, textarea {
+        border: 1.5px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 15px;
+        outline: none;
+        font-family: inherit;
+        transition: border-color 0.2s ease;
+        color: #1b3050;
+
+        &:focus {
+            border-color: #17643c;
+        }
+
+        &:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+        }
+    }
+
+    textarea {
+        resize: vertical;
+    }
+}
+
+.ErrorText {
+    color: #e53935;
+    font-size: 13px;
+}
+
+.ServerError {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #c0392b;
+    font-size: 14px;
+    background-color: #fdecea;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin: 0;
+}
+
+.ButtonRow {
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+
+    button {
+        flex: 1;
+        padding: 12px 20px;
+        border-radius: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        border: none;
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    }
+}
+
+.CancelBtn {
+    background: #f0f0f0;
+    color: #666;
+
+    &:hover:not(:disabled) {
+        background: #e0e0e0;
+    }
+}
+
+.SubmitBtn {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    // background: linear-gradient(135deg, #FF8A3D, #FF6B35);
+    color: #fff;
+    box-shadow: 0 6px 16px #4a7bb5;
+
+    &:hover:not(:disabled) {
+        opacity: 0.92;
+    }
+
+    &:disabled {
+        box-shadow: none;
+    }
+}
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 600px) {
+    .EditSection {
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .Row {
+        flex-direction: column;
+    }
+
+    .ButtonRow {
+        flex-direction: column;
+    }
+}

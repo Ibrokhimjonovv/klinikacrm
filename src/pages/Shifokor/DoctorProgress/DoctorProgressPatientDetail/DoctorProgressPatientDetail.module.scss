@@ -1,0 +1,789 @@
+$primary: #0e1b33;
+$primary-light: #16264a;
+$border: #e5e7eb;
+$text-muted: #6b7280;
+
+.State {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: $text-muted;
+}
+
+.DetailPage {
+    background: #fff;
+    border-radius: 20px;
+    // max-width: 1200px;
+    // margin: 0 auto;
+    width: 100%;
+}
+
+.BackBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-bottom: 16px;
+
+    &:hover {
+        color: $primary;
+    }
+}
+
+.Banner {
+    background: $primary;
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.BannerLeft {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h1 {
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 14px;
+        margin: 0;
+    }
+}
+
+.Avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.StatusPill {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.InfoRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 560px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.InfoCard {
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    i {
+        color: $primary;
+        font-size: 16px;
+    }
+
+    span {
+        display: block;
+        font-size: 12px;
+        color: $text-muted;
+        margin-bottom: 2px;
+    }
+
+    p,
+    .datt {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+}
+
+.PlansSection {
+    h2 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 14px;
+        color: #1a1a1a;
+    }
+}
+
+.Empty {
+    color: $text-muted;
+    font-size: 14px;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.FormError {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b91c1c;
+    font-size: 13px;
+    margin: 0 0 14px;
+}
+
+.PlansList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.PlanCard {
+    border: 1px solid $border;
+    border-radius: 14px;
+    padding: 20px;
+}
+
+.PlanCardHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.PlanCardHeadLeft {
+    h3 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 4px 0 0;
+        color: #1a1a1a;
+    }
+}
+
+.ComplaintLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: $text-muted;
+    margin: 0;
+
+    i {
+        color: $primary;
+    }
+}
+
+.PlanStats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+}
+
+.ProgressBarTrack {
+    flex: 1;
+    height: 7px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.ProgressBarFill {
+    height: 100%;
+    background: $primary;
+    border-radius: 10px;
+    transition: width 0.3s;
+}
+
+.ProgressPercent {
+    font-size: 12px;
+    font-weight: 600;
+    color: $primary;
+    white-space: nowrap;
+}
+
+.PlanDaysGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 12px;
+}
+
+.PlanDayCard {
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fafbfc;
+}
+
+.DayBadge {
+    display: inline-block;
+    background: $primary;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.CheckList {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.CheckboxRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #1f2937;
+    border: 1px solid #e5e7eb !important;
+    padding: 14px;
+    border-radius: 12px;
+
+    input[type="checkbox"] {
+        margin-top: 2px;
+        accent-color: $primary;
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+}
+
+.CheckedText {
+    color: $text-muted;
+    text-decoration: line-through;
+}
+
+.PlanDayNote {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: $text-muted;
+    font-style: italic;
+    border-top: 1px dashed $border;
+    padding-top: 8px;
+}
+
+.ComplaintsRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 22px;
+}
+
+.ComplaintChip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid $border;
+    border-radius: 20px;
+    padding: 6px 12px;
+    font-size: 12px;
+    color: #374151;
+    background: #fafbfc;
+}
+
+.StatusDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $primary;
+    flex-shrink: 0;
+
+    &.waiting {
+        background: #d97706;
+    }
+
+    &.in_progress {
+        background: #2563eb;
+    }
+
+    &.completed {
+        background: #059669;
+    }
+
+    &.cancelled {
+        background: #dc2626;
+    }
+}
+
+.PlanTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.PlanStatusBadge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+
+    &.watch {
+        background: #f0f0f0;
+        color: #888;
+    }
+
+    &.active {
+        background: #fff4e0;
+        color: #d99400;
+    }
+
+    &.done {
+        background: #d1fae5;
+        color: #047857;
+    }
+}
+
+.PlanMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: $text-muted;
+
+    span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    i {
+        color: $primary;
+    }
+}
+
+.PlanActions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 18px 20px;
+    margin-top: 4px;
+    border-top: 1px solid #eef1f5;
+}
+
+.EndPlanBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 10px 18px;
+    border: none;
+    border-radius: 10px;
+
+    background: #16a34a;
+    color: #fff;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    i {
+        font-size: 17px;
+    }
+
+    &:hover {
+        background: #15803d;
+        transform: translateY(-1px);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+
+    &:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        transform: none;
+    }
+}
+
+.EndedPlan {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 16px;
+    border-radius: 10px;
+
+    background: #ecfdf3;
+    color: #15803d;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    i {
+        font-size: 17px;
+    }
+}
+
+
+
+.EndConfirmBox {
+    text-align: center;
+    padding: 8px;
+    padding: 30px 20px;
+}
+
+.EndConfirmIcon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 26px;
+
+    &.Warning {
+        background: #fef3c7;
+        color: #b45309;
+    }
+
+    &.Success {
+        background: #d1fae5;
+        color: #047857;
+    }
+}
+
+.EndConfirmBox h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    color: #1a1a1a;
+}
+
+.EndConfirmBox p {
+    font-size: 14px;
+    color: #374151;
+    margin: 0 0 6px;
+    line-height: 1.5;
+}
+
+.EndConfirmSub {
+    color: $text-muted;
+    font-size: 13px !important;
+    margin-top: 10px !important;
+}
+
+.EndConfirmButtons {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+}
+
+.CancelBtn {
+    flex: 1;
+    background: #f3f4f6;
+    color: #374151;
+    border: none;
+    border-radius: 10px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background: #e5e7eb;
+    }
+}
+
+.ConfirmSuccessBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: $primary;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background: $primary-light;
+    }
+}
+
+.ConfirmWarningBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #d97706;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background: #b45309;
+    }
+}
+
+.MediaCard {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    background: #fafbfc;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.MediaCardDone {
+    border-color: #a7f3d0;
+    background: #f0fdf9;
+}
+
+.MediaCardTop {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.MediaCardIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #e5e7eb;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+
+    .MediaCardDone & {
+        background: #d1fae5;
+        color: #047857;
+    }
+}
+
+.MediaCardText {
+    flex: 1;
+    min-width: 0;
+}
+
+.MediaCardLabel {
+    margin: 0 0 2px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+
+    .MediaCardDone & {
+        color: #047857;
+    }
+}
+
+.MediaCardDesc {
+    margin: 0;
+    font-size: 13px;
+    color: #1f2937;
+    line-height: 1.4;
+}
+
+.MediaCardActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.MediaUploadBtn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0e1b33;
+    color: #fff;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+    
+    label {
+        border: 1px solid #e5e7eb !important;
+    }
+
+    &:hover {
+        background: #16264a;
+    }
+
+    input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+}
+
+.MediaUploadBtnSecondary {
+    background: #fff;
+    color: #0e1b33;
+    border: 1px solid #d1d5db;
+
+    &:hover {
+        background: #f3f4f6;
+    }
+}
+
+.MediaUploadBtnDisabled {
+    opacity: 0.6;
+    cursor: default;
+    pointer-events: none;
+}
+
+.MediaViewBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #0e1b33;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 7px 14px;
+    text-decoration: none;
+    transition: background 0.2s;
+
+    &:hover {
+        background: #f3f4f6;
+    }
+}
+
+.MediaCheckRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+    border-top: 1px dashed #e5e7eb;
+    padding-top: 10px;
+
+    input[type="checkbox"] {
+        accent-color: #0e1b33;
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+
+    i {
+        color: #047857;
+        margin-left: auto;
+    }
+}
+
+.MediaCheckRowDisabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    input[type="checkbox"] {
+        cursor: not-allowed;
+    }
+}
+
+.MediaCheckRowChecked {
+    color: #047857;
+    font-weight: 600;
+}
+
+.MediaPreviewModal {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.MediaPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 16px;
+}
+
+.TextTaskCard {
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 14px;
+    background: #fff;
+    transition: .2s;
+}
+
+.TextTaskCardDone {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.TextTaskStatus {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.TextTaskCardDone .TextTaskStatus {
+    color: #16a34a;
+}

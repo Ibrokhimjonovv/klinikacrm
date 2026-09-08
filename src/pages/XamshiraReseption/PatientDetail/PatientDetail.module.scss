@@ -1,0 +1,784 @@
+.VisitClickable {
+    cursor: pointer;
+
+    &:hover {
+        background-color: #f0f6f3 !important;
+    }
+}
+
+.VisitsCard {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.VisitsHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    h3 {
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #4e7bbe;
+    }
+
+    span {
+        font-size: 12px;
+        font-weight: 600;
+        color: #4a7bb5;
+        background-color: #eaf0f7;
+        padding: 4px 10px;
+        border-radius: 20px;
+    }
+}
+
+.AddVisitBtn {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    // background: linear-gradient(135deg, #FF8A3D, #FF6B35);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:hover {
+        opacity: 0.92;
+    }
+}
+
+.VisitMeta {
+    font-size: 12px;
+    color: #999;
+    display: block;
+    margin-top: 2px;
+}
+
+.VisitActions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.VisitEditBtn,
+.VisitDeleteBtn {
+    border: none;
+    background-color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.VisitEditBtn {
+    color: #4e7bbe;
+
+    &:hover {
+        background-color: #e9f7ef;
+    }
+}
+
+.VisitDeleteBtn {
+    color: #e53935;
+
+    &:hover {
+        background-color: #fdecea;
+    }
+}
+
+.VisitsLoading {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.VisitsError {
+    color: #e53935;
+    font-size: 14px;
+    text-align: center;
+    padding: 15px 0;
+}
+
+.Empty {
+    color: #999;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.VisitsList {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px;
+        border-radius: 10px;
+        background-color: #f9fbfa;
+
+        p {
+            font-size: 14px;
+            font-weight: 500;
+        }
+    }
+}
+
+.VisitLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.VisitNotes {
+    font-size: 12px;
+    color: #999;
+    display: block;
+    margin-top: 2px;
+}
+
+.VisitStatus {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+
+    &.waiting {
+        background-color: #f0f0f0;
+        color: #888;
+    }
+
+    &.in_progress {
+        background-color: #fff1e9;
+        color: #e0571f;
+    }
+
+    &.done {
+        background-color: #e9f7ef;
+        color: #17643c;
+    }
+}
+
+.VisitEditBtn {
+    border: none;
+    background-color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #4e7bbe;
+    flex-shrink: 0;
+
+    &:hover {
+        background-color: #eaf0f7;
+    }
+}
+
+.TopBar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+
+.BackBtn {
+    border: none;
+    background: transparent;
+    color: #666;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    width: fit-content;
+
+    .NotActive {
+        color: #9ba5b3;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    span {
+        font-weight: 500;
+    }
+
+
+    // &:hover { color: #17643c; }
+
+}
+
+
+.ActionButtons {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+
+}
+
+.DeleteBtn {
+    background: linear-gradient(135deg, #ff3d3d, #ff3535) !important;
+}
+
+.EditBtn,
+.DeleteBtn {
+    background: linear-gradient(135deg, rgb(231, 179, 82), rgb(255, 166, 0));
+    // background: linear-gradient(135deg, #FF8A3D, #FF6B35);
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.25);
+    transition: opacity 0.3s;
+
+    &:hover {
+        opacity: 0.92;
+    }
+}
+
+.LoadingWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 16px;
+
+    p {
+        color: #888;
+        font-size: 14px;
+    }
+}
+
+.NotFoundBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    gap: 16px;
+
+    i {
+        font-size: 48px;
+        color: #e53935;
+    }
+
+    p {
+        font-size: 18px;
+        color: #666;
+    }
+
+    button {
+        padding: 10px 24px;
+        background: #4a90d9;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+
+        &:hover {
+            background: #357abd;
+        }
+    }
+}
+
+.EditModal {
+    max-width: 750px;
+
+    :global(.modal-content) {
+        padding: 0;
+        background: transparent;
+    }
+}
+
+.DetailPage {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.DeleteConfirmation {
+    text-align: center;
+    padding: 50px 30px;
+    // max-width: 450px;
+
+    h2 {
+        margin-top: 18px;
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    p {
+        margin-top: 10px;
+        color: #6b7280;
+        line-height: 1.6;
+        font-size: 15px;
+    }
+
+    strong {
+        color: #111827;
+        font-weight: 700;
+    }
+}
+
+.DeleteIcon {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: linear-gradient(135deg,
+            rgba(239, 68, 68, 0.12),
+            rgba(239, 68, 68, 0.25));
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+        font-size: 40px;
+        color: #ef4444;
+    }
+}
+
+.WarningBox {
+    margin-top: 18px;
+    padding: 14px;
+    border-radius: 12px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+
+    i {
+        font-size: 22px;
+        color: #f97316;
+        flex-shrink: 0;
+    }
+
+    span {
+        font-size: 13px;
+        color: #9a3412;
+        line-height: 1.5;
+    }
+}
+
+.DeleteButtons {
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+}
+
+.CancelBtn,
+.ConfirmDeleteBtn {
+    cursor: pointer;
+    flex: 1;
+    height: 48px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+.CancelBtn {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #374151;
+
+    &:hover {
+        background: #f9fafb;
+    }
+}
+
+.ConfirmDeleteBtn {
+    border: none;
+    color: white;
+
+    background: linear-gradient(135deg,
+            #ef4444,
+            #dc2626);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 25px rgba(220, 38, 38, 0.25);
+    }
+}
+
+
+.HeaderCard {
+    background: linear-gradient(120deg, #1b3050 0%, #0e1b33 100%);
+    color: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    .StatusPill {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(255, 255, 255, 0.08);
+        padding: 8px 14px;
+        border-radius: 100px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        font-size: 12.5px;
+        color: #EAF3EC;
+
+        .StatusDot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #4e7bbe;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+        }
+    }
+}
+
+.HeaderLeft {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    h1 {
+        font-size: 20px;
+        text-transform: capitalize;
+    }
+
+    p {
+        font-size: 13px;
+        color: #dcefe3;
+        margin-top: 3px;
+    }
+}
+
+.MiniInfos {
+
+    div {
+        display: flex;
+        gap: 5px;
+        margin-top: 5px;
+
+        p {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: rgba(244, 240, 230, 0.85);
+            padding: 4px 11px;
+            font-size: 12px;
+            border-radius: 100px;
+        }
+    }
+}
+
+.Avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.StatusWrap {
+    position: relative;
+}
+
+.StatusBadge {
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-weight: 500;
+    background-color: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    &.watch {
+        background-color: #fff4e0;
+        color: #d99400;
+    }
+
+    &.done {
+        background-color: #e0e0e0;
+        color: #555;
+    }
+}
+
+.StatusDropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+    z-index: 10;
+
+    button {
+        border: none;
+        background: transparent;
+        text-align: left;
+        padding: 9px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #333;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #f4f4f4;
+        }
+    }
+}
+
+.StatusOptionActive {
+    background-color: #e9f7ef !important;
+    color: #17643c !important;
+    font-weight: 600;
+}
+
+.InfoGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.InfoItem {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    i {
+        font-size: 18px;
+        color: #1b3050;
+    }
+
+    span {
+        font-size: 11px;
+        color: #999;
+    }
+
+    p, .datt {
+        color: #0e1b33;
+        font-size: 14px;
+        margin-top: 2px;
+    }
+}
+
+.MainGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.FormCard,
+.HistoryCard {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 20px;
+
+    h3 {
+        font-size: 15px;
+        margin-bottom: 15px;
+    }
+}
+
+.Input {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+
+    p {
+        font-size: 13px;
+        font-weight: 500;
+        color: #444;
+    }
+
+    input,
+    textarea {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 14px;
+        outline: none;
+        font-family: inherit;
+        resize: vertical;
+
+        &:focus {
+            border-color: #17643c;
+        }
+
+        &:disabled {
+            background-color: #f5f5f5;
+        }
+    }
+}
+
+.ErrorText {
+    color: #e53935;
+    font-size: 12px;
+}
+
+.SuccessText {
+    color: #17643c;
+    font-size: 13px;
+    background-color: #e9f7ef;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.SubmitBtn {
+    width: 100%;
+    background-color: #17643c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #124f30;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.EmptyHistory {
+    color: #999;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.HistoryCard ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-height: 420px;
+    overflow-y: auto;
+
+    li {
+        border-left: 3px solid #17643c;
+        padding-left: 12px;
+    }
+}
+
+.HistoryDate {
+    font-size: 12px;
+    color: #999;
+}
+
+.HistoryDiagnosis {
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 3px;
+}
+
+.HistoryTreatment {
+    font-size: 13px;
+    color: #555;
+    margin-top: 3px;
+}
+
+.HistoryNotes {
+    font-size: 12px;
+    color: #999;
+    margin-top: 3px;
+    font-style: italic;
+}
+
+.NotFoundBox {
+    text-align: center;
+    padding: 60px 0;
+
+    p {
+        margin-bottom: 15px;
+        color: #888;
+    }
+
+    button {
+        border: none;
+        background-color: #17643c;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+}
+
+@media (max-width: 900px) {
+    .InfoGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .MainGrid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,23 @@
+.EditVisitSection {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    min-width: 480px;
+}
+
+.SuccessAlert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #e9f7ef;
+    color: #17643c;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .EditVisitSection { min-width: unset; }
+}
