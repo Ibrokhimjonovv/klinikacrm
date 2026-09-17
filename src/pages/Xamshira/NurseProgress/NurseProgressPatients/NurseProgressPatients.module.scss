@@ -1,0 +1,776 @@
+$primary: #0e1b33;
+$border: #e8ebef;
+$text: #0e1b33;
+$muted: #8a919c;
+
+.PatientsPage {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.TopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: $text;
+    }
+
+    p {
+        margin: 5px 0 0;
+        color: $muted;
+        font-size: 13px;
+    }
+}
+
+/* =========================
+   SEARCH
+========================= */
+
+.SearchForm {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.SearchBox {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 10px;
+    
+    transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+    &:focus-within {
+        border-color: #9ca8b8;
+        box-shadow: 0 0 0 3px rgba(14, 27, 51, 0.05);
+    }
+    
+    > i {
+        color: #8c95a3;
+        font-size: 16px;
+        padding-left: 14px;
+    }
+    
+    input {
+        width: 100%;
+
+        border: none;
+        outline: none;
+        background: transparent;
+        
+        color: $text;
+        font-size: 14px;
+        padding: 12px 0 12px;
+
+        &::placeholder {
+            color: #a5abb4;
+        }
+    }
+}
+
+.ClearBtn {
+    width: 25px;
+    height: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #eef0f3;
+    color: #6d7480;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+
+    margin-right: 14px;
+
+    &:hover {
+        background: #e2e5e9;
+        color: $text;
+    }
+
+    i {
+        font-size: 10px;
+    }
+}
+
+.SearchBtn {
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 0 18px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: $primary;
+    color: #fff;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+
+    &:hover:not(:disabled) {
+        background: #182b4b;
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+/* =========================
+   SEARCH HINT
+========================= */
+
+.SearchHint {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    padding: 24px;
+
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 12px;
+}
+
+.HintIcon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+    background: #f1f4f8;
+    color: $primary;
+
+    i {
+        font-size: 21px;
+    }
+}
+
+.SearchHint {
+    h3 {
+        margin: 0;
+
+        color: $text;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    p {
+        margin: 5px 0 0;
+
+        color: $muted;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+}
+
+/* =========================
+   EMPTY
+========================= */
+
+.Empty {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    padding: 55px 20px;
+
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 12px;
+
+    text-align: center;
+
+    h3 {
+        margin: 14px 0 5px;
+
+        color: $text;
+        font-size: 16px;
+    }
+
+    p {
+        margin: 0;
+
+        color: $muted;
+        font-size: 13px;
+    }
+}
+
+.EmptyIcon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f2f3f5;
+    color: #858d98;
+
+    i {
+        font-size: 21px;
+    }
+}
+
+/* =========================
+   RESULTS
+========================= */
+
+.ResultsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ResultsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h2 {
+        margin: 0;
+
+        color: $text;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    p {
+        margin: 4px 0 0;
+
+        color: $muted;
+        font-size: 12px;
+    }
+}
+
+.SearchIdBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+
+    padding: 7px 11px;
+
+    border-radius: 7px;
+
+    background: #f2f4f7;
+    color: $primary;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ResultsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* =========================
+   TREATMENT CARD
+========================= */
+
+.TreatmentCard {
+    padding: 18px;
+
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 13px;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+
+    &:hover {
+        border-color: #d7dce2;
+        box-shadow: 0 5px 18px rgba(14, 27, 51, 0.06);
+        transform: translateY(-1px);
+    }
+}
+
+/* TOP */
+
+.CardTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-bottom: 14px;
+    border-bottom: 1px solid #f0f1f3;
+}
+
+.PlanId {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    span {
+        color: $muted;
+        font-size: 12px;
+    }
+
+    strong {
+        color: $text;
+        font-size: 13px;
+    }
+}
+
+.StatusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.StatusDot {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: currentColor;
+}
+
+.done {
+    background: #eaf7ef;
+    color: #187044;
+}
+
+.active {
+    background: #fff5df;
+    color: #c48600;
+}
+
+.waiting {
+    background: #f1f2f4;
+    color: #737b87;
+}
+
+/* DIAGNOSIS */
+
+.Diagnosis {
+    padding: 16px 0 13px;
+
+    .Label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        color: #8b929d;
+        font-size: 11px;
+        font-weight: 500;
+
+        i {
+            font-size: 12px;
+        }
+    }
+
+    h3 {
+        margin: 7px 0 0;
+
+        color: $text;
+        font-size: 15px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+}
+
+/* COMPLAINT */
+
+.Complaint {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 12px;
+
+    background: #f8f9fa;
+    border-radius: 8px;
+
+    .Label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        color: #8b929d;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+
+        i {
+            font-size: 11px;
+        }
+    }
+
+    p {
+        margin: 5px 0 0;
+
+        color: #394150;
+        font-size: 13px;
+    }
+}
+
+.ComplaintId {
+    flex-shrink: 0;
+
+    padding: 5px 8px;
+
+    background: #fff;
+    border: 1px solid #e6e8eb;
+    border-radius: 6px;
+
+    color: #69717d;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+/* FOOTER */
+
+.CardFooter {
+    display: flex;
+    align-items: center;
+
+    gap: 18px;
+
+    padding-top: 14px;
+}
+
+.Doctor {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    flex: 1;
+}
+
+.DoctorIcon {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: #f1f3f6;
+    color: $primary;
+
+    i {
+        font-size: 14px;
+    }
+}
+
+.Doctor {
+    div:last-child {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    span {
+        color: #9aa1ab;
+        font-size: 10px;
+    }
+
+    strong {
+        color: $text;
+        font-size: 12px;
+        font-weight: 600;
+    }
+}
+
+.Date {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    color: #7d8590;
+    font-size: 11px;
+
+    i {
+        font-size: 11px;
+    }
+}
+
+.OpenIcon {
+    width: 30px;
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 7px;
+
+    background: #f4f5f7;
+    color: #89919c;
+
+    transition: 0.2s;
+
+    i {
+        font-size: 12px;
+    }
+}
+
+.TreatmentCard:hover {
+    .OpenIcon {
+        background: $primary;
+        color: #fff;
+    }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 700px) {
+    .SearchForm {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .SearchBox {
+        max-width: none;
+    }
+
+    .SearchBtn {
+        width: 100%;
+    }
+
+    .ResultsHeader {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .Complaint {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .CardFooter {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .Doctor {
+        width: 100%;
+        flex: none;
+    }
+}
+
+$primary: #0e1b33;
+$border: #e5e7eb;
+$text-muted: #6b7280;
+
+.CardClickable {
+    cursor: pointer;
+}
+
+.PlanDetail {
+    border-top: 1px solid $border;
+    padding: 16px 18px;
+    background: #fafbfc;
+}
+
+.DetailEmpty {
+    color: $text-muted;
+    font-size: 13px;
+    text-align: center;
+    padding: 12px 0;
+    margin: 0;
+}
+
+.DetailError {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b91c1c;
+    font-size: 13px;
+    margin: 0;
+}
+
+.DaysGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 12px;
+}
+
+.DayCard {
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fff;
+}
+
+.DayBadge {
+    display: inline-block;
+    background: $primary;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.CheckList {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.CheckboxRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #1f2937;
+
+    input[type="checkbox"] {
+        margin-top: 2px;
+        accent-color: $primary;
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        cursor: pointer;
+    }
+}
+
+.CheckedText {
+    color: $text-muted;
+    text-decoration: line-through;
+}
+
+.DayNote {
+    margin: 10px 0 0;
+    font-size: 11px;
+    color: $text-muted;
+    font-style: italic;
+    border-top: 1px dashed $border;
+    padding-top: 8px;
+}
+
+
+.MedicinesBlock {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed $border;
+}
+
+.MedicinesTitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: $muted;
+    margin: 0 0 8px;
+
+    i {
+        color: $primary;
+    }
+}
+
+.MedicinesList {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+    }
+}
+
+.MedName {
+    flex: 1;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.MedQty {
+    color: $muted;
+    white-space: nowrap;
+    font-size: 11px;
+}
+
+.MedTotal {
+    font-weight: 700;
+    color: $primary;
+    white-space: nowrap;
+}
+
+.MedicinesDayTotal {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a1a1a;
+    padding-top: 6px;
+    border-top: 1px solid $border;
+}

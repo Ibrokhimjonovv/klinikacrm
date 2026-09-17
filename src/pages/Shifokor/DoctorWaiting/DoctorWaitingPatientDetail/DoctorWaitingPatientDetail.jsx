@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import s from './DoctorWaitingPatientDetail.module.scss';
 import { api } from '../../../../App';
 import DateTimeFormatter from '../../../../components/shared/DateTimeFormatter/DateTimeFormatter';
 import { useAppContext } from '../../../../context/context';
+
+import Select from 'react-select';
 
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
@@ -22,8 +24,22 @@ const authHeaders = (token) => ({
     'Authorization': `Bearer ${token}`,
 })
 
-const makeEmptyItem = (nextId) => ({ id: nextId(), type: 'text', text: '' })
-const makeEmptyMedia = (nextId) => ({ id: nextId(), file: null, media_text: '' })
+// ---- MOCK NARXNOMA (backend tayyor bo'lgach, GET /servicePrices/ dan keladi) ----
+// const SERVICE_PRICES = [
+//     { id: 1, name: "Shifokor ko'rigi (konsultatsiya)", category: 'consultation', price: 50000 },
+//     { id: 2, name: 'Ukol qilish', category: 'procedure', price: 15000 },
+//     { id: 3, name: 'Sinepar tabletkasi', category: 'medicine', price: 8000 },
+//     { id: 4, name: 'Fizioterapiya seansi', category: 'procedure', price: 25000 },
+//     { id: 5, name: 'Rentgen surati', category: 'diagnostics', price: 40000 },
+//     { id: 6, name: 'Vitamin kompleksi', category: 'medicine', price: 12000 },
+// ]
+
+// const CONSULTATION_SERVICE = SERVICE_PRICES.find(sp => sp.category === 'consultation')
+
+const CONSULTATION_PRICE = 50000
+const formatSum = (n) => Math.round(n).toLocaleString('uz-UZ') + " so'm"
+
+const makeEmptyItem = (nextId) => ({ id: nextId(), type: 'text', text: '', servicePriceId: '', quantity: 1 })
 
 const DoctorWaitingPatientDetail = () => {
     const { id } = useParams()
@@ -39,7 +55,6 @@ const DoctorWaitingPatientDetail = () => {
     const [selectedComplaintId, setSelectedComplaintId] = useState(null)
     const [planDiagnosis, setPlanDiagnosis] = useState('')
 
-    // ---- Tashxisga tegishli media + izoh (kunlik rejadan mustaqil) ----
     const [planMedia, setPlanMedia] = useState([])
 
     const [planMode, setPlanMode] = useState('same')
@@ -53,6 +68,43 @@ const DoctorWaitingPatientDetail = () => {
     const [planSaving, setPlanSaving] = useState(false)
     const [planError, setPlanError] = useState('')
     const [planSuccess, setPlanSuccess] = useState(false)
+
+    const [medicines, setMedicines] = useState([])
+    const [medicinesLoading, setMedicinesLoading] = useState(true)
+
+
+    const fetchMedicines = async () => {
+        try {
+            setMedicinesLoading(true)
+            const token = localStorage.getItem('hospital_access')
+            const res = await fetch(`${api}/medicine/`, {
+                method: 'GET',
+                headers: authHeaders(token),
+            })
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+            const data = await res.json()
+            const list = Array.isArray(data) ? data : data.results || []
+            setMedicines(
+                list
+                    .filter(m => m.is_active)
+                    .map(m => ({
+                        id: m.id,
+                        name: m.name,
+                        description: m.description,
+                        price: Number(m.price),
+                    }))
+            )
+        } catch (err) {
+            console.error('Dorilar ro\'yxatini olishda xatolik:', err)
+        } finally {
+            setMedicinesLoading(false)
+        }
+    }
+
+    useEffect(() => {
+        fetchPatient()
+        fetchMedicines()
+    }, [id])
 
     const fetchPatient = async () => {
         try {
@@ -100,7 +152,8 @@ const DoctorWaitingPatientDetail = () => {
     }
 
     // ---- Tashxis media handlerlari ----
-    const addPlanMedia = () => setPlanMedia(prev => [...prev, makeEmptyMedia(nextId)])
+    const makeEmptyMedia = () => ({ id: nextId(), file: null, media_text: '' })
+    const addPlanMedia = () => setPlanMedia(prev => [...prev, makeEmptyMedia()])
     const removePlanMedia = (mediaId) => setPlanMedia(prev => prev.filter(m => m.id !== mediaId))
     const updatePlanMediaText = (mediaId, text) =>
         setPlanMedia(prev => prev.map(m => m.id === mediaId ? { ...m, media_text: text.slice(0, 50) } : m))
@@ -114,6 +167,10 @@ const DoctorWaitingPatientDetail = () => {
         setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, text } : it))
     const updateSameItemType = (itemId, type) =>
         setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, type, text: '' } : it))
+    const updateSameItemService = (itemId, servicePriceId) =>
+        setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, servicePriceId } : it))
+    const updateSameItemQuantity = (itemId, quantity) =>
+        setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, quantity: Math.max(1, Number(quantity) || 1) } : it))
 
     // ---- "Alohida" rejimi ----
     const addDay = () => setPlanDays(prev => [...prev, { id: nextId(), items: [makeEmptyItem(nextId)], note: '' }])
@@ -134,9 +191,71 @@ const DoctorWaitingPatientDetail = () => {
             ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, type, text: '' } : it) }
             : d
     ))
+    const updateItemService = (dayId, itemId, servicePriceId) => setPlanDays(prev => prev.map(d =>
+        d.id === dayId
+            ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, servicePriceId } : it) }
+            : d
+    ))
+    const updateItemQuantity = (dayId, itemId, quantity) => setPlanDays(prev => prev.map(d =>
+        d.id === dayId
+            ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, quantity: Math.max(1, Number(quantity) || 1) } : it) }
+            : d
+    ))
     const updateDayNote = (dayId, note) => setPlanDays(prev => prev.map(d => d.id === dayId ? { ...d, note } : d))
 
     const isItemFilled = (item) => !!item.text.trim()
+
+    // ---- JONLI NARX HISOBLASH ----
+    const priceSummary = useMemo(() => {
+        const consultationPrice = CONSULTATION_PRICE
+        let itemsTotal = 0
+        const breakdown = []
+
+        const collectFromItems = (itemsArr, multiplier = 1) => {
+            itemsArr.forEach(it => {
+                const medicine = medicines.find(m => m.id === Number(it.servicePriceId))
+                if (medicine) {
+                    const lineTotal = medicine.price * (it.quantity || 1) * multiplier
+                    itemsTotal += lineTotal
+                    breakdown.push({
+                        text: it.text,
+                        medicineName: medicine.name,
+                        serviceName: medicine.name,
+                        quantity: it.quantity || 1,
+                        unitPrice: medicine.price,
+                        multiplier,
+                        lineTotal,
+                    })
+                }
+            })
+        }
+
+        if (planMode === 'same') {
+            const count = Number(sameDayCount) || 0
+            collectFromItems(sameItems, count)
+        } else {
+            planDays.forEach(day => collectFromItems(day.items, 1))
+        }
+
+        return {
+            consultationPrice,
+            itemsTotal,
+            grandTotal: consultationPrice + itemsTotal,
+            breakdown,
+        }
+    }, [planMode, sameItems, sameDayCount, planDays, medicines])
+
+    const calculateDayPrice = (items) => {
+        return items.reduce((total, item) => {
+            const medicine = medicines.find(
+                m => m.id === Number(item.servicePriceId)
+            )
+
+            if (!medicine) return total
+
+            return total + (medicine.price * (item.quantity || 1))
+        }, 0)
+    }
 
     const handleSubmitPlan = async (e) => {
         e.preventDefault()
@@ -172,14 +291,21 @@ const DoctorWaitingPatientDetail = () => {
                 setPlanError("Kamida 1 ta band (dori/muolaja) kiritilishi shart")
                 return
             }
+            const dayPrice = calculateDayPrice(filledItems)
+
             daysPayload = Array.from({ length: count }, (_, i) => ({
                 day_number: i + 1,
                 note: sameNote,
+                price: dayPrice,
                 items: filledItems.map(it => ({
                     type: it.type,
                     text: it.text,
                     dif: it.type === 'media',
                 })),
+                medicines: filledItems.map(it => ({
+                    medicine: it.servicePriceId || null,
+                    quantity: it.quantity || 1,
+                }))
             }))
         } else {
             if (planDays.length === 0) {
@@ -191,27 +317,35 @@ const DoctorWaitingPatientDetail = () => {
                 setPlanError("Har bir kunda kamida 1 ta band bo'lishi shart")
                 return
             }
-            daysPayload = planDays.map((d, index) => ({
-                day_number: index + 1,
-                note: d.note,
-                items: d.items.filter(isItemFilled).map(it => ({
-                    type: it.type,
-                    text: it.text,
-                    dif: it.type === 'media',
-                })),
-            }))
+            daysPayload = planDays.map((d, index) => {
+                const filledItems = d.items.filter(isItemFilled)
+
+                return {
+                    day_number: index + 1,
+                    note: d.note,
+                    price: calculateDayPrice(filledItems),
+                    items: filledItems.map(it => ({
+                        type: it.type,
+                        text: it.text,
+                        dif: it.type === 'media',
+                    })),
+                    medicines: filledItems.map(it => ({
+                        medicine: it.servicePriceId || null,
+                        quantity: it.quantity || 1,
+                    }))
+                }
+            })
         }
 
-        setPlanSaving(true)
         setPlanSaving(true)
         try {
             const token = localStorage.getItem('hospital_access')
 
-            // 1-BOSQICH: reja JSON sifatida yuboriladi
             const payload = {
                 complaint: selectedComplaint.id,
                 diagnosis: planDiagnosis,
                 days: daysPayload,
+                total_price: priceSummary.grandTotal, // <-- backend tomonda ham qayta hisoblanishi tavsiya etiladi
             }
 
             const res = await fetch(`${api}/treatmentPlan/`, {
@@ -231,16 +365,12 @@ const DoctorWaitingPatientDetail = () => {
 
             const planId = data?.id || data?.data?.id
 
-            // 2-BOSQICH: barcha media fayllar BITTA so'rov orqali yuboriladi
             if (planId && filledMedia.length > 0) {
                 const mediaBody = new FormData()
                 filledMedia.forEach((m) => {
                     mediaBody.append('media', m.file)
                     mediaBody.append('media_text', m.media_text)
                 })
-
-                // console.log(`Media: ${m.file}\n Media text: ${m.media_text}`);
-                
 
                 const mediaRes = await fetch(`${api}/mediaTreatmentUpload/${planId}/`, {
                     method: 'PATCH',
@@ -267,55 +397,162 @@ const DoctorWaitingPatientDetail = () => {
     if (error) return <div className={s.State}><p>Xatolik: {error}</p></div>
     if (!patient) return null
 
-    const renderItemRow = (item, onTypeChange, onTextChange, onRemove, canRemove) => (
-        <div key={item.id} className={s.ItemRow}>
-            <div className={s.ItemTypeSwitch}>
-                <button
-                    type="button"
-                    className={item.type === 'text' ? s.ItemTypeActive : ''}
-                    onClick={() => onTypeChange('text')}
-                    disabled={planSaving}
-                >
-                    <i className="bi bi-fonts"></i> Matn
-                </button>
-                <button
-                    type="button"
-                    className={item.type === 'media' ? s.ItemTypeActive : ''}
-                    onClick={() => onTypeChange('media')}
-                    disabled={planSaving}
-                >
-                    <i className="bi bi-image"></i> Media
-                </button>
-            </div>
+    const renderItemRow = (item, onTypeChange, onTextChange, onServiceChange, onQuantityChange, onRemove, canRemove) => {
+        const medicine = medicines.find(m => m.id === Number(item.servicePriceId))
 
-            {item.type === 'text' ? (
-                <input
-                    type="text"
-                    placeholder="Masalan: Ertalab 10ml ukol"
-                    value={item.text}
-                    onChange={(e) => onTextChange(e.target.value)}
-                    disabled={planSaving}
-                />
-            ) : (
-                <div className={s.MediaInputWrap}>
-                    <i className="bi bi-image"></i>
+        return (
+            <div key={item.id} className={s.ItemRow}>
+                <div className={s.ItemTypeSwitch}>
+                    <button
+                        type="button"
+                        className={item.type === 'text' ? s.ItemTypeActive : ''}
+                        onClick={() => onTypeChange('text')}
+                        disabled={planSaving}
+                    >
+                        <i className="bi bi-fonts"></i> Matn
+                    </button>
+                    <button
+                        type="button"
+                        className={item.type === 'media' ? s.ItemTypeActive : ''}
+                        onClick={() => onTypeChange('media')}
+                        disabled={planSaving}
+                    >
+                        <i className="bi bi-image"></i> Media
+                    </button>
+                </div>
+
+                {item.type === 'text' ? (
                     <input
                         type="text"
-                        placeholder="Masalan: Tish rentgen surati yuklansin"
+                        placeholder="Masalan: Ertalab 10ml ukol"
                         value={item.text}
                         onChange={(e) => onTextChange(e.target.value)}
                         disabled={planSaving}
                     />
-                </div>
-            )}
+                ) : (
+                    <div className={s.MediaInputWrap}>
+                        <i className="bi bi-image"></i>
+                        <input
+                            type="text"
+                            placeholder="Masalan: Tish rentgen surati yuklansin"
+                            value={item.text}
+                            onChange={(e) => onTextChange(e.target.value)}
+                            disabled={planSaving}
+                        />
+                    </div>
+                )}
 
-            {canRemove && (
-                <button type="button" className={s.RemoveItemBtn} onClick={onRemove} disabled={planSaving}>
-                    <i className="bi bi-x"></i>
-                </button>
-            )}
-        </div>
-    )
+                {/* <select
+                    className={s.ServiceSelect}
+                    value={item.servicePriceId}
+                    onChange={(e) => onServiceChange(e.target.value)}
+                    disabled={planSaving || medicinesLoading}
+                >
+                    <option value="">
+                        {medicinesLoading ? 'Dorilar yuklanmoqda...' : 'Dori tanlanmagan'}
+                    </option>
+                    {medicines.map(m => (
+                        <option key={m.id} value={m.id}>
+                            {m.name} — {formatSum(m.price)}
+                        </option>
+                    ))}
+                </select> */}
+
+                <Select
+                    className={`${s.ServiceSelect} ${s.SearchInput}`}
+                    isDisabled={planSaving || medicinesLoading}
+                    placeholder={
+                        medicinesLoading
+                            ? "Dorilar yuklanmoqda..."
+                            : "Dorini qidiring..."
+                    }
+                    isSearchable
+                    options={medicines.map(m => ({
+                        value: m.id,
+                        label: `${m.name} — ${formatSum(m.price)}`
+                    }))}
+                    value={
+                        medicines
+                            .filter(m => String(m.id) === String(item.servicePriceId))
+                            .map(m => ({
+                                value: m.id,
+                                label: `${m.name} — ${formatSum(m.price)}`
+                            }))[0] || null
+                    }
+                    onChange={(selected) =>
+                        onServiceChange(selected ? selected.value : '')
+                    }
+                    noOptionsMessage={({ inputValue }) =>
+                        inputValue
+                            ? `"${inputValue}" bo'yicha dori topilmadi`
+                            : "Dorilar mavjud emas"
+                    }
+
+                    styles={{
+                        control: (base, state) => ({
+                            ...base,
+                            // minHeight: '48px',
+                            borderRadius: '8px',
+                            borderColor: state.isFocused ? '#e5e7eb' : '#e5e7eb',
+                            boxShadow: 'none',
+                            cursor: 'pointer',
+                            borderColor: '#e5e7eb',
+                            '&:hover': {
+                                borderColor: '#0e1b33',
+                            },
+                        }),
+
+                        option: (base, state) => ({
+                            ...base,
+                            backgroundColor: state.isSelected
+                                ? '#0e1b33'
+                                : state.isFocused
+                                    ? '#eff6ff'
+                                    : '#fff',
+                            color: state.isSelected ? '#fff' : '#111827',
+                            cursor: 'pointer',
+                            borderRadius: '0,'
+                        }),
+
+                        menu: (base) => ({
+                            ...base,
+                            borderRadius: '12px',
+                            overflow: 'hidden',
+                            zIndex: 9999,
+                        }),
+
+                        placeholder: (base) => ({
+                            ...base,
+                            color: '#9ca3af',
+                        }),
+
+                        singleValue: (base) => ({
+                            ...base,
+                            color: '#111827',
+                            fontWeight: 500,
+                        }),
+                    }}
+                />
+
+                {medicine && (
+                    <input
+                        type="number"
+                        min={1}
+                        className={s.QtyInput}
+                        value={item.quantity}
+                        onChange={(e) => onQuantityChange(e.target.value)}
+                        disabled={planSaving}
+                    />
+                )}
+
+                {canRemove && (
+                    <button type="button" className={s.RemoveItemBtn} onClick={onRemove} disabled={planSaving}>
+                        <i className="bi bi-x"></i>
+                    </button>
+                )}
+            </div>
+        )
+    }
 
     return (
         <div className={s.DetailPage}>
@@ -413,7 +650,6 @@ const DoctorWaitingPatientDetail = () => {
                         />
                     </div>
 
-                    {/* ---- Tashxisga tegishli media + izoh ---- */}
                     <div className={s.PlanMediaBlock}>
                         <div className={s.DaysHead}>
                             <label>Tashxis uchun media va izoh (ixtiyoriy)</label>
@@ -494,6 +730,8 @@ const DoctorWaitingPatientDetail = () => {
                                     item,
                                     (type) => updateSameItemType(item.id, type),
                                     (text) => updateSameItemText(item.id, text),
+                                    (sid) => updateSameItemService(item.id, sid),
+                                    (qty) => updateSameItemQuantity(item.id, qty),
                                     () => removeSameItem(item.id),
                                     sameItems.length > 1
                                 ))}
@@ -539,6 +777,8 @@ const DoctorWaitingPatientDetail = () => {
                                                 item,
                                                 (type) => updateItemType(day.id, item.id, type),
                                                 (text) => updateItemText(day.id, item.id, text),
+                                                (sid) => updateItemService(day.id, item.id, sid),
+                                                (qty) => updateItemQuantity(day.id, item.id, qty),
                                                 () => removeItem(day.id, item.id),
                                                 day.items.length > 1
                                             ))}
@@ -561,6 +801,43 @@ const DoctorWaitingPatientDetail = () => {
                         </>
                     )}
 
+                    {/* ---- JONLI NARX XULOSASI ---- */}
+                    <div className={s.PriceSummaryBox}>
+                        <div className={s.PriceSummaryHead}>
+                            <i className="bi bi-receipt"></i>
+                            <span>Hisob-kitob</span>
+                        </div>
+
+                        <div className={s.PriceLine}>
+                            <span>Shifokor ko'rigi</span>
+                            <span>{formatSum(priceSummary.consultationPrice)}</span>
+                        </div>
+
+                        {priceSummary.breakdown.length > 0 && (
+                            <>
+                                <div className={s.PriceDivider}>Muolaja / dori-darmon</div>
+                                {priceSummary.breakdown.map((row, i) => (
+                                    <div key={i} className={s.PriceLine}>
+                                        <span>
+                                            {row.medicineName}
+                                            {/* - {row.text} */}
+                                            <em>
+                                                {row.quantity} dona × {formatSum(row.unitPrice)}
+                                                {row.multiplier > 1 && ` × ${row.multiplier} kun`}
+                                            </em>
+                                        </span>
+                                        <span>{formatSum(row.lineTotal)}</span>
+                                    </div>
+                                ))}
+                            </>
+                        )}
+
+                        <div className={s.PriceGrandTotal}>
+                            <span>Umumiy summa</span>
+                            <span>{formatSum(priceSummary.grandTotal)}</span>
+                        </div>
+                    </div>
+
                     {planError && <p className={s.FormError}><i className="bi bi-exclamation-circle-fill"></i> {planError}</p>}
                     {planSuccess && (
                         <p className={s.FormSuccess}>
@@ -570,7 +847,7 @@ const DoctorWaitingPatientDetail = () => {
                     )}
 
                     <button type="submit" className={s.SubmitPlanBtn} disabled={planSaving}>
-                        {planSaving ? 'Saqlanmoqda...' : "Davolash rejasini saqlash"}
+                        {planSaving ? 'Saqlanmoqda...' : `Rejani saqlash`}
                     </button>
                 </form>
             )}

@@ -1,0 +1,1254 @@
+$primary: #0e1b33;
+$primary-light: #16264a;
+
+$border: #e5e7eb;
+
+$text: #1f2937;
+$text-muted: #6b7280;
+
+$success: #059669;
+$success-light: #ecfdf5;
+
+$warning: #d97706;
+$warning-light: #fffbeb;
+
+$danger: #dc2626;
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+.State {
+    min-height: 300px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    color: $text-muted;
+
+    font-size: 14px;
+
+    p {
+        margin: 0;
+    }
+}
+
+.StateSpinner,
+.SmallSpinner {
+    width: 20px;
+    height: 20px;
+
+    border: 2px solid #e5e7eb;
+    border-top-color: $primary;
+
+    border-radius: 50%;
+
+    animation: spin 0.7s linear infinite;
+}
+
+.StateSpinner {
+    width: 26px;
+    height: 26px;
+}
+
+.ErrorStateIcon {
+    width: 44px;
+    height: 44px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #fef2f2;
+    color: $danger;
+
+    font-size: 20px;
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.DetailPage {
+    width: 100%;
+
+    background: #fff;
+
+    border-radius: 20px;
+}
+
+
+/* =========================================================
+   BACK
+========================================================= */
+
+.BackBtn {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 4px 0;
+    margin-bottom: 16px;
+
+    border: none;
+    background: transparent;
+
+    color: $text-muted;
+
+    font-size: 14px;
+
+    cursor: pointer;
+
+    transition: color 0.2s ease;
+
+    &:hover {
+        color: $primary;
+    }
+
+    i {
+        font-size: 16px;
+    }
+}
+
+
+/* =========================================================
+   PATIENT BANNER
+========================================================= */
+
+.Banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 20px 24px;
+
+    margin-bottom: 20px;
+
+    border-radius: 14px;
+
+    background: $primary;
+}
+
+.BannerLeft {
+    display: flex;
+    align-items: center;
+
+    gap: 16px;
+
+    min-width: 0;
+
+    h1 {
+        margin: 0 0 4px;
+
+        color: #fff;
+
+        font-size: 22px;
+        font-weight: 700;
+
+        line-height: 1.35;
+    }
+
+    p {
+        display: flex;
+        align-items: center;
+
+        gap: 5px;
+
+        margin: 0;
+
+        color: rgba(255, 255, 255, 0.65);
+
+        font-size: 14px;
+    }
+}
+
+.Avatar {
+    width: 52px;
+    height: 52px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.15);
+
+    color: #fff;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.StatusPill {
+    flex-shrink: 0;
+
+    display: inline-flex;
+    align-items: center;
+
+    padding: 6px 14px;
+
+    border-radius: 20px;
+
+    background: rgba(255, 255, 255, 0.15);
+
+    color: #fff;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   PATIENT INFO
+========================================================= */
+
+.InfoRow {
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+    gap: 14px;
+
+    margin-bottom: 20px;
+}
+
+.InfoCard {
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    border: 1px solid $border;
+    border-radius: 12px;
+
+    background: #fff;
+
+    i {
+        flex-shrink: 0;
+
+        color: $primary;
+
+        font-size: 16px;
+    }
+
+    span {
+        display: block;
+
+        margin-bottom: 2px;
+
+        color: $text-muted;
+
+        font-size: 12px;
+    }
+
+    p,
+    .datt {
+        margin: 0;
+
+        color: #1a1a1a;
+
+        font-size: 14px;
+        font-weight: 600;
+
+        line-height: 1.4;
+    }
+}
+
+
+/* =========================================================
+   NURSE NOTICE
+========================================================= */
+
+.NurseNotice {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 14px 16px;
+
+    margin-bottom: 24px;
+
+    border: 1px solid #dbeafe;
+    border-radius: 12px;
+
+    background: #eff6ff;
+
+    color: #1e40af;
+}
+
+.NurseNoticeIcon {
+    width: 30px;
+    height: 30px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: #dbeafe;
+
+    font-size: 15px;
+}
+
+.NurseNotice {
+    strong {
+        display: block;
+
+        margin-bottom: 3px;
+
+        color: #1e3a8a;
+
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    p {
+        margin: 0;
+
+        color: #3b82f6;
+
+        font-size: 12px;
+        line-height: 1.55;
+
+        b {
+            color: #1d4ed8;
+        }
+    }
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.PlansSection {
+    h2 {
+        margin: 0;
+
+        color: #1a1a1a;
+
+        font-size: 17px;
+        font-weight: 700;
+    }
+}
+
+.SectionHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin-bottom: 16px;
+
+    p {
+        margin: 4px 0 0;
+
+        color: $text-muted;
+
+        font-size: 12px;
+    }
+}
+
+.TotalPlans {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 7px 12px;
+
+    border-radius: 20px;
+
+    background: #f3f4f6;
+
+    color: $primary;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    white-space: nowrap;
+
+    i {
+        font-size: 14px;
+    }
+}
+
+
+/* =========================================================
+   ERROR / EMPTY
+========================================================= */
+
+.FormError {
+    display: flex;
+    align-items: center;
+
+    gap: 7px;
+
+    margin: 0 0 14px;
+
+    color: #b91c1c;
+
+    font-size: 13px;
+}
+
+.Empty {
+    min-height: 100px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 10px;
+
+    color: $text-muted;
+
+    font-size: 13px;
+}
+
+.EmptyBox {
+    padding: 40px 20px;
+
+    border: 1px dashed $border;
+    border-radius: 14px;
+
+    text-align: center;
+
+    background: #fafbfc;
+
+    h3 {
+        margin: 10px 0 5px;
+
+        color: #374151;
+
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    p {
+        max-width: 400px;
+
+        margin: 0 auto;
+
+        color: $text-muted;
+
+        font-size: 13px;
+        line-height: 1.5;
+    }
+}
+
+.EmptyIcon {
+    width: 48px;
+    height: 48px;
+
+    margin: 0 auto;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f3f4f6;
+
+    color: #9ca3af;
+
+    font-size: 20px;
+}
+
+
+/* =========================================================
+   PLANS
+========================================================= */
+
+.PlansList {
+    display: flex;
+    flex-direction: column;
+
+    gap: 16px;
+}
+
+.PlanCard {
+    overflow: hidden;
+
+    border: 1px solid $border;
+    border-radius: 14px;
+
+    background: #fff;
+}
+
+
+/* =========================================================
+   PLAN HEADER
+========================================================= */
+
+.PlanHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    padding: 20px;
+
+    border-bottom: 1px solid #eef1f5;
+}
+
+.PlanHeaderInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.PlanTitleRow {
+    display: flex;
+    align-items: center;
+
+    gap: 10px;
+
+    flex-wrap: wrap;
+
+    h3 {
+        margin: 0;
+
+        color: #1a1a1a;
+
+        font-size: 16px;
+        font-weight: 700;
+
+        line-height: 1.4;
+    }
+}
+
+.PlanStatusBadge {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 3px 10px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    &.watch {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    &.active {
+        background: #fff4e0;
+        color: #d99400;
+    }
+
+    &.done {
+        background: #d1fae5;
+        color: #047857;
+    }
+}
+
+.PlanMeta {
+    display: flex;
+    flex-wrap: wrap;
+
+    gap: 12px;
+
+    margin-top: 8px;
+
+    color: $text-muted;
+
+    font-size: 12px;
+
+    span {
+        display: inline-flex;
+        align-items: center;
+
+        gap: 5px;
+    }
+
+    i {
+        color: $primary;
+    }
+}
+
+
+/* =========================================================
+   PLAN PROGRESS
+========================================================= */
+
+.PlanProgress {
+    width: 220px;
+
+    flex-shrink: 0;
+}
+
+.ProgressInfo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 6px;
+
+    color: $text-muted;
+
+    font-size: 11px;
+
+    strong {
+        color: $primary;
+
+        font-size: 12px;
+    }
+}
+
+.ProgressBarTrack {
+    width: 100%;
+    height: 7px;
+
+    overflow: hidden;
+
+    border-radius: 10px;
+
+    background: #e5e7eb;
+}
+
+.ProgressBarFill {
+    height: 100%;
+
+    border-radius: 10px;
+
+    background: $primary;
+
+    transition: width 0.3s ease;
+}
+
+.PlanProgress small {
+    display: block;
+
+    margin-top: 5px;
+
+    color: #9ca3af;
+
+    font-size: 10px;
+
+    text-align: right;
+}
+
+
+/* =========================================================
+   DAYS GRID
+========================================================= */
+
+.PlanDaysGrid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fill, minmax(320px, 1fr));
+
+    gap: 12px;
+
+    padding: 16px 20px 20px;
+}
+
+.PlanDayCard {
+    padding: 14px;
+
+    border: 1px solid $border;
+    border-radius: 10px;
+
+    background: #fafbfc;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.PlanDayFinished {
+    border-color: #a7f3d0;
+
+    background: #f0fdf9;
+}
+
+.DayHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 10px;
+}
+
+.DayBadge {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 4px 12px;
+
+    border-radius: 20px;
+
+    background: $primary;
+
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.DayProgress {
+    color: $text-muted;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   CHECK LIST
+========================================================= */
+
+.CheckList {
+    display: flex;
+    flex-direction: column;
+
+    gap: 8px;
+
+    padding: 0;
+    margin: 0;
+
+    list-style: none;
+
+    li {
+        margin: 0;
+        padding: 0;
+    }
+}
+
+
+/* =========================================================
+   TREATMENT ITEM
+========================================================= */
+
+.TreatmentItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 14px;
+
+    padding: 12px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+
+    background: #fff;
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.TreatmentItemDone {
+    border-color: #a7f3d0;
+
+    background: #f0fdf9;
+}
+
+.TreatmentItemMain {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    min-width: 0;
+
+    flex: 1;
+}
+
+.TreatmentIcon {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #f1f5f9;
+
+    color: #64748b;
+
+    font-size: 15px;
+}
+
+.TreatmentIconDone {
+    background: #d1fae5;
+
+    color: #047857;
+}
+
+.TreatmentContent {
+    min-width: 0;
+    flex: 1;
+}
+
+.TreatmentText {
+    margin: 0;
+
+    color: #1f2937;
+
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.TreatmentItemDone .TreatmentText {
+    color: #047857;
+
+    font-weight: 600;
+}
+
+.CheckedBy {
+    display: flex;
+    align-items: center;
+
+    gap: 5px;
+
+    margin: 5px 0 0;
+
+    color: #059669;
+
+    font-size: 10px;
+
+    i {
+        font-size: 11px;
+    }
+}
+
+
+/* =========================================================
+   TREATMENT ACTION
+========================================================= */
+
+.TreatmentAction {
+    flex-shrink: 0;
+}
+
+.MarkDoneBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    min-height: 34px;
+
+    padding: 0 12px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: $primary;
+
+    color: #fff;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+
+    &:hover:not(:disabled) {
+        background: $primary-light;
+
+        transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+
+        cursor: not-allowed;
+    }
+
+    i {
+        font-size: 14px;
+    }
+}
+
+.DoneBadge {
+    display: inline-flex;
+    align-items: center;
+
+    gap: 5px;
+
+    min-height: 34px;
+
+    padding: 0 12px;
+
+    border-radius: 8px;
+
+    background: #d1fae5;
+
+    color: #047857;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    white-space: nowrap;
+
+    i {
+        font-size: 13px;
+    }
+}
+
+
+/* =========================================================
+   DAY NOTE
+========================================================= */
+
+.PlanDayNote {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 6px;
+
+    margin-top: 10px;
+
+    padding-top: 9px;
+
+    border-top: 1px dashed $border;
+
+    color: $text-muted;
+
+    font-size: 11px;
+    font-style: italic;
+
+    line-height: 1.45;
+
+    i {
+        flex-shrink: 0;
+
+        color: $primary;
+
+        font-style: normal;
+    }
+}
+
+
+/* =========================================================
+   CONFIRM MODAL
+========================================================= */
+
+.ConfirmBox {
+    padding: 30px 20px;
+
+    text-align: center;
+}
+
+.ConfirmIcon {
+    width: 56px;
+    height: 56px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 16px;
+
+    border-radius: 50%;
+
+    background: #dbeafe;
+
+    color: #2563eb;
+
+    font-size: 25px;
+}
+
+.ConfirmBox h2 {
+    margin: 0 0 9px;
+
+    color: #1a1a1a;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.ConfirmBox > p {
+    margin: 0 0 12px;
+
+    color: #6b7280;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.ConfirmTask {
+    margin: 14px 0;
+
+    padding: 12px 14px;
+
+    border: 1px solid $border;
+    border-radius: 10px;
+
+    background: #f8fafc;
+
+    color: #374151;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    line-height: 1.5;
+
+    text-align: left;
+}
+
+.ConfirmWarning {
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 6px;
+
+    padding: 9px 10px;
+
+    border-radius: 8px;
+
+    background: #fffbeb;
+
+    color: #92400e !important;
+
+    font-size: 11px !important;
+
+    text-align: left;
+
+    i {
+        flex-shrink: 0;
+
+        margin-top: 1px;
+    }
+}
+
+.ConfirmButtons {
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 20px;
+}
+
+.CancelBtn,
+.ConfirmBtn {
+    flex: 1;
+
+    min-height: 40px;
+
+    border: none;
+    border-radius: 9px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+}
+
+.CancelBtn {
+    background: #f3f4f6;
+
+    color: #374151;
+
+    &:hover {
+        background: #e5e7eb;
+    }
+}
+
+.ConfirmBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 6px;
+
+    background: $success;
+
+    color: #fff;
+
+    &:hover {
+        background: #047857;
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+    .InfoRow {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .PlanHeader {
+        flex-direction: column;
+    }
+
+    .PlanProgress {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 700px) {
+    .Banner {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        padding: 18px;
+    }
+
+    .StatusPill {
+        align-self: flex-start;
+    }
+
+    .InfoRow {
+        grid-template-columns: 1fr;
+    }
+
+    .SectionHeader {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .TotalPlans {
+        align-self: flex-start;
+    }
+
+    .PlanDaysGrid {
+        grid-template-columns: 1fr;
+
+        padding: 12px;
+    }
+
+    .PlanHeader {
+        padding: 16px;
+    }
+}
+
+
+@media (max-width: 560px) {
+    .DetailPage {
+        border-radius: 14px;
+    }
+
+    .BannerLeft {
+        gap: 12px;
+
+        h1 {
+            font-size: 17px;
+        }
+
+        p {
+            font-size: 12px;
+        }
+    }
+
+    .Avatar {
+        width: 44px;
+        height: 44px;
+
+        font-size: 16px;
+    }
+
+    .TreatmentItem {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .TreatmentAction {
+        width: 100%;
+    }
+
+    .MarkDoneBtn,
+    .DoneBadge {
+        width: 100%;
+    }
+
+    .ConfirmButtons {
+        flex-direction: column;
+    }
+}
+
+
+@media (max-width: 400px) {
+    .PlanTitleRow {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 6px;
+    }
+
+    .InfoCard {
+        padding: 12px;
+    }
+
+    .TreatmentItem {
+        padding: 10px;
+    }
+}
+
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

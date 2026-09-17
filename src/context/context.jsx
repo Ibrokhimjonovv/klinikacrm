@@ -22,6 +22,13 @@ export function AppProvider({ children }) {
     all: 0,
   })
 
+  const [patientCounts, setPatientCounts] = useState({
+    waiting: 0,
+    process: 0,
+    done: 0,
+    all: 0,
+  })
+
   const fetchMe = async () => {
     const token = localStorage.getItem('hospital_access')
 
@@ -133,6 +140,42 @@ export function AppProvider({ children }) {
     }
   }, [])
 
+  const fetchPatientCounts = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('hospital_access')
+
+      const res = await fetch(
+        `${api}/patient/me/treatments/count/`,
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`)
+      }
+
+      const data = await res.json()
+
+      setPatientCounts({
+        waiting: data.waiting ?? 0,
+        process: data.in_progress ?? 0,
+        done: data.done ?? 0,
+        all: data.all ?? 0,
+      })
+
+    } catch (err) {
+      console.error(
+        "Bemor statistikalarini olishda xatolik:",
+        err
+      )
+    }
+  }, [])
+
   const addPatientLocally = useCallback((patientRaw) => {
     setPatients(prev => [formatPatient(patientRaw, prev.length), ...prev])
     setPatientsCount(prev => prev + 1)
@@ -151,10 +194,20 @@ export function AppProvider({ children }) {
     if (user?.role === 'Res Admin') {
       fetchPatientsCount()
     }
+
     if (user?.role === 'Doctor') {
       fetchDoctorCounts()
     }
-  }, [user, fetchPatientsCount, fetchDoctorCounts])
+
+    if (user?.role === 'Patient') {
+      fetchPatientCounts()
+    }
+  }, [
+    user,
+    fetchPatientsCount,
+    fetchDoctorCounts,
+    fetchPatientCounts,
+  ])
 
   useEffect(() => {
     let wasSmall = window.innerWidth < 1000
@@ -191,12 +244,15 @@ export function AppProvider({ children }) {
     patientsError,
     fetchPatients,
     addPatientLocally,
-    removePatientLocally, // <-- yangi
+    removePatientLocally,
     patientsCount,
     fetchPatientsCount,
 
     doctorCounts,
     fetchDoctorCounts,
+
+    patientCounts,
+    fetchPatientCounts,
   }
 
   return (

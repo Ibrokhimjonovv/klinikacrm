@@ -1,0 +1,632 @@
+$primary: #0e1b33;
+$primary-light: #16264a;
+$border: #e5e7eb;
+$text-muted: #6b7280;
+
+// ---- Umumiy holatlar ----
+
+.State {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: $text-muted;
+    font-size: 14px;
+}
+
+.Empty {
+    color: $text-muted;
+    font-size: 14px;
+    text-align: center;
+    padding: 30px 0;
+}
+
+// ---- Sahifa asosi ----
+
+.DetailPage {
+    background: #fff;
+    border-radius: 20px;
+    width: 100%;
+    padding-bottom: 40px;
+}
+
+.BackBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-bottom: 16px;
+
+    &:hover {
+        color: $primary;
+    }
+}
+
+// ---- Banner ----
+
+.Banner {
+    background: $primary;
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.BannerLeft {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h1 {
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 14px;
+        margin: 0;
+    }
+}
+
+.Avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.StatusPill {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+// ---- Info qatori ----
+
+.InfoRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    @media (max-width: 560px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.InfoCard {
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    i {
+        color: $primary;
+        font-size: 16px;
+    }
+
+    span {
+        display: block;
+        font-size: 12px;
+        color: $text-muted;
+        margin-bottom: 2px;
+    }
+
+    p, .datt {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+}
+
+// ---- Bo'limlar ----
+
+.PlansSection {
+    margin-bottom: 28px;
+
+    h2 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 14px;
+        color: #1a1a1a;
+    }
+}
+
+.PlansList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+// ---- Reja kartochkasi ----
+
+.PlanCard {
+    border: 1px solid $border;
+    border-radius: 14px;
+    padding: 20px;
+    background: #fff;
+}
+
+.PlanCardHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.PlanCardHeadLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.PlanTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    h3 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+        color: #1a1a1a;
+    }
+}
+
+.PlanStatusBadge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+
+    &.watch {
+        background: #f0f0f0;
+        color: #888;
+    }
+    &.active {
+        background: #fff4e0;
+        color: #d99400;
+    }
+    &.done {
+        background: #d1fae5;
+        color: #047857;
+    }
+}
+
+.PlanMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: $text-muted;
+
+    span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    i {
+        color: $primary;
+    }
+}
+
+.PlanStats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+}
+
+.ProgressBarTrack {
+    flex: 1;
+    height: 7px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.ProgressBarFill {
+    height: 100%;
+    background: $primary;
+    border-radius: 10px;
+    transition: width 0.3s;
+}
+
+.ProgressPercent {
+    font-size: 12px;
+    font-weight: 600;
+    color: $primary;
+    white-space: nowrap;
+}
+
+// ---- Kunlar ----
+
+.PlanDaysGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.PlanDayCard {
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 12px;
+    background: #fafbfc;
+}
+
+.DayBadge {
+    display: inline-block;
+    background: $primary;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.CheckList {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.PlanDayNote {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: $text-muted;
+    font-style: italic;
+    border-top: 1px dashed $border;
+    padding-top: 8px;
+}
+
+// ---- Galereya modal (overlay) ----
+
+.GalleryOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.GalleryBox {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.GalleryHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 18px;
+
+    h2 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 4px;
+        color: #1a1a1a;
+    }
+
+    p {
+        font-size: 12px;
+        color: $text-muted;
+        margin: 0;
+    }
+}
+
+.GalleryCloseBtn {
+    background: #f3f4f6;
+    border: none;
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #374151;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    &:hover {
+        background: #e5e7eb;
+    }
+}
+
+.GalleryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.GalleryItem {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    border: 1px solid $border;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+
+    &:hover {
+        border-color: $primary;
+    }
+}
+
+.GalleryThumb {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #f4f5f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    i {
+        font-size: 30px;
+        color: #dc2626;
+    }
+}
+
+.GalleryCaption {
+    margin: 0;
+    padding: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #1f2937;
+    text-align: center;
+}
+
+// ---- Sizda allaqachon bor bo'lgan qismlar ----
+
+.DiagnosisMediaBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(14, 27, 51, 0.06);
+    color: $primary;
+    border: none;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 6px 0;
+    width: fit-content;
+
+    &:hover {
+        background: rgba(14, 27, 51, 0.12);
+    }
+}
+
+.MediaCard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.MediaCardTop {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.MediaCardIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #e5e7eb;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+
+    .MediaCardDone & {
+        background: #d1fae5;
+        color: #047857;
+    }
+}
+
+.MediaCardText {
+    flex: 1;
+    min-width: 0;
+}
+
+.MediaCardLabel {
+    margin: 0 0 2px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+
+    .MediaCardDone & {
+        color: #047857;
+    }
+}
+
+.MediaCardDesc {
+    margin: 0;
+    font-size: 13px;
+    color: #1f2937;
+}
+
+.MediaViewBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: $primary;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 6px 12px;
+    text-decoration: none;
+    width: fit-content;
+
+    &:hover {
+        background: #f3f4f6;
+    }
+}
+
+.StatusRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #9ca3af;
+    border-top: 1px dashed $border;
+    padding-top: 8px;
+
+    i {
+        color: #d1d5db;
+    }
+}
+
+.StatusRowDone {
+    color: #047857;
+
+    i {
+        color: #047857 !important;
+    }
+}
+
+.MedicinesBlock {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed $border;
+}
+
+.MedicinesTitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: $text-muted;
+    margin: 0 0 8px;
+
+    i {
+        color: $primary;
+    }
+}
+
+.MedicinesList {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+    }
+}
+
+.MedName {
+    flex: 1;
+    color: #1f2937;
+    font-weight: 600;
+}
+
+.MedQty {
+    color: $text-muted;
+    white-space: nowrap;
+}
+
+.MedTotal {
+    font-weight: 700;
+    color: $primary;
+    white-space: nowrap;
+}
+
+.MedicinesDayTotal {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a1a1a;
+    padding-top: 6px;
+    border-top: 1px solid $border;
+}
+
+.PlanTotalBox {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    background: rgba(14, 27, 51, 0.06);
+
+    span:first-child {
+        font-size: 13px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    span:last-child {
+        font-size: 17px;
+        font-weight: 800;
+        color: $primary;
+    }
+}

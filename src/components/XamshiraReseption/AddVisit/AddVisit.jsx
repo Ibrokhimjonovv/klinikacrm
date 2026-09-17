@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import s from './AddVisit.module.scss';
 import { api } from '../../../App';
 import VisitForm from '../../shared/VisitForm/VisitForm';
+import PrintReceipt from '../../shared/PrintReceipt/PrintReceipt';
 
-const AddVisit = ({ patientId, onSuccess }) => {
+const AddVisit = ({ patientId, patientName, patientInfo = [], onSuccess }) => {
     const [formData, setFormData] = useState({
         doctors: [],
         complaint: '',
@@ -13,6 +14,9 @@ const AddVisit = ({ patientId, onSuccess }) => {
     const [errors, setErrors] = useState({});
     const [saving, setSaving] = useState(false);
     const [serverError, setServerError] = useState('');
+
+    const [finished, setFinished] = useState(false);
+    const [createdComplaintId, setCreatedComplaintId] = useState(null);
 
     const validate = () => {
         const newErrors = {};
@@ -30,12 +34,6 @@ const AddVisit = ({ patientId, onSuccess }) => {
         setSaving(true);
         try {
             const token = localStorage.getItem('hospital_access');
-            // const body = new FormData();
-            // body.append('patient', patientId);
-            // body.append('doctors', JSON.stringify(formData.doctors));
-            // body.append('complaint', formData.complaint);
-            // body.append('status', formData.status);
-            // body.append('notes', formData.notes);
 
             const res = await fetch(`${api}/medicalVisit/`, {
                 method: 'POST',
@@ -59,7 +57,9 @@ const AddVisit = ({ patientId, onSuccess }) => {
                 return;
             }
 
-            if (onSuccess) onSuccess();
+            // MUHIM: backend qaytargan shikoyat ID'sini saqlaymiz (chop etish uchun kerak)
+            setCreatedComplaintId(data?.id || data?.complaint?.id || data?.data?.id || null);
+            setFinished(true);
 
         } catch (err) {
             setServerError("Serverga ulanishda xatolik yuz berdi. Qaytadan urinib ko'ring.");
@@ -67,6 +67,50 @@ const AddVisit = ({ patientId, onSuccess }) => {
             setSaving(false);
         }
     };
+
+    const handlePrint = () => {
+        window.print();
+    };
+
+    if (finished) {
+        return (
+            <section className={s.AddVisitSection}>
+                <div className={s.CredentialsStep}>
+                    <div className={s.SuccessIcon}><i className="bi bi-check-circle-fill"></i></div>
+                    <h2>Shikoyat qo'shildi!</h2>
+                    <p className={s.CredentialsSub}>
+                        Bemorning yangi shikoyati muvaffaqiyatli saqlandi
+                    </p>
+
+                    {createdComplaintId && (
+                        <div className={s.PrintPreviewBox}>
+                            <p><strong>Shikoyat ID:</strong> #{createdComplaintId}</p>
+                            <p><strong>Shikoyat:</strong> {formData.complaint}</p>
+                        </div>
+                    )}
+
+                    <div className={s.FinishButtons}>
+                        <button type="button" className={s.PrintBtn} onClick={handlePrint}>
+                            <i className="bi bi-printer"></i> Chek chop etish
+                        </button>
+                        <button type="button" className={s.SubmitBtn} onClick={() => { if (onSuccess) onSuccess(); }}>
+                            Yopish
+                        </button>
+                    </div>
+                </div>
+
+                {/* CHOP ETISH UCHUN ALOHIDA SHABLON — ekranda ko'rinmaydi, faqat print paytida chiqadi */}
+                <PrintReceipt
+                    title="Yangi shikoyat varaqasi"
+                    patientName={patientName}
+                    patientInfo={patientInfo}   // ← YANGI
+                    complaintId={createdComplaintId}
+                    complaint={formData.complaint}
+                    notes={formData.notes}
+                />
+            </section>
+        );
+    }
 
     return (
         <section className={s.AddVisitSection}>

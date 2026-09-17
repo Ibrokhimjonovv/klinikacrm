@@ -40,6 +40,11 @@
     gap: 8px;
 
     li {
+        border-bottom: 1px solid #9999993a;
+
+        &:last-child {
+            border-bottom: none;
+        }
         a {
             display: flex;
             align-items: center;

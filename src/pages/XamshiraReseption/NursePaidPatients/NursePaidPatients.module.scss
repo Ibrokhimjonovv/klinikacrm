@@ -1,0 +1,710 @@
+$primary: #0e1b33;
+$border: #e8ebef;
+$text: #0e1b33;
+$muted: #8a919c;
+
+.PatientsPage {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.TopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: $text;
+    }
+
+    p {
+        margin: 5px 0 0;
+        color: $muted;
+        font-size: 13px;
+    }
+}
+
+/* =========================
+   SEARCH
+========================= */
+
+.SearchForm {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.SearchBox {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 10px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+    &:focus-within {
+        border-color: #9ca8b8;
+        box-shadow: 0 0 0 3px rgba(14, 27, 51, 0.05);
+    }
+
+    > i {
+        color: #8c95a3;
+        font-size: 16px;
+        padding-left: 14px;
+    }
+
+    input {
+        width: 100%;
+
+        border: none;
+        outline: none;
+        background: transparent;
+
+        color: $text;
+        font-size: 14px;
+        padding: 12px 0 12px;
+
+        &::placeholder {
+            color: #a5abb4;
+        }
+    }
+}
+
+.ClearBtn {
+    width: 25px;
+    height: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #eef0f3;
+    color: #6d7480;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+
+    margin-right: 14px;
+
+    &:hover {
+        background: #e2e5e9;
+        color: $text;
+    }
+
+    i {
+        font-size: 10px;
+    }
+}
+
+.SearchBtn {
+    height: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 0 18px;
+
+    border: none;
+    border-radius: 9px;
+
+    background: $primary;
+    color: #fff;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.15s ease;
+
+    &:hover:not(:disabled) {
+        background: #182b4b;
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+/* =========================
+   SEARCH HINT / EMPTY
+========================= */
+
+.SearchHint {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    padding: 24px;
+
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 12px;
+
+    h3 {
+        margin: 0;
+        color: $text;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    p {
+        margin: 5px 0 0;
+        color: $muted;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+}
+
+.HintIcon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 10px;
+    background: #f1f4f8;
+    color: $primary;
+
+    i {
+        font-size: 21px;
+    }
+}
+
+.Empty {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
+    padding: 55px 20px;
+
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 12px;
+
+    text-align: center;
+
+    h3 {
+        margin: 14px 0 5px;
+        color: $text;
+        font-size: 16px;
+    }
+
+    p {
+        margin: 0;
+        color: $muted;
+        font-size: 13px;
+    }
+}
+
+.EmptyIcon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f2f3f5;
+    color: #858d98;
+
+    i {
+        font-size: 21px;
+    }
+}
+
+/* =========================
+   RESULTS
+========================= */
+
+.ResultsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.ResultsHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    h2 {
+        margin: 0;
+        color: $text;
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    p {
+        margin: 4px 0 0;
+        color: $muted;
+        font-size: 12px;
+    }
+}
+
+.SearchIdBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+
+    padding: 7px 11px;
+
+    border-radius: 7px;
+
+    background: #f2f4f7;
+    color: $primary;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* =========================
+   STATUS BADGE (shared)
+========================= */
+
+.StatusBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.StatusDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.done {
+    background: #eaf7ef;
+    color: #187044;
+}
+
+.waiting {
+    background: #fff5df;
+    color: #c48600;
+}
+
+/* =========================
+   SUMMARY CARD
+========================= */
+
+.SummaryCard {
+    padding: 20px;
+
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 13px;
+}
+
+.SummaryTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    margin-bottom: 14px;
+}
+
+.ProgressBar {
+    width: 100%;
+    height: 8px;
+
+    background: #eef0f3;
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    margin-bottom: 18px;
+}
+
+.ProgressFill {
+    height: 100%;
+    background: #187044;
+    border-radius: 20px;
+    transition: width 0.3s ease;
+}
+
+.SummaryStats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.StatItem {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    padding: 12px;
+
+    background: #f8f9fa;
+    border-radius: 8px;
+
+    span {
+        color: #8b929d;
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    strong {
+        color: $text;
+        font-size: 14px;
+        font-weight: 700;
+    }
+}
+
+.PaidValue {
+    color: #187044 !important;
+}
+
+.RemainingValue {
+    color: #c4390d !important;
+}
+
+/* =========================
+   PAY BUTTONS / FORM
+========================= */
+
+.PayAllBtn,
+.PayDayBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 9px 14px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: $primary;
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: background 0.2s ease;
+
+    &:hover {
+        background: #182b4b;
+    }
+
+    i {
+        font-size: 13px;
+    }
+}
+
+.PayDayBtn {
+    width: 100%;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.PayForm {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    margin-top: 12px;
+    width: 100%;
+
+    select {
+        flex: 1;
+        min-width: 100px;
+
+        padding: 8px 10px;
+
+        border: 1px solid $border;
+        border-radius: 7px;
+
+        font-size: 12px;
+        color: $text;
+
+        background: #fff;
+    }
+}
+
+.ConfirmBtn {
+    padding: 8px 12px;
+
+    border: none;
+    border-radius: 7px;
+
+    background: #187044;
+    color: #fff;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+        background: #135c37;
+    }
+}
+
+.CancelBtn {
+    padding: 8px 12px;
+
+    border: 1px solid $border;
+    border-radius: 7px;
+
+    background: #fff;
+    color: #6d7480;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    &:hover:not(:disabled) {
+        background: #f4f5f7;
+    }
+}
+
+/* =========================
+   DAYS
+========================= */
+
+.DaysGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+}
+
+.DayCard {
+    padding: 16px;
+
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 12px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.DayCardTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f1f3;
+
+    margin-bottom: 12px;
+}
+
+.DayBadge {
+    display: inline-block;
+
+    background: $primary;
+    color: #fff;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.DayPriceRows,
+.DayPaidRows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.DayPaidRows {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed $border;
+}
+
+.PriceRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    font-size: 12px;
+
+    span {
+        color: $muted;
+    }
+
+    strong {
+        color: $text;
+        font-weight: 600;
+    }
+}
+
+.PriceRowTotal {
+    padding-top: 6px;
+    border-top: 1px solid #f0f1f3;
+
+    strong {
+        color: $primary;
+        font-weight: 700;
+    }
+}
+
+/* =========================
+   HISTORY
+========================= */
+
+.HistoryCard {
+    padding: 16px 18px;
+
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 12px;
+}
+
+.HistoryTitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    margin: 0 0 10px;
+
+    color: $muted;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+
+    i {
+        color: $primary;
+    }
+}
+
+.HistoryList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+
+        padding: 8px 0;
+
+        border-bottom: 1px solid #f4f5f7;
+
+        &:last-child {
+            border-bottom: none;
+        }
+    }
+}
+
+.HistoryAmount {
+    font-size: 13px;
+    font-weight: 700;
+    color: #187044;
+}
+
+.HistoryMethod {
+    font-size: 11px;
+    font-weight: 600;
+    color: $muted;
+    background: #f2f4f7;
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.HistoryDate {
+    font-size: 11px;
+    color: #9aa1ab;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 700px) {
+    .SearchForm {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .SearchBtn {
+        width: 100%;
+    }
+
+    .ResultsHeader {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .SummaryStats {
+        grid-template-columns: 1fr;
+    }
+
+    .SummaryTop {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .PayAllBtn {
+        justify-content: center;
+    }
+}

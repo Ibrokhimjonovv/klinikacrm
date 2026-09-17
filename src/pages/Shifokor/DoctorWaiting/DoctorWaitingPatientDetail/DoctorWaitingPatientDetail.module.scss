@@ -1004,3 +1004,120 @@ $success-bg: rgba(14, 27, 51, 0.06);
         color: #9ca3af;
     }
 }
+
+.ServiceSelect {
+    flex: 1;
+    min-width: 180px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    // background: #fff;
+    color: #374151;
+
+    &.SearchInput {
+        border: none;
+    }
+
+    &:focus {
+        outline: none;
+        border-color: $primary;
+    }
+}
+
+.QtyInput {
+    width: 55px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 6px;
+    font-size: 13px;
+    text-align: center;
+
+    &:focus {
+        outline: none;
+        border-color: $primary;
+    }
+}
+
+.PriceSummaryBox {
+    border: 1px solid $border;
+    border-radius: 14px;
+    padding: 18px;
+    margin: 20px 0;
+    background: #fafbfc;
+}
+
+.PriceSummaryHead {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+
+    i {
+        color: $primary;
+    }
+}
+
+.PriceLine {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 13px;
+    color: #374151;
+    padding: 6px 0;
+    gap: 10px;
+
+    span:first-child {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    span:last-child {
+        font-weight: 600;
+        color: #1a1a1a;
+        white-space: nowrap;
+    }
+
+    em {
+        font-style: normal;
+        font-size: 11px;
+        color: $text-muted;
+    }
+}
+
+.PriceDivider {
+    margin: 10px 0 2px;
+    padding-top: 10px;
+    border-top: 1px dashed $border;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: $text-muted;
+}
+
+.PriceGrandTotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px solid $primary;
+
+    span:first-child {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1a1a1a;
+    }
+
+    span:last-child {
+        font-size: 18px;
+        font-weight: 800;
+        color: $primary;
+    }
+}

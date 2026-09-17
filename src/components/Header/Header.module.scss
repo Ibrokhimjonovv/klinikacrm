@@ -2,14 +2,16 @@
     min-width: 320px;
     width: calc(100% - 80%);
     height: calc(100vh - 40px);
-    // background-color: #fff;
     background: linear-gradient(180deg, #16274A 0%, #0E1B33 100%);
     border-radius: 20px;
     padding: 20px;
-    transition: width 0.35s ease;
+    transition: width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+    min-width 0.55s cubic-bezier(0.16, 1, 0.3, 1);
     overflow: hidden;
     position: relative;
-
+    float: left;
+    display: flex;
+    flex-direction: column;
 
     .Logo {
         display: flex;
@@ -36,6 +38,7 @@
                 justify-content: center;
                 font-size: 15px;
                 color: var(--forest-deep);
+                flex-shrink: 0;
             }
 
             .Brand {
@@ -43,6 +46,10 @@
                 font-weight: 600;
                 font-size: 18px;
                 letter-spacing: 0.2px;
+                white-space: nowrap;
+                opacity: 1;
+                max-width: 200px;
+                transition: opacity 0.25s ease 0.12s, max-width 0.25s ease;
             }
         }
 
@@ -132,7 +139,6 @@
                 align-items: center;
                 gap: 5px;
                 padding: 11px 10px;
-                // color: #444;
                 color: rgba(244, 240, 230, 0.68);
                 font-size: 14px;
                 font-weight: 500;
@@ -140,8 +146,6 @@
 
                 &:hover {
                     background-color: rgba(255, 255, 255, 0.05);
-                    // background-color: #f4f9f6;
-                    // color: orange;
                 }
 
                 .icon {
@@ -150,6 +154,7 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    transition: width 0.25s ease;
 
                     i {
                         font-size: 18px;
@@ -159,7 +164,9 @@
                 .text {
                     white-space: nowrap;
                     overflow: hidden;
-                    transition: opacity 0.2s ease;
+                    opacity: 1;
+                    max-width: 200px;
+                    transition: opacity 0.25s ease 0.12s, max-width 0.25s ease;
                 }
 
                 p {
@@ -171,10 +178,11 @@
                     font-weight: 700;
                     padding: 2px 7px;
                     border-radius: 100px;
+                    opacity: 1;
+                    transition: opacity 0.2s ease 0.12s;
                 }
             }
 
-            // Active holat — asosiy yashil + orange chiziq
             a.ActiveLink {
                 // background: linear-gradient(135deg,  rgb(231, 179, 82), rgb(255, 166, 0));
                 background: linear-gradient(90deg, rgba(143, 183, 158, 0.22), rgba(143, 183, 158, 0.06));
@@ -192,7 +200,6 @@
                     color: #fff;
                 }
 
-                // Chap tomonda orange urg'u chizig'i
                 &::before {
                     content: '';
                     position: absolute;
@@ -209,18 +216,43 @@
         }
     }
 
+    .LinksWrapper {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        &::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #4a7bb5;
+            border-radius: 999px;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background: #1b3050;
+        }
+
+        scrollbar-width: thin; // Firefox
+        scrollbar-color: #4a7bb5 transparent; // Firefox
+    }
+
     .AsideBottom {
-        width: calc(100% - 40px);
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
+        width: 100%;
+        // position: absolute;
+        // bottom: 20px;
+        // left: 50%;
+        // transform: translateX(-50%);
 
         .Me {
             display: flex;
             gap: 10px;
             align-items: center;
-            // justify-content: center;
             margin-bottom: 17px;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             padding-top: 17px;
@@ -243,17 +275,23 @@
                 justify-content: center;
                 flex-direction: column;
                 line-height: 1.4;
+                opacity: 1;
+                max-width: 200px;
+                overflow: hidden;
+                transition: opacity 0.25s ease 0.12s, max-width 0.25s ease;
 
                 p {
                     &:first-child {
                         color: #fff;
                         font-weight: 600;
                         font-size: 15px;
+                        white-space: nowrap;
                     }
 
                     &:last-child {
                         color: rgba(244, 240, 230, 0.45);
                         font-size: 13px;
+                        white-space: nowrap;
                     }
                 }
             }
@@ -283,6 +321,14 @@
             i {
                 font-size: 20px;
             }
+
+            .text {
+                white-space: nowrap;
+                opacity: 1;
+                max-width: 150px;
+                overflow: hidden;
+                transition: opacity 0.25s ease 0.12s, max-width 0.25s ease;
+            }
         }
     }
 
@@ -290,6 +336,7 @@
     &.collapsed {
         width: 90px;
         min-width: 90px;
+        transition: width 0.3s ease-in, min-width 0.3s ease-in;
 
         .Logo {
             flex-direction: column-reverse;
@@ -302,9 +349,10 @@
                 margin-top: 10px;
             }
 
-            .LogoImg span {
+            .Brand {
                 opacity: 0;
-                width: 0;
+                max-width: 0;
+                transition: opacity 0.15s ease, max-width 0.2s ease;
             }
         }
 
@@ -336,16 +384,22 @@
                 width: 100%;
             }
 
-            .text,
-            p {
+            .text {
                 opacity: 0;
-                width: 0;
+                max-width: 0;
                 padding: 0;
                 margin: 0;
+                transition: opacity 0.15s ease, max-width 0.2s ease;
+            }
+
+            p {
+                opacity: 0;
+                max-width: 0;
+                padding: 0;
+                transition: opacity 0.15s ease, max-width 0.2s ease;
             }
         }
 
-        // Collapsed holatda chap chiziq ko'rinmasin (joy yo'q)
         .AsideLinks a.ActiveLink::before {
             display: none;
         }
@@ -357,9 +411,10 @@
 
                 .ProfileDatas {
                     opacity: 0;
-                    width: 0;
+                    max-width: 0;
                     padding: 0;
                     margin: 0;
+                    transition: opacity 0.15s ease, max-width 0.2s ease;
                 }
             }
         }
@@ -367,9 +422,10 @@
         .Logout {
             .text {
                 opacity: 0;
-                width: 0;
+                max-width: 0;
                 padding: 0;
                 margin: 0;
+                transition: opacity 0.15s ease, max-width 0.2s ease;
             }
         }
     }

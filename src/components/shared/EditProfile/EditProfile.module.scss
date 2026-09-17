@@ -1,0 +1,180 @@
+.EditProfileSection {
+    padding: 5px;
+    width: 100%;
+    padding: 24px;
+}
+
+.StepHeader {
+    margin-bottom: 25px;
+
+    h1 {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 24px;
+        color: #0e1b33;
+        margin-bottom: 8px;
+
+        i {
+            color: #16264a;
+        }
+    }
+
+    p {
+        color: #6b7280;
+        font-size: 14px;
+    }
+}
+
+.EditForm {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.Row {
+    display: flex;
+    gap: 16px;
+
+    .Input {
+        flex: 1;
+    }
+}
+
+.Input {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    p {
+        font-size: 14px;
+        font-weight: 600;
+        color: #0e1b33;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        border: 1.5px solid #dbe3ef;
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 15px;
+        outline: none;
+        transition: .25s;
+
+        &:focus {
+            border-color: #16264a;
+        }
+    }
+
+    textarea {
+        resize: vertical;
+    }
+}
+
+.ErrorText {
+    color: #dc2626;
+    font-size: 13px;
+}
+
+.SubmitBtn {
+    margin-top: 10px;
+    border: none;
+    border-radius: 14px;
+    height: 52px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+
+    background: linear-gradient(
+        135deg,
+        #16264a,
+        #0e1b33
+    );
+
+    transition: .25s;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+
+    &:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+}
+
+@media (max-width: 768px) {
+    .EditProfileSection {
+        min-width: auto;
+    }
+
+    .Row {
+        flex-direction: column;
+    }
+}
+
+.ProfileImageSection {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.ProfileImage {
+    width: 90px;
+    height: 90px;
+    flex-shrink: 0;
+
+    img,
+    .ProfilePlaceholder {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+}
+
+.ProfilePlaceholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(
+        135deg,
+        #16264a,
+        #0e1b33
+    );
+
+    color: white;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.UploadBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 16px;
+    border-radius: 12px;
+
+    background: #eef2ff;
+    color: #16264a;
+
+    cursor: pointer;
+    font-weight: 600;
+
+    transition: .2s;
+
+    &:hover {
+        background: #dbe4ff;
+    }
+}

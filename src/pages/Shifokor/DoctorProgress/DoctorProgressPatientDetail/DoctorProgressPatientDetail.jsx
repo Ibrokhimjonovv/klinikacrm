@@ -52,8 +52,9 @@ const DoctorProgressPatientDetail = () => {
     const [uploadingItemId, setUploadingItemId] = useState(null)
     const [uploadError, setUploadError] = useState(null)
 
-    // Yuklangan rasm yoki faylni modal orqali ko'rish uchun
     const [selectedMedia, setSelectedMedia] = useState(null)
+
+    const [mediaGallery, setMediaGallery] = useState(null)
 
     const fetchPatient = async () => {
         try {
@@ -355,8 +356,8 @@ const DoctorProgressPatientDetail = () => {
                     <div className={s.MediaCardIcon}>
                         <i
                             className={`bi ${item.checked
-                                    ? 'bi-check-circle-fill'
-                                    : 'bi-list-check'
+                                ? 'bi-check-circle-fill'
+                                : 'bi-list-check'
                                 }`}
                         ></i>
                     </div>
@@ -376,8 +377,8 @@ const DoctorProgressPatientDetail = () => {
 
                 <label
                     className={`${s.MediaCheckRow} ${item.checked
-                            ? s.MediaCheckRowChecked
-                            : ''
+                        ? s.MediaCheckRowChecked
+                        : ''
                         }`}
                     title={
                         item.checked && item.checked_by
@@ -461,7 +462,7 @@ const DoctorProgressPatientDetail = () => {
                 </div>
             </div>
 
-            {patient.complaints?.length > 0 && (
+            {/* {patient.complaints?.length > 0 && (
                 <div className={s.ComplaintsRow}>
                     {patient.complaints.filter(c => c.status !== "DONE").map((c) => (
                         <div key={c.id} className={s.ComplaintChip}>
@@ -470,7 +471,7 @@ const DoctorProgressPatientDetail = () => {
                         </div>
                     ))}
                 </div>
-            )}
+            )} */}
 
             {uploadError && (
                 <p className={s.FormError}><i className="bi bi-exclamation-circle-fill"></i> {uploadError}</p>
@@ -500,36 +501,51 @@ const DoctorProgressPatientDetail = () => {
                                     <div className={s.PlanCardHeadLeft}>
                                         <div className={s.PlanTitleRow}>
                                             <h3>{plan.diagnosis}</h3>
-                                            <span className={`${s.PlanStatusBadge} ${s[statusInfo.className]}`}>
-                                                {statusInfo.label}
-                                            </span>
                                         </div>
-
-                                        {plan.complaint && (
-                                            <p className={s.ComplaintLabel}>
-                                                <i className="bi bi-chat-square-text"></i> {plan.complaint}
-                                            </p>
-                                        )}
 
                                         <div className={s.PlanMeta}>
-                                            {plan.created_at && (
-                                                <span>
-                                                    <i className="bi bi-calendar-plus"></i>
-                                                    Boshlangan: <DateTimeFormatter date={plan.created_at} format="date" />
+
+                                            <div className={s.crreatt}>
+                                                <span className={`${s.PlanStatusBadge} ${s[statusInfo.className]}`}>
+                                                    {statusInfo.label}
                                                 </span>
-                                            )}
+
+                                                {plan.media?.length > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        className={s.DiagnosisMediaBtn}
+                                                        onClick={() => setMediaGallery({ diagnosis: plan.diagnosis, items: plan.media })}
+                                                    >
+                                                        <i className="bi bi-paperclip"></i>
+                                                        {plan.media.length} ta fayl
+                                                    </button>
+                                                )}
+
+                                                {plan.complaint && (
+                                                    <p className={s.ComplaintLabel}>
+                                                        <i className="bi bi-chat-square-text"></i> {plan.complaint}
+                                                    </p>
+                                                )}
+                                                {plan.created_at && (
+                                                    <span>
+                                                        <i className="bi bi-calendar-plus"></i>
+                                                        Boshlangan: <DateTimeFormatter date={plan.created_at} format="date" />
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div className={s.PlanStats}>
+                                                <div className={s.ProgressBarTrack}>
+                                                    <div
+                                                        className={s.ProgressBarFill}
+                                                        style={{ width: `${progress}%` }}
+                                                    />
+                                                </div>
+                                                <span className={s.ProgressPercent}>{progress}%</span>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className={s.PlanStats}>
-                                        <div className={s.ProgressBarTrack}>
-                                            <div
-                                                className={s.ProgressBarFill}
-                                                style={{ width: `${progress}%` }}
-                                            />
-                                        </div>
-                                        <span className={s.ProgressPercent}>{progress}%</span>
-                                    </div>
                                 </div>
 
                                 <div className={s.PlanDaysGrid}>
@@ -635,7 +651,48 @@ const DoctorProgressPatientDetail = () => {
                 )}
             </Modal>
 
-        </div>
+            <Modal isOpen={!!mediaGallery} onClose={() => setMediaGallery(null)}>
+                {mediaGallery && (
+                    <div className={s.GalleryBox}>
+                        {/* <div className={s.GalleryHead}>
+                            <h2>Tashxis fayllari</h2>
+                            <p>{mediaGallery.diagnosis}</p>
+                        </div> */}
+
+                        <div className={s.GalleryGrid}>
+                            {mediaGallery.items.map((m) => {
+                                const url = m.url || m.file
+                                const isPdfFile = url?.toLowerCase().includes('.pdf')
+
+                                return (
+                                    <a
+                                        key={m.id}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={s.GalleryItem}
+                                    >
+                                        <div className={s.GalleryThumb}>
+                                            {isPdfFile ? (
+                                                <i className="bi bi-file-earmark-pdf"></i>
+                                            ) : (
+                                                <img src={url} alt={m.text || 'Fayl'} />
+                                            )}
+                                        </div>
+                                        <p className={s.GalleryCaption}>{m.text || 'Fayl'}</p>
+                                        <span className={s.GalleryOpenHint}>
+                                            <i className="bi bi-box-arrow-up-right"></i> Ochish
+                                        </span>
+                                    </a>
+                                )
+                            })}
+                        </div>
+                    </div>
+                )
+                }
+            </Modal >
+
+        </div >
     )
 }
 

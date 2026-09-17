@@ -5,6 +5,7 @@ import { api } from '../../../App';
 import VisitForm from '../../shared/VisitForm/VisitForm';
 import { IMaskInput } from 'react-imask';
 import { useAppContext } from '../../../context/context';
+import PrintReceipt from '../../shared/PrintReceipt/PrintReceipt';
 
 const STEPS = ['Bemor ma\'lumotlari', 'Kirish ma\'lumotlari', 'Shikoyat']
 
@@ -37,6 +38,8 @@ const PatientAdmission = ({ onSuccess }) => {
     const [visitLoading, setVisitLoading] = useState(false)
     const [visitServerError, setVisitServerError] = useState('')
     const [finished, setFinished] = useState(false)
+
+    const [createdComplaintId, setCreatedComplaintId] = useState(null)
 
     // ---------- STEP 1 handlers (o'zgarishsiz) ----------
 
@@ -114,6 +117,10 @@ const PatientAdmission = ({ onSuccess }) => {
         setTimeout(() => setCopied(''), 1500)
     }
 
+    const handlePrint = () => {
+        window.print()
+    }
+
     // ---------- STEP 3 — VisitForm orqali ----------
 
     const validateStep3 = () => {
@@ -151,8 +158,10 @@ const PatientAdmission = ({ onSuccess }) => {
                 return
             }
 
+            // MUHIM: backend qaytargan complaint ID'sini saqlaymiz (chop etish uchun kerak)
+            setCreatedComplaintId(data?.id || data?.complaint?.id || data?.data?.id || null)
+
             setFinished(true)
-            setTimeout(() => { if (onSuccess) onSuccess() }, 1500)
 
         } catch (err) {
             setVisitServerError("Serverga ulanishda xatolik yuz berdi. Qaytadan urinib ko'ring.")
@@ -305,7 +314,42 @@ const PatientAdmission = ({ onSuccess }) => {
                     <div className={s.SuccessIcon}><i className="bi bi-check-circle-fill"></i></div>
                     <h2>Tayyor!</h2>
                     <p className={s.CredentialsSub}>Bemor qabul qilindi va tashrif ma'lumotlari saqlandi</p>
+
+                    <div className={s.PrintPreviewBox}>
+                        <p><strong>F.I.O:</strong> {formData.first_name} {formData.last_name} {formData.middle_name}</p>
+                        <p><strong>Telefon:</strong> {formData.contact_number}</p>
+                        {createdComplaintId && (
+                            <p><strong>Shikoyat ID:</strong> #{createdComplaintId}</p>
+                        )}
+                    </div>
+
+                    <div className={s.FinishButtons}>
+                        <button type="button" className={s.PrintBtn} onClick={handlePrint}>
+                            <i className="bi bi-printer"></i> Chek chop etish
+                        </button>
+                        <button type="button" className={s.SubmitBtn} onClick={() => { if (onSuccess) onSuccess() }}>
+                            Yopish
+                        </button>
+                    </div>
                 </div>
+            )}
+
+            {/* CHOP ETISH UCHUN ALOHIDA SHABLON — ekranda ko'rinmaydi, faqat print paytida chiqadi */}
+            {finished && (
+                <PrintReceipt
+                    title="Bemor qabul varaqasi"
+                    patientName={`${formData.first_name} ${formData.last_name} ${formData.middle_name}`.trim()}
+                    patientInfo={[
+                        { label: "Tug'ilgan sana", value: formData.date_of_birth },
+                        { label: 'Jinsi', value: formData.gender === 'erkak' ? 'Erkak' : 'Ayol' },
+                        { label: 'Telefon', value: formData.contact_number },
+                        { label: 'Manzil', value: formData.address },
+                    ]}
+                    credentials={credentials}
+                    complaintId={createdComplaintId}
+                    complaint={visitData.complaint}
+                    notes={visitData.notes}
+                />
             )}
 
         </section>

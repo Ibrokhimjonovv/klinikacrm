@@ -464,7 +464,17 @@ const NursePatientDetail = () => {
 
             {/* YANGI SHIKOYAT QO'SHISH MODALI */}
             <Modal isOpen={showAddVisitModal} onClose={() => setShowAddVisitModal(false)}>
-                <AddVisit patientId={patient.id} onSuccess={handleAddVisitSuccess} />
+                <AddVisit
+                    patientId={patient.id}
+                    patientName={`${patient.first_name} ${patient.last_name} ${patient.middle_name || ''}`.trim()}
+                    patientInfo={[
+                        { label: "Tug'ilgan sana", value: patient.date_of_birth },
+                        { label: 'Jinsi', value: patient.gender === 'erkak' ? 'Erkak' : 'Ayol' },
+                        { label: 'Telefon', value: patient.contact_number },
+                        { label: 'Manzil', value: patient.address },
+                    ]}
+                    onSuccess={handleAddVisitSuccess}   // ← handleSuccess emas!
+                />
             </Modal>
 
             {/* BEMORNI O'CHIRISH MODALI */}

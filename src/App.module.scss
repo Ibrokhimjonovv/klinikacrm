@@ -15,7 +15,7 @@
     margin: 0;
     text-decoration: none;
     font-family: "Poppins", sans-serif;
-    transition: all 0.3s;
+    // transition: all 0.3s;
 }
 
 body {
@@ -35,6 +35,7 @@ body {
     padding: 20px;
     height: calc(100vh - 40px);
     overflow: auto;
+    float: right;
 
     &.DashMenuLong {
         width: calc(100% - 90px);

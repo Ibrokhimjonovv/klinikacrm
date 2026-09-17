@@ -44,9 +44,6 @@ const NursePatients = () => {
                     doctor_surename: patient.created_by.middle_name || patient.doctor || 'Kutilmoqda'
                 }))
 
-                console.log(formattedPatients);
-
-
                 setTodayAdmissions(formattedPatients)
                 setLoading(false)
             } catch (err) {

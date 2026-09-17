@@ -1,0 +1,150 @@
+$primary: #0e1b33;
+$border: #e5e7eb;
+$text-muted: #6b7280;
+
+.PatientsPage {
+    width: 100%;
+}
+
+.TopRow {
+    margin-bottom: 24px;
+
+    h1 {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0 0 4px;
+        color: #1a1a1a;
+    }
+
+    p {
+        font-size: 13px;
+        color: $text-muted;
+        margin: 0;
+    }
+}
+
+.Empty {
+    color: $text-muted;
+    font-size: 14px;
+    text-align: center;
+    padding: 30px 0;
+}
+
+.PlansList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.PlanCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid $border;
+    // border-radius: 14px;
+    padding: 16px 18px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background-color: #f9fbfa;
+    }
+}
+
+.PlanCardLeft {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    min-width: 0;
+}
+
+.PlanIcon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: rgba(14, 27, 51, 0.06);
+    color: $primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.PlanCardLeft h3 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: #1a1a1a;
+}
+
+.ComplaintLine {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: $text-muted;
+    margin: 0 0 6px;
+
+    i {
+        color: $primary;
+    }
+}
+
+.PlanMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+    color: $text-muted;
+
+    span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    i {
+        color: $primary;
+    }
+}
+
+.PlanCardRight {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+
+    > i {
+        color: $text-muted;
+        font-size: 16px;
+    }
+}
+
+.StatusBadge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+
+    &.watch {
+        background: #f0f0f0;
+        color: #888;
+    }
+    &.active {
+        background: #fff4e0;
+        color: #d99400;
+    }
+    &.done {
+        background: #d1fae5;
+        color: #047857;
+    }
+}

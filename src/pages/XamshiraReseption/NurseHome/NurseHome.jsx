@@ -7,7 +7,7 @@ import { useAppContext } from '../../../context/context';
 import { api } from '../../../App';
 import DateTimeFormatter from '../../../components/shared/DateTimeFormatter/DateTimeFormatter';
 
-const NurseHome = () => {
+const ResNurseHome = () => {
     const { user, patients: todayAdmissions, patientsLoading: loading, patientsError: error, fetchPatients } = useAppContext()
     const [showAdmission, setShowAdmission] = useState(false)
 
@@ -146,4 +146,4 @@ const NurseHome = () => {
     )
 }
 
-export default NurseHome
+export default ResNurseHome

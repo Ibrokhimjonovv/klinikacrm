@@ -3,6 +3,7 @@ import s from "./PatientHome.module.scss"
 import { useAppContext } from '../../../context/context'
 import { api } from '../../../App';
 import DateTimeFormatter from '../../../components/shared/DateTimeFormatter/DateTimeFormatter';
+
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
     const diff = Date.now() - new Date(birthDate).getTime()
@@ -27,31 +28,14 @@ const getPlanStatusInfo = (plan) => {
 }
 
 const PatientHome = () => {
-    const { user } = useAppContext()
-
-    const [profile, setProfile] = useState(null)
-    const [profileLoading, setProfileLoading] = useState(true)
+    const { user, loading: userLoading, patientCounts, fetchPatientCounts } = useAppContext()
 
     const [treatments, setTreatments] = useState([])
     const [treatmentsLoading, setTreatmentsLoading] = useState(true)
     const [treatmentsError, setTreatmentsError] = useState(null)
 
-    const fetchProfile = async () => {
-        try {
-            const token = localStorage.getItem('hospital_access')
-            const res = await fetch(`${api}/me/`, {
-                method: 'GET',
-                headers: authHeaders(token),
-            })
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
-            const data = await res.json()
-            setProfile(data)
-        } catch (err) {
-            console.error('Profil ma\'lumotini olishda xatolik:', err)
-        } finally {
-            setProfileLoading(false)
-        }
-    }
+    const [cards, setCards] = useState([])
+    const [cardsLoading, setCardsLoading] = useState(true)
 
     const fetchMyTreatments = async () => {
         try {
@@ -72,21 +56,57 @@ const PatientHome = () => {
         }
     }
 
+    const fetchTodayCards = async () => {
+        try {
+            setCardsLoading(true)
+
+            const token = localStorage.getItem('hospital_access')
+
+            const res = await fetch(
+                `${api}/patient/card/day/`,
+                {
+                    method: 'GET',
+                    headers: authHeaders(token),
+                }
+            )
+
+            if (!res.ok) {
+                throw new Error('Kartalarni olishda xatolik')
+            }
+
+            const data = await res.json()
+
+            console.log('CARD API:', data)
+
+            setCards(data?.[0]?.visits || [])
+
+        } catch (err) {
+            console.error('Kartalarni olishda xatolik:', err)
+            setCards([])
+        } finally {
+            setCardsLoading(false)
+        }
+    }
+
     useEffect(() => {
-        fetchProfile()
         fetchMyTreatments()
+        fetchTodayCards()
     }, [])
 
-    const patient = profile?.patient || profile
 
-    const activePlans = treatments.filter(p => !p.is_end)
-    const completedPlans = treatments.filter(p => p.is_end)
+    const patient = user?.patient || user
 
-    const overallProgress = activePlans.length > 0
-        ? Math.round(activePlans.reduce((sum, p) => sum + (p.progress ?? 0), 0) / activePlans.length)
-        : (completedPlans.length > 0 ? 100 : 0)
+    const overallProgress = cards.length > 0
+        ? Math.round(
+            cards.reduce(
+                (sum, item) =>
+                    sum + (item.progress?.total_progress ?? 0),
+                0
+            ) / cards.length
+        )
+        : 0
 
-    if (profileLoading) {
+    if (userLoading) {
         return (
             <div className={s.PatientPage}>
                 <p className={s.Empty}>Yuklanmoqda...</p>
@@ -139,20 +159,127 @@ const PatientHome = () => {
                 <div className={s.StatCard}>
                     <i className="bi bi-clipboard2-pulse"></i>
                     <div>
-                        <h2>{activePlans.length}</h2>
+                        <h2>{patientCounts?.process ?? 0}</h2>
                         <p>Jarayondagi tashxis</p>
                     </div>
                 </div>
                 <div className={s.StatCard}>
                     <i className="bi bi-check-circle"></i>
                     <div>
-                        <h2>{completedPlans.length}</h2>
+                        <h2>{patientCounts?.done ?? 0}</h2>
                         <p>Yakunlangan tashxis</p>
                     </div>
                 </div>
             </div>
 
-            <div className={s.Section}>
+            <div className={s.TodayAppointments}>
+                <div className={s.SectionHeader}>
+                    <h2>Qabullar kartasi</h2>
+                </div>
+
+                {cardsLoading ? (
+                    <p className={s.Empty}>Yuklanmoqda...</p>
+                ) : cards.length === 0 ? (
+                    <p className={s.Empty}>
+                        Bugungi qabul mavjud emas
+                    </p>
+                ) : (
+                    cards.map((item, index) => {
+                        const doctor = item.doctors?.[0]
+
+                        const progress = Math.round(
+                            item.progress?.total_progress ?? 0
+                        )
+
+                        const finish = item.finish_date
+                            ? new Date(item.finish_date)
+                            : null
+
+                        const monthNames = [
+                            'Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun',
+                            'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek'
+                        ]
+
+                        return (
+                            <div key={index} className={s.VisitCard}>
+
+                                <div className={`${s.VisitDateBlock} ${progress == 100 ? s.Active : ""}`}>
+                                    <span className={s.VisitDay}>
+                                        {finish ? finish.getDate() : '—'}
+                                    </span>
+
+                                    <span className={s.VisitMonth}>
+                                        {finish ? monthNames[finish.getMonth()] : ''}
+                                    </span>
+
+                                    <span className={s.VisitLabel}>
+                                        Qabul kuni
+                                    </span>
+                                </div>
+
+                                <div className={s.VisitMain}>
+
+                                    <div className={s.VisitHeader}>
+                                        <div className={s.DoctorAvatar}>
+                                            {doctor?.first_name?.[0] || '?'}
+                                        </div>
+
+                                        <div className={s.DoctorInfo}>
+                                            <h3>
+                                                {doctor?.first_name} {doctor?.last_name}
+                                            </h3>
+
+                                            <p>
+                                                {doctor?.specialty || 'Mutaxassislik ko‘rsatilmagan'}
+                                            </p>
+                                        </div>
+
+                                        <div className={s.ProgressPill}>
+                                            {progress}%
+                                        </div>
+                                    </div>
+
+                                    <p className={s.Complaint}>
+                                        <i className="bi bi-chat-left-text"></i>
+                                        {item.complaint?.text || 'Shikoyat kiritilmagan'}
+                                    </p>
+
+                                    <div className={s.VisitFooter}>
+                                        <div className={s.VisitRange}>
+
+                                            <span>
+                                                <i className="bi bi-calendar-event"></i> {" "}
+                                                Boshlanish sanasi:{' '}
+                                                {item.start_date || '—'}
+                                            </span>
+
+                                            <span>
+                                                <i className="bi bi-calendar-check"></i> {" "}
+                                                Tugash sanasi:{' '}
+                                                {item.finish_date || '—'}
+                                            </span>
+
+                                        </div>
+                                    </div>
+
+                                    <div className={s.ProgressTrack}>
+                                        <div
+                                            className={s.ProgressTrackFill}
+                                            style={{
+                                                width: `${Math.min(progress, 100)}%`
+                                            }}
+                                        />
+                                    </div>
+
+                                </div>
+                            </div>
+                        )
+                    })
+
+                )}
+            </div>
+
+            {/* <div className={s.Section}>
                 <h2>Faol davolash rejalari</h2>
 
                 {treatmentsLoading && <p className={s.Empty}>Yuklanmoqda...</p>}
@@ -249,7 +376,7 @@ const PatientHome = () => {
                         ))}
                     </div>
                 </div>
-            )}
+            )} */}
 
         </div>
     )
