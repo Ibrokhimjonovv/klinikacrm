@@ -1,0 +1,283 @@
+.Dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.TopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    h1 {
+        font-size: 26px;
+    }
+
+    p {
+        color: #888;
+        margin-top: 4px;
+    }
+}
+
+.TopBtns {
+    display: flex;
+    gap: 10px;
+}
+
+.SecondaryBtn {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #f4f4f4;
+    }
+}
+
+// STATS
+
+.StatsRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.StatCard {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 18px;
+
+    .StatTop {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 13px;
+        color: #888;
+
+        i {
+            font-size: 16px;
+        }
+    }
+
+    h2 {
+        font-size: 30px;
+        margin: 10px 0 5px;
+        color: #0E1B33;
+    }
+
+    span {
+        font-size: 12px;
+        color: #0E1B33;
+        background-color: #eaf0f7;
+        padding: 3px 8px;
+        border-radius: 20px;
+    }
+}
+
+.StatCardDark {
+    background: linear-gradient(180deg, #16274A 0%, #0E1B33 100%);
+    color: #fff;
+
+    .StatTop {
+        color: #dcefe3;
+    }
+
+    h2 {
+        color: #fff;
+    }
+
+    span {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: #fff;
+    }
+}
+
+// BOTTOM ROW
+
+.BottomRow {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 15px;
+}
+
+.PatientsCard,
+.ProgressCard {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 20px;
+
+    h3 {
+        font-size: 15px;
+        margin-bottom: 15px;
+    }
+}
+
+.PatientsCard ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 5px;
+
+    li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.Empty {
+    color: #888;
+    font-size: 14px;
+    padding: 10px 0;
+}
+
+.PatientLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    p {
+        font-size: 14px;
+        font-weight: 500;
+        color: #0E1B33;
+    }
+
+    span {
+        font-size: 12px;
+        color: #888;
+    }
+}
+
+.Avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #4a7bb5;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.Status {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+
+    &.done {
+        background-color: #e9f7ef;
+        color: #17643c;
+    }
+
+    &.progress {
+        background-color: #fff4e0;
+        color: #d99400;
+    }
+
+    &.pending {
+        background-color: #f0f0f0;
+        color: #888;
+    }
+}
+
+// DONUT PROGRESS
+
+.ProgressCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.Donut {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(#0E1B33 calc(var(--percent) * 1%), #f0f0f0 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0 20px;
+}
+
+.DonutInner {
+    width: 120px;
+    height: 120px;
+    background-color: #fff;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    h2 {
+        font-size: 26px;
+    }
+
+    span {
+        font-size: 11px;
+        color: #888;
+    }
+}
+
+.Legend {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+
+    span {
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #666;
+    }
+
+    i {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+
+        &.done {
+            background-color: #17643c;
+        }
+
+        &.progress {
+            background-color: #f5a623;
+        }
+
+        &.pending {
+            background-color: #ccc;
+        }
+    }
+}
+
+// RESPONSIVE
+
+@media (max-width: 1100px) {
+    .StatsRow {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .BottomRow {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 500px) {
+    .StatsRow {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,386 @@
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 360px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+    font-size: 14px;
+    font-weight: 500;
+    animation: toastIn 0.25s ease;
+
+    i:first-child {
+        font-size: 18px;
+        flex-shrink: 0;
+    }
+
+    span {
+        flex: 1;
+    }
+
+    button {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: inherit;
+        opacity: 0.6;
+        flex-shrink: 0;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+
+    &.error {
+        background-color: #fdecea;
+        color: #c0392b;
+    }
+
+    &.success {
+        background-color: #eaf6ee;
+        color: #1e7e42;
+    }
+}
+
+@keyframes toastIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.wrapper {
+    padding: 24px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+
+    h2 {
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+    }
+}
+
+.primaryBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 16px #4d7ab2;
+
+    &:hover {
+        opacity: 0.92;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+}
+
+.secondaryBtn {
+    background: #f1f5f9;
+    color: #1b3050;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background: #e2e8f0;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.dangerBtn {
+    color: #dc2626 !important;
+}
+
+.loading,
+.empty {
+    padding: 40px;
+    text-align: center;
+    color: #64748b;
+}
+
+.floorSection {
+    margin-bottom: 28px;
+}
+
+.floorTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 10px;
+}
+
+.roomList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.roomCard {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.roomCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    cursor: pointer;
+
+    &:hover {
+        background: #f8fafc;
+    }
+}
+
+.roomInfo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.roomNumber {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.roomType {
+    font-size: 13px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.inactiveBadge {
+    font-size: 12px;
+    color: #b91c1c;
+    background: #fee2e2;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+
+.roomMeta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.roomCardBody {
+    padding: 0 16px 16px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.roomDescription {
+    font-size: 13px;
+    color: #475569;
+    margin: 12px 0;
+}
+
+.roomActions {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0;
+
+    button {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 13px;
+        cursor: pointer;
+
+        &:hover {
+            background: #f1f5f9;
+        }
+    }
+}
+
+.bedTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    th {
+        text-align: left;
+        color: #94a3b8;
+        font-weight: 500;
+        padding: 6px 8px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    td {
+        padding: 8px;
+        border-bottom: 1px solid #f8fafc;
+    }
+}
+
+.emptyRow {
+    text-align: center;
+    color: #94a3b8;
+    padding: 12px !important;
+}
+
+.occupied {
+    color: #b91c1c;
+    font-weight: 500;
+}
+
+.free {
+    color: #15803d;
+    font-weight: 500;
+}
+
+.bedRowActions {
+    display: flex;
+    gap: 6px;
+
+    button {
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: #64748b;
+
+        &:hover {
+            color: #1e293b;
+        }
+    }
+}
+
+.modalContent {
+    // .ModalBox'da padding: 0 bor, CloseBtn esa yuqori-o'ngda absolute
+    // turadi — shuning uchun sarlavha tugma bilan qoplanib qolmasligi uchun
+    // yetarli padding beramiz.
+    width: 100%;
+    padding: 60px 24px 24px;
+
+    h3 {
+        margin: 0 0 16px;
+        font-size: 19px;
+        color: #1b3050;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1b3050;
+    }
+
+    input,
+    select,
+    textarea {
+        border: 1.5px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 15px;
+        outline: none;
+        font-family: inherit;
+        color: #1b3050;
+
+        &:focus {
+            border-color: #4d7ab2;
+        }
+
+        &:disabled {
+            background-color: #f5f5f5;
+        }
+    }
+
+    textarea {
+        resize: vertical;
+    }
+}
+
+.confirmContent {
+    width: 100%;
+    padding: 60px 24px 24px;
+
+    h3 {
+        margin: 0 0 10px;
+        font-size: 19px;
+        color: #1b3050;
+    }
+
+    p {
+        font-size: 14px;
+        color: #475569;
+        margin: 0;
+    }
+}
+
+.checkboxLabel {
+    flex-direction: row !important;
+    align-items: center;
+    gap: 8px !important;
+
+    input {
+        width: auto;
+    }
+}
+
+.formError {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #c0392b;
+    font-size: 14px;
+    background-color: #fdecea;
+    padding: 10px 14px;
+    border-radius: 8px;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+}

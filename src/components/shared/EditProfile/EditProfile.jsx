@@ -103,7 +103,7 @@ const EditProfile = ({ role = 'doctor', title = "Profilni tahrirlash", subtitle,
                 throw new Error(data?.detail || 'Xatolik yuz berdi');
             }
 
-            await fetchMe(); // <-- Context'dan olinadi, endi ReferenceError bo'lmaydi
+            await fetchMe();
 
             if (onSubmit) {
                 onSubmit(data);

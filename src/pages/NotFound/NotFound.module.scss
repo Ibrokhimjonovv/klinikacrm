@@ -1,0 +1,151 @@
+.Page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.Content {
+    width: 100%;
+    max-width: 440px;
+    text-align: center;
+}
+
+.Pulse {
+    width: 100%;
+    height: 64px;
+    color: #e8604c;
+    margin-bottom: 8px;
+}
+
+.PulseLine {
+    stroke-dasharray: 620;
+    stroke-dashoffset: 620;
+    animation: draw-pulse 1.4s ease-out forwards;
+}
+
+.PulseDot {
+    opacity: 0;
+    animation: fade-in-dot 0.4s ease-out 1.2s forwards, pulse-beat 1.8s ease-in-out 1.6s infinite;
+    transform-origin: 400px 40px;
+}
+
+@keyframes draw-pulse {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes fade-in-dot {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes pulse-beat {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.6);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .PulseLine {
+        animation: none;
+        stroke-dashoffset: 0;
+    }
+
+    .PulseDot {
+        animation: none;
+        opacity: 1;
+    }
+}
+
+.Number {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 96px;
+    font-weight: 600;
+    line-height: 1;
+    color: #12312b;
+    margin: 0 0 12px;
+    letter-spacing: -0.02em;
+}
+
+.Title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #12312b;
+    margin: 0 0 10px;
+}
+
+.Subtitle {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #5b7069;
+    margin: 0 0 32px;
+}
+
+.Actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.PrimaryBtn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    background: #0f766e;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+        background: #0c5f58;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #0f766e;
+        outline-offset: 2px;
+    }
+}
+
+.SecondaryBtn {
+    padding: 12px 24px;
+    border: 1px solid #dce6e4;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #12312b;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    &:hover {
+        background: #f2f6f7;
+        border-color: #0f766e;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #0f766e;
+        outline-offset: 2px;
+    }
+}
+
+@media (max-width: 480px) {
+    .Number {
+        font-size: 72px;
+    }
+
+    .Title {
+        font-size: 19px;
+    }
+}

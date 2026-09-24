@@ -11,7 +11,7 @@ import NursePatientDetail from './pages/XamshiraReseption/PatientDetail/PatientD
 import NursePatients from './pages/XamshiraReseption/NursePatients/NursePatients'
 import VisitDetail from './pages/XamshiraReseption/VisitDetail/VisitDetail'
 import DoctorWaitingPatients from './pages/Shifokor/DoctorWaiting/DoctorWaitingPatients/DoctorWaitingPatients'
-import DoctorWaitingPatientDetail from './pages/Shifokor/DoctorWaiting/DoctorWaitingPatientDetail/DoctorWaitingPatientDetail'
+import DoctorWaitingPatientDetail from './pages/Shifokor/DoctorWaiting/DoctorWaitingPatientDetail/DoctorWaitingPatientDiagnosticDetail'
 import DoctorProgressPatientDetail from './pages/Shifokor/DoctorProgress/DoctorProgressPatientDetail/DoctorProgressPatientDetail'
 import DoctorProgressPatients from './pages/Shifokor/DoctorProgress/DoctorProgressPatients/DoctorProgressPatients'
 import DoctorComplatedPatients from './pages/Shifokor/DoctorComplated/DoctorComplatedPatients/DoctorComplatedPatients'
@@ -29,8 +29,19 @@ import NurseProgressPatients from './pages/Xamshira/NurseProgress/NurseProgressP
 import NurseProfile from './pages/Xamshira/NurseProfile/NurseProfile'
 import WaitingNotification from './components/Doctor/WaitingNotification/WaitingNotification'
 import NursePaidPatients from './pages/XamshiraReseption/NursePaidPatients/NursePaidPatients'
+import DoctorWaitingPatientTreatmentDetail from './pages/Shifokor/DoctorWaiting/DoctorWaitingPatientDetail/DoctorWaitingPatientTreatmentDetail'
+import DoctorWaitingPatientDiagnosticsDetail from './pages/Shifokor/DoctorWaiting/DoctorWaitingPatientDetail/DoctorWaitingPatientDiagnosticDetail'
+import AdminHome from './pages/Admin/AdminHome/AdminHome'
+import AdminServices from './pages/Admin/AdminServices/AdminServices'
+import AssistantDoctorHome from './pages/AssistantDoctor/AssistantDoctorHome/AssistantDoctorHome'
+import AssistantDoctorProfile from './pages/AssistantDoctor/AssistantDoctorProfile/AssistantDoctorProfile'
+import AssistantDoctorPatients from './pages/AssistantDoctor/AssistantDoctorPatients/AssistantDoctorPatients'
+import AssistantDoctorTaskDetail from './pages/AssistantDoctor/AssistantDoctorPatientsDetail/AssistantDoctorPatientsDetail'
+import AdminRooms from './pages/Admin/AdminRooms/AdminRooms'
+import DoctorRooms from './pages/Shifokor/DoctorRooms/DoctorRooms'
 
-export const api = 'http://192.168.1.50:8000/api/v1'
+export const api = 'http://192.168.1.24:8000/api/v1'
+// export const api = 'https://bkapi.aoc.uz/api/v1'
 // export const api = 'https://6397-87-192-225-30.ngrok-free.app/api/v1'
 
 function App() {
@@ -47,7 +58,8 @@ function App() {
               {/* <Route path="/doctor-patients" element={<DoctorPatients />} /> */}
               {/* <Route path="/doctor-patients/:id" element={<DoctorPatientDetail />} /> */}
               <Route path="/doctor-waiting-patients" element={<DoctorWaitingPatients />} />
-              <Route path="/doctor-waiting-patients/:id" element={<DoctorWaitingPatientDetail />} />
+              <Route path="/doctor-waiting-patients/:id/treatment" element={<DoctorWaitingPatientTreatmentDetail />} />
+              <Route path="/doctor-waiting-patients/:id/diagnostics" element={<DoctorWaitingPatientDiagnosticsDetail />} />
 
               <Route path="/doctor-progress-patients" element={<DoctorProgressPatients />} />
               <Route path="/doctor-progress-patients/:id" element={<DoctorProgressPatientDetail />} />
@@ -55,10 +67,12 @@ function App() {
               <Route path="/doctor-complated-patients" element={<DoctorComplatedPatients />} />
               <Route path="/doctor-complated-patients/:id" element={<DoctorComplatedPatientDetail />} />
 
+
               <Route path="/doctor-profile" element={<DoctorProfile />} />
+              <Route path="/doctor-rooms" element={<DoctorRooms />} />
             </>
           )}
-          {role === 'Res Admin' && (
+          {role === 'ResNurse' && (
             <>
               <Route path="/" element={<ResNurseHome />} />
               <Route path="/nurse-patients" element={<NursePatients />} />
@@ -91,6 +105,25 @@ function App() {
               {/* <Route path="/reception-nurse-profile" element={<NurseProfile />} /> */}
             </>
           )}
+
+          {role === 'Admin' && (
+            <>
+              <Route path="/" element={<AdminHome />} />
+              <Route path="/services" element={<AdminServices />} />
+              <Route path="/admin-rooms" element={<AdminRooms />} />
+            </>
+          )}
+
+          {
+            role === "AssistantDoctor" && (
+              <>
+                <Route path="/" element={<AssistantDoctorHome />} />
+                <Route path="/waiting-patients" element={<AssistantDoctorPatients />} />
+                <Route path="/waiting-patients/:id" element={<AssistantDoctorTaskDetail />} />
+                <Route path="/doctor-profile" element={<AssistantDoctorProfile />} />
+              </>
+            )
+          }
 
 
           <Route path="*" element={<NotFound />} />

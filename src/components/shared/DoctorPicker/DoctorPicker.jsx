@@ -82,7 +82,7 @@ const DoctorPicker = ({ selected = [], onChange, disabled }) => {
 
                             <div className={s.DocData}>
                                 <p className={s.Name}>
-                                    {d.first_name?.charAt(0)}. {d.middle_name}
+                                    {d.first_name?.charAt(0)}. {d.last_name}
                                 </p>
                                 {d.specialty && <span className={s.Specialty}>{d.specialty}</span>}
                             </div>

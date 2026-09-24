@@ -191,7 +191,7 @@ export function AppProvider({ children }) {
   }, [])
 
   useEffect(() => {
-    if (user?.role === 'Res Admin') {
+    if (user?.role === 'ResNurse') {
       fetchPatientsCount()
     }
 

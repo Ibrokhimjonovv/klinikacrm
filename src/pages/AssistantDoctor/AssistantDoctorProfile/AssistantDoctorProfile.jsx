@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import s from "./DoctorProfile.module.scss";
+import s from "./AssistantDoctorProfile.module.scss";
 import { useAppContext } from '../../../context/context';
 import Modal from '../../../components/Modal/Modal';
 import EditProfile from '../../../components/shared/EditProfile/EditProfile';
 
-const DoctorProfile = () => {
+const AssistantDoctorProfile = () => {
   const [editOpen, setEditOpen] = useState(false);
 
   const { user, doctorCounts } = useAppContext();
@@ -74,7 +74,7 @@ const DoctorProfile = () => {
           <div className={s.InfoRow}>
             <span>F.I.O</span>
             <p>
-              {doctor?.middle_name} {doctor?.first_name} {doctor?.last_name}
+              {doctor?.last_name} {doctor?.first_name} {doctor?.middle_name}
             </p>
           </div>
 
@@ -132,6 +132,7 @@ const DoctorProfile = () => {
           title="Profilni tahrirlash"
           subtitle="Shifokor ma'lumotlarini yangilang"
           onSubmit={() => setEditOpen(false)}
+
         />
       </Modal>
 
@@ -139,4 +140,4 @@ const DoctorProfile = () => {
   );
 };
 
-export default DoctorProfile;
+export default AssistantDoctorProfile;

@@ -1,0 +1,121 @@
+.Wrap {
+    // .ModalBox'da padding: 0 bor, CloseBtn esa yuqori-o'ngda absolute
+    // turadi — shuning uchun sarlavha tugma bilan qoplanib qolmasligi uchun
+    // yetarli padding beramiz.
+    width: 100%;
+    padding: 60px 24px 24px;
+
+    h2 {
+        font-size: 19px;
+        color: #1b3050;
+        margin: 0 0 20px;
+    }
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+
+.State {
+    font-size: 14px;
+    color: #888;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.Row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    .Input {
+        flex: 1;
+        min-width: 140px;
+    }
+}
+
+.Input {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    p {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1b3050;
+    }
+
+    input,
+    select,
+    textarea {
+        border: 1.5px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 15px;
+        outline: none;
+        font-family: inherit;
+        color: #1b3050;
+
+        &:focus {
+            border-color: #4d7ab2;
+        }
+
+        &:disabled {
+            background-color: #f5f5f5;
+        }
+    }
+
+    textarea {
+        resize: vertical;
+    }
+}
+
+.ServerError {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #c0392b;
+    font-size: 14px;
+    background-color: #fdecea;
+    padding: 10px 14px;
+    border-radius: 8px;
+}
+
+.SubmitBtn {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 6px 16px #4d7ab2;
+
+    &:hover {
+        opacity: 0.92;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .Wrap {
+        min-width: unset;
+    }
+
+    .Row {
+        flex-direction: column;
+    }
+}

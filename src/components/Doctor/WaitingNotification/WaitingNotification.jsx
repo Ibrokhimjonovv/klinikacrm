@@ -11,7 +11,6 @@ const WaitingPatientNotifications = () => {
 
     const [closedNotifications, setClosedNotifications] = useState([]);
 
-    // Oldin yopilgan notificationlarni olish
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY);
 
@@ -33,12 +32,10 @@ const WaitingPatientNotifications = () => {
         }
     }, []);
 
-    // Notification uchun unique key
     const getNotificationId = (patient) => {
         return `${patient.id}_${patient.created_at}`;
     };
 
-    // Notificationni yopish
     const closeNotification = () => {
         if (!latestPatient) return;
 
@@ -58,12 +55,10 @@ const WaitingPatientNotifications = () => {
         );
     };
 
-    // Hozirgi bemorning notification ID'si
     const notificationId = latestPatient
         ? getNotificationId(latestPatient)
         : null;
 
-    // Yopilgan bo'lsa notification chiqmaydi
     const isClosed =
         notificationId &&
         closedNotifications.includes(notificationId);
@@ -72,11 +67,11 @@ const WaitingPatientNotifications = () => {
         if (!latestPatient) return;
 
         navigate(
-            `/doctor-waiting-patients/${latestPatient.id}`
+            `/doctor-waiting-patients/${latestPatient.id}/diagnostics/`
         );
+        closeNotification()
     };
 
-    // Bemor yo'q yoki notification yopilgan
     if (!latestPatient || isClosed) {
         return null;
     }

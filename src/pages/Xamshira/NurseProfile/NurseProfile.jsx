@@ -22,7 +22,7 @@ const NurseProfile = () => {
 
           <div>
             <h1>
-              {doctor?.first_name} {doctor?.middle_name}
+              {doctor?.first_name} {doctor?.last_name}
             </h1>
 
             <p>{doctor?.specialty}</p>
@@ -125,6 +125,7 @@ const NurseProfile = () => {
           role="doctor" // hamshira ma'lumoti ham user.doctor'da saqlanayotgan bo'lsa shunday qoladi — backend tekshirilishi kerak
           title="Profilni tahrirlash"
           subtitle="Hamshira ma'lumotlarini yangilang"
+          onSubmit={() => setEditOpen(false)}
         />
       </Modal>
 

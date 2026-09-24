@@ -22,7 +22,7 @@ const ResNurseProfile = () => {
 
           <div>
             <h1>
-              {doctor?.first_name} {doctor?.middle_name}
+              {doctor?.first_name} {doctor?.last_name}
             </h1>
 
             <p>{doctor?.specialty}</p>
@@ -68,7 +68,7 @@ const ResNurseProfile = () => {
           <div className={s.InfoRow}>
             <span>F.I.O</span>
             <p>
-              {doctor?.middle_name} {doctor?.first_name} {doctor?.last_name}
+              {doctor?.last_name} {doctor?.first_name} {doctor?.middle_name}
             </p>
           </div>
 
@@ -103,16 +103,6 @@ const ResNurseProfile = () => {
             <span>Manzil</span>
             <p>{doctor?.address || "-"}</p>
           </div>
-
-          {/* <div className={s.InfoRow}>
-                        <span>Login</span>
-                        <p>{user?.username}</p>
-                    </div>
-
-                    <div className={s.InfoRow}>
-                        <span>Rol</span>
-                        <p>Shifokor</p>
-                    </div> */}
         </div>
 
       </div>
@@ -122,9 +112,10 @@ const ResNurseProfile = () => {
         onClose={() => setEditOpen(false)}
       >
         <EditProfile
-          role="doctor" // hamshira ma'lumoti ham user.doctor'da saqlanayotgan bo'lsa shunday qoladi — backend tekshirilishi kerak
+          role="doctor"
           title="Profilni tahrirlash"
           subtitle="Hamshira ma'lumotlarini yangilang"
+          onSubmit={() => setEditOpen(false)}
         />
       </Modal>
 

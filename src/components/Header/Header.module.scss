@@ -53,26 +53,6 @@
             }
         }
 
-        // .LogoImg {
-        //     display: flex;
-        //     align-items: center;
-        //     gap: 5px;
-        //     overflow: hidden;
-
-        //     img {
-        //         width: 30px;
-        //         flex-shrink: 0;
-        //     }
-
-        //     span {
-        //         font-weight: 600;
-        //         font-size: 22px;
-        //         white-space: nowrap;
-        //         transition: opacity 0.2s ease;
-        //         color: #17643c;
-        //     }
-        // }
-
         .arrow {
             width: 30px;
             height: 30px;
@@ -184,17 +164,10 @@
             }
 
             a.ActiveLink {
-                // background: linear-gradient(135deg,  rgb(231, 179, 82), rgb(255, 166, 0));
                 background: linear-gradient(90deg, rgba(143, 183, 158, 0.22), rgba(143, 183, 158, 0.06));
                 color: #fff;
-                // box-shadow: 0 4px 12px rgba(23, 100, 60, 0.25);
                 box-shadow: inset 2px 0 0 #8ab0de;
                 position: relative;
-
-                // &:hover {
-                //     background: linear-gradient(135deg, rgb(231, 179, 82), rgb(255, 166, 0));
-                //     color: #fff;
-                // }
 
                 .icon i {
                     color: #fff;
@@ -203,17 +176,199 @@
                 &::before {
                     content: '';
                     position: absolute;
-                    left: -20px;
+                    left: -10px;
                     top: 50%;
                     transform: translateY(-50%);
                     width: 4px;
                     height: 22px;
                     background-color: #fff;
-                    // background-color: #FF6B35;
                     border-radius: 0 4px 4px 0;
                 }
             }
         }
+    }
+
+    .HasSubmenu {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .SubmenuToggle {
+        width: 100%;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 11px 10px;
+        color: rgba(244, 240, 230, 0.68);
+        font-size: 14px;
+        font-weight: 500;
+        position: relative;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        text-align: left;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .icon {
+            width: 22px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            i {
+                font-size: 18px;
+            }
+        }
+
+        .text {
+            white-space: nowrap;
+            overflow: hidden;
+            opacity: 1;
+            max-width: 200px;
+            transition: opacity 0.25s ease 0.12s, max-width 0.25s ease;
+        }
+
+        p {
+            margin-left: auto;
+            margin-right: 4px;
+            background-color: rgb(217 190 143 / 20%);
+            color: #d9be8f;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 100px;
+        }
+    }
+
+    .SubmenuToggle.ActiveLink {
+        background: linear-gradient(90deg, rgba(143, 183, 158, 0.22), rgba(143, 183, 158, 0.06));
+        color: #fff;
+        box-shadow: inset 2px 0 0 #8ab0de;
+
+        .icon i {
+            color: #fff;
+        }
+    }
+
+    .chevron {
+        font-size: 12px;
+        flex-shrink: 0;
+        transition: transform 0.2s ease;
+        color: rgba(244, 240, 230, 0.5);
+    }
+
+    .chevronOpen {
+        transform: rotate(180deg);
+    }
+
+    .SubLinks {
+        list-style: none;
+        margin: 4px 0 4px 23px;
+        padding-left: 9px;
+        border-left: 1px solid rgba(255, 255, 255, 0.08);
+
+        li {
+            margin-top: 3px;
+        }
+
+        a {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            color: rgba(244, 240, 230, 0.6);
+            font-size: 13px;
+            font-weight: 500;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.05);
+            }
+
+            .icon {
+                width: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                i {
+                    font-size: 15px;
+                }
+            }
+
+            .text {
+                white-space: nowrap;
+                overflow: hidden;
+            }
+        }
+
+        a.ActiveLink {
+            background: linear-gradient(90deg, rgba(143, 183, 158, 0.22), rgba(143, 183, 158, 0.06));
+            color: #fff;
+
+            .icon i {
+                color: #fff;
+            }
+        }
+    }
+
+    .NoRole {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 28px 14px;
+        margin-top: 6px;
+        border-radius: 14px;
+        border: 1px dashed #fff;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .NoRoleIcon {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 12px;
+        background: linear-gradient(135deg, rgba(255, 249, 237, 0.18), rgba(248, 240, 227, 0.04));
+        border: 1px solid #fff;
+        color: #fff;
+        animation: NoRoleSpin 6s linear infinite;
+
+        i {
+            font-size: 19px;
+        }
+    }
+
+    @keyframes NoRoleSpin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .NoRoleTitle {
+        color: #F4F0E6;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+    }
+
+    .NoRoleText {
+        color: rgba(244, 240, 230, 0.45);
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 0;
     }
 
     .LinksWrapper {
@@ -244,10 +399,6 @@
 
     .AsideBottom {
         width: 100%;
-        // position: absolute;
-        // bottom: 20px;
-        // left: 50%;
-        // transform: translateX(-50%);
 
         .Me {
             display: flex;
@@ -402,6 +553,42 @@
 
         .AsideLinks a.ActiveLink::before {
             display: none;
+        }
+
+        .SubmenuToggle {
+            justify-content: center;
+
+            .text {
+                opacity: 0;
+                max-width: 0;
+                padding: 0;
+                margin: 0;
+            }
+
+            p {
+                display: none;
+            }
+        }
+
+        .chevron {
+            display: none;
+        }
+
+        .SubLinks {
+            display: none;
+        }
+
+        .NoRole {
+            padding: 14px 4px;
+
+            .NoRoleTitle,
+            .NoRoleText {
+                display: none;
+            }
+        }
+
+        .NoRoleIcon {
+            margin-bottom: 0;
         }
 
         .AsideBottom {

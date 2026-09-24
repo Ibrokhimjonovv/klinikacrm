@@ -10,15 +10,13 @@ import DateTimeFormatter from '../../../components/shared/DateTimeFormatter/Date
 const ResNurseHome = () => {
     const { user, patients: todayAdmissions, patientsLoading: loading, patientsError: error, fetchPatients } = useAppContext()
     const [showAdmission, setShowAdmission] = useState(false)
-
-
-
+    
     useEffect(() => {
-        fetchPatients()
+        if (todayAdmissions.length === 0) {
+            fetchPatients()
+        }
     }, [])
 
-
-    // Statistik ma'lumotlar
     const stats = [
         {
             title: 'Bugun qabul qilingan',

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import s from "./DoctorWaitingPatients.module.scss"
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { api } from '../../../../App';
+import s from "./AssistantDoctorPatients.module.scss"
+import { useNavigate } from 'react-router-dom'
+import { api } from '../../../App';
 
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
@@ -9,21 +9,58 @@ const calcAge = (birthDate) => {
     return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25))
 }
 
-const DoctorWaitingPatients = () => {
+const STATUS_LABELS = {
+    REQUESTED: 'Kutilmoqda',
+    ASSIGNED: 'Kutilmoqda',
+    IN_PROGRESS: 'Jarayonda',
+    COMPLETED: 'Yakunlangan',
+    NO_SHOW: 'Kelmagan',
+    CANCELLED: 'Bekor qilingan',
+}
+
+// Backend javobi (DoctorTaskSerializer) shu yerda bitta joyda
+// moslanadi. Maydon nomlari serializerdagi nomlardan farq
+// qilsa, FAQAT shu funksiyani o'zgartirasiz.
+const normalizeTask = (t, index) => {
+    const patient = t.medical_visit?.patient || t.patient || {}
+    const raw = String(t.status || '').toUpperCase()
+
+    let statusKey = 'pending'
+    if (['IN_PROGRESS', 'PROGRESS'].includes(raw)) statusKey = 'progress'
+    else if (['COMPLETED', 'DONE'].includes(raw)) statusKey = 'done'
+    else if (['CANCELLED', 'NO_SHOW'].includes(raw)) statusKey = 'cancelled'
+
+    return {
+        id: t.id || index + 1,
+        first_name: patient.first_name || '',
+        last_name: patient.last_name || '',
+        middle_name: patient.middle_name || '',
+        birth_date: patient.date_of_birth || null,
+        gender: patient.gender || '',
+        phone: patient.contact_number || '—',
+        service: t.service?.name || t.service_name || "Ko'rsatilmagan",
+        statusRaw: t.status,
+        statusKey,
+        statusLabel: STATUS_LABELS[t.status] || t.status,
+    }
+}
+
+const AssistantDoctorPatients = () => {
     const navigate = useNavigate()
     const [view, setView] = useState('table') // 'table' | 'card'
     const [search, setSearch] = useState('')
 
-    const [patients, setPatients] = useState([])
+    const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        const fetchPatients = async () => {
+        const fetchTasks = async () => {
             try {
                 setLoading(true)
+                setError(null)
                 const token = localStorage.getItem('hospital_access')
-                const res = await fetch(`${api}/waitlist/`, {
+                const res = await fetch(`${api}/doctor/my-tasks/`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -36,20 +73,9 @@ const DoctorWaitingPatients = () => {
                 }
 
                 const data = await res.json()
+                const list = Array.isArray(data) ? data : data.results || []
 
-                const formatted = data.map((patient, index) => ({
-                    id: patient.id || index + 1,
-                    first_name: patient.first_name || '',
-                    last_name: patient.last_name || '',
-                    middle_name: patient.middle_name || '',
-                    birth_date: patient.date_of_birth || patient.birth_date || null,
-                    gender: patient.gender || '',
-                    phone: patient.contact_number || patient.phone || '—',
-                    // last_visit: patient.create_date || patient.created_at || null,
-                    status: patient.status || (patient.complaints?.length ? 'Faol' : 'Kuzatuvda'),
-                }))
-
-                setPatients(formatted)
+                setTasks(list.map(normalizeTask))
             } catch (err) {
                 console.error('API xatosi:', err)
                 setError(err.message)
@@ -58,17 +84,13 @@ const DoctorWaitingPatients = () => {
             }
         }
 
-        fetchPatients()
+        fetchTasks()
     }, [])
 
-    const filtered = patients.filter(p => {
+    const filtered = tasks.filter(p => {
         const fullName = `${p.first_name} ${p.last_name} ${p.middle_name}`.toLowerCase()
         return fullName.includes(search.toLowerCase())
     })
-
-    const [searchParams] = useSearchParams()
-    const flow = searchParams.get('flow') || 'treatment' // default
-
 
     if (loading) {
         return (
@@ -91,8 +113,8 @@ const DoctorWaitingPatients = () => {
 
             <div className={s.TopRow}>
                 <div>
-                    <h1>{flow == 'diagnostics' ? "Diagnostika jarayonidagi bemorlar" : "Davolash jarayonidagi bemorlar"}</h1>
-                    <p>Sizga biriktirilgan bemorlar ro'yxati</p>
+                    <h1>Sizga biriktirilgan vazifalar</h1>
+                    <p>Diagnostikaga yuborilgan bemorlar ro'yxati</p>
                 </div>
 
                 <div className={s.ViewSwitch}>
@@ -124,7 +146,7 @@ const DoctorWaitingPatients = () => {
             </div>
 
             {filtered.length === 0 && (
-                <p className={s.Empty}>Hech qanday bemor topilmadi</p>
+                <p className={s.Empty}>Hech qanday vazifa topilmadi</p>
             )}
 
             {view === 'table' && filtered.length > 0 && (
@@ -135,14 +157,14 @@ const DoctorWaitingPatients = () => {
                                 <th>F.I.O</th>
                                 <th>Yoshi</th>
                                 <th>Telefon</th>
-                                {/* <th>Oxirgi tashrif</th> */}
+                                <th>Xizmat</th>
                                 <th>Holati</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {filtered.map(p => (
-                                <tr key={p.id} onClick={() => navigate(`/doctor-waiting-patients/${p.id}/${flow}`)}>
+                                <tr key={p.id} onClick={() => navigate(`/waiting-patients/${p.id}`)}>
                                     <td>
                                         <div className={s.NameCell}>
                                             <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
@@ -151,16 +173,11 @@ const DoctorWaitingPatients = () => {
                                     </td>
                                     <td>{calcAge(p.birth_date)} yosh</td>
                                     <td>{p.phone}</td>
-                                    {/* <td>
-                                        {p.last_visit
-                                            ? new Date(p.last_visit).toLocaleDateString('uz-UZ')
-                                            : '—'}
-                                    </td> */}
+                                    <td>{p.service}</td>
                                     <td>
-                                        {/* <span className={`${s.StatusBadge} ${p.status === 'Faol' ? s.active : s.watch}`}>
-                                            {p.status}
-                                        </span> */}
-                                        <span className={`${s.StatusBadge} ${s.watch}`}>Kutilmoqda</span>
+                                        <span className={`${s.StatusBadge} ${s[p.statusKey]}`}>
+                                            {p.statusLabel}
+                                        </span>
                                     </td>
                                     <td className={s.ArrowCell}><i className="bi bi-chevron-right"></i></td>
                                 </tr>
@@ -176,24 +193,20 @@ const DoctorWaitingPatients = () => {
                         <div
                             key={p.id}
                             className={s.PatientCard}
-                            onClick={() => navigate(`/doctor-waiting-patients/${p.id}`)}
+                            onClick={() => navigate(`/waiting-patients/${p.id}`)}
                         >
                             <div className={s.CardTop}>
                                 <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
-                                {/* <span className={`${s.StatusBadge} ${p.status === 'Faol' ? s.active : s.watch}`}>
-                                    {p.status}
-                                </span> */}
-                                <span className={`${s.StatusBadge} ${s.watch}`}>Kutilmoqda</span>
+                                <span className={`${s.StatusBadge} ${s[p.statusKey]}`}>
+                                    {p.statusLabel}
+                                </span>
                             </div>
                             <h3>{p.first_name} {p.last_name}</h3>
                             <p className={s.CardAge}>{calcAge(p.birth_date)} yosh · {p.gender === 'erkak' ? 'Erkak' : 'Ayol'}</p>
-                            {/* <div className={s.CardInfo}>
+                            <div className={s.CardInfo}>
+                                <span><i className="bi bi-clipboard2-pulse"></i> {p.service}</span>
                                 <span><i className="bi bi-telephone"></i> {p.phone}</span>
-                                <span>
-                                    <i className="bi bi-clock-history"></i>
-                                    {p.last_visit ? new Date(p.last_visit).toLocaleDateString('uz-UZ') : '—'}
-                                </span>
-                            </div> */}
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -203,4 +216,4 @@ const DoctorWaitingPatients = () => {
     )
 }
 
-export default DoctorWaitingPatients
+export default AssistantDoctorPatients

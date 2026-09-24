@@ -6,6 +6,7 @@ import VisitForm from '../../shared/VisitForm/VisitForm';
 import { IMaskInput } from 'react-imask';
 import { useAppContext } from '../../../context/context';
 import PrintReceipt from '../../shared/PrintReceipt/PrintReceipt';
+import { createPortal } from 'react-dom';
 
 const STEPS = ['Bemor ma\'lumotlari', 'Kirish ma\'lumotlari', 'Shikoyat']
 
@@ -334,8 +335,7 @@ const PatientAdmission = ({ onSuccess }) => {
                 </div>
             )}
 
-            {/* CHOP ETISH UCHUN ALOHIDA SHABLON — ekranda ko'rinmaydi, faqat print paytida chiqadi */}
-            {finished && (
+            {finished && createPortal(
                 <PrintReceipt
                     title="Bemor qabul varaqasi"
                     patientName={`${formData.first_name} ${formData.last_name} ${formData.middle_name}`.trim()}
@@ -349,7 +349,8 @@ const PatientAdmission = ({ onSuccess }) => {
                     complaintId={createdComplaintId}
                     complaint={visitData.complaint}
                     notes={visitData.notes}
-                />
+                />,
+                document.body
             )}
 
         </section>

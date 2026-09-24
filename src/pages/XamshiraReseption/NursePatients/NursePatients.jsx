@@ -1,60 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import s from "./NursePatients.module.scss"
-import { api } from '../../../App';
 import { Link } from 'react-router-dom';
 import DateTimeFormatter from '../../../components/shared/DateTimeFormatter/DateTimeFormatter';
+import { useAppContext } from '../../../context/context';
+import Loading from '../../../components/Loading/Loading';
 
 const NursePatients = () => {
+    const {
+        patients: todayAdmissions,
+        patientsLoading: loading,
+        patientsError: error,
+        fetchPatients,
+    } = useAppContext();
 
-    const [todayAdmissions, setTodayAdmissions] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
-
-    // API dan bemorlarni olish
     useEffect(() => {
-        const fetchPatients = async () => {
-            try {
-                setLoading(true)
-                const token = localStorage.getItem('hospital_access')
-                const response = await fetch(`${api}/patientInfo/`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                })
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`)
-                }
-
-                const data = await response.json()
-
-                // API dan kelgan ma'lumotlarni kerakli formatga o'tkazish
-                // API strukturasi bo'yicha moslashtirish kerak
-                const formattedPatients = data.map((patient, index) => ({
-                    id: patient.id || index + 1,
-                    name: `${patient.first_name || ''} ${patient.last_name || ''}`.trim() || patient.full_name || 'Noma\'lum',
-                    time: patient.create_date || patient.created_at || '00:00',
-                    complaint:
-                        patient.complaints?.at(-1)?.complaint ||
-                        "Ko'rsatilmagan",
-                    // doctor: patient.doctor_name || patient.doctor || 'Kutilmoqda'
-                    doctor_name: patient.created_by.first_name || patient.doctor || 'Kutilmoqda',
-                    doctor_surename: patient.created_by.middle_name || patient.doctor || 'Kutilmoqda'
-                }))
-
-                setTodayAdmissions(formattedPatients)
-                setLoading(false)
-            } catch (err) {
-                console.error('API xatosi:', err)
-                setError(err.message)
-                setLoading(false)
-            }
+        // faqat ro'yxat bo'sh bo'lsa qayta so'rov yuborish (ixtiyoriy optimallashtirish)
+        if (todayAdmissions.length === 0) {
+            fetchPatients();
         }
+    }, []);
 
-        fetchPatients()
-    }, [])
+    if (loading) return <Loading />;
+    if (error) return <p>{error}</p>;
 
     return (
         <div className={s.ListCard}>
@@ -78,13 +45,8 @@ const NursePatients = () => {
                                     </div>
                                 </div>
                                 <div className={s.PatientRight}>
-                                    {/* <span className={s.Time}>{p.time}</span> */}
-                                    <DateTimeFormatter
-                                        date={p.time}
-                                        format="datetime"
-                                        className={s.Time}
-                                    />
-                                    <span className={`${s.DoctorBadge}`}>
+                                    <DateTimeFormatter date={p.time} format="datetime" className={s.Time} />
+                                    <span className={s.DoctorBadge}>
                                         {p.doctor_name} {p.doctor_surename}
                                     </span>
                                 </div>

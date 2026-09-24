@@ -3,6 +3,7 @@ import s from './AddVisit.module.scss';
 import { api } from '../../../App';
 import VisitForm from '../../shared/VisitForm/VisitForm';
 import PrintReceipt from '../../shared/PrintReceipt/PrintReceipt';
+import { createPortal } from 'react-dom';
 
 const AddVisit = ({ patientId, patientName, patientInfo = [], onSuccess }) => {
     const [formData, setFormData] = useState({
@@ -68,6 +69,8 @@ const AddVisit = ({ patientId, patientName, patientInfo = [], onSuccess }) => {
         }
     };
 
+    const DEMO_CREDENTIALS = { username: 'xxxxxxxx', password: 'xxxxxxxx' };
+
     const handlePrint = () => {
         window.print();
     };
@@ -100,14 +103,20 @@ const AddVisit = ({ patientId, patientName, patientInfo = [], onSuccess }) => {
                 </div>
 
                 {/* CHOP ETISH UCHUN ALOHIDA SHABLON — ekranda ko'rinmaydi, faqat print paytida chiqadi */}
-                <PrintReceipt
-                    title="Yangi shikoyat varaqasi"
-                    patientName={patientName}
-                    patientInfo={patientInfo}   // ← YANGI
-                    complaintId={createdComplaintId}
-                    complaint={formData.complaint}
-                    notes={formData.notes}
-                />
+                {createPortal(
+                    <div className="print-root">
+                        <PrintReceipt
+                            title="Yangi shikoyat varaqasi"
+                            patientName={patientName}
+                            patientInfo={patientInfo.filter((row) => row.value)}
+                            credentials={DEMO_CREDENTIALS}
+                            complaintId={createdComplaintId}
+                            complaint={formData.complaint}
+                            notes={formData.notes}
+                        />
+                    </div>,
+                    document.body
+                )}
             </section>
         );
     }

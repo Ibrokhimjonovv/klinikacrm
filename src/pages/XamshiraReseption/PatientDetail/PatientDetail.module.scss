@@ -71,7 +71,8 @@
 }
 
 .VisitEditBtn,
-.VisitDeleteBtn {
+.VisitDeleteBtn,
+.VisitPrintBtn {
     border: none;
     background-color: #fff;
     width: 32px;
@@ -79,6 +80,15 @@
     border-radius: 8px;
     cursor: pointer;
     flex-shrink: 0;
+}
+
+
+.VisitPrintBtn {
+    color: #1b3050;
+
+    &:hover {
+        background-color: #eaf0f7;
+    }
 }
 
 .VisitEditBtn {
@@ -241,7 +251,8 @@
 }
 
 .EditBtn,
-.DeleteBtn {
+.DeleteBtn,
+.PrintBtn {
     background: linear-gradient(135deg, rgb(231, 179, 82), rgb(255, 166, 0));
     // background: linear-gradient(135deg, #FF8A3D, #FF6B35);
     color: #fff;
@@ -260,6 +271,11 @@
     &:hover {
         opacity: 0.92;
     }
+}
+
+.PrintBtn {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    box-shadow: 0 4px 12px rgba(27, 48, 80, 0.25);
 }
 
 .LoadingWrapper {
@@ -617,7 +633,8 @@
         color: #999;
     }
 
-    p, .datt {
+    p,
+    .datt {
         color: #0e1b33;
         font-size: 14px;
         margin-top: 2px;

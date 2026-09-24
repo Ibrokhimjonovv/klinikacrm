@@ -7,18 +7,26 @@ import React, {
 } from 'react';
 
 import { api } from '../../App';
+import { useAppContext } from '../context';
 
 const WaitingPatientsContext = createContext(null);
 
 export const WaitingPatientsProvider = ({ children }) => {
+    const { user } = useAppContext();
+
     const [waitingPatients, setWaitingPatients] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchWaiting = useCallback(async () => {
         const token = localStorage.getItem('hospital_access');
 
-        // Token hali mavjud bo'lmasa API chaqirmaymiz
         if (!token) {
+            setLoading(false);
+            return;
+        }
+
+        if (user?.role !== 'Doctor') {
+            setWaitingPatients([]);
             setLoading(false);
             return;
         }
@@ -32,7 +40,6 @@ export const WaitingPatientsProvider = ({ children }) => {
                 },
             });
 
-            // Token noto'g'ri yoki eskirgan bo'lsa
             if (res.status === 401) {
                 console.warn('Waiting patients: 401 Unauthorized');
                 return;
@@ -44,27 +51,20 @@ export const WaitingPatientsProvider = ({ children }) => {
 
             const data = await res.json();
 
-            const formatted = (
-                Array.isArray(data) ? data : []
-            ).map((p) => ({
+            const formatted = (Array.isArray(data) ? data : []).map((p) => ({
                 id: p.id,
-
                 first_name: p.first_name || '',
                 last_name: p.last_name || '',
                 middle_name: p.middle_name || '',
-
                 birth_date:
                     p.date_of_birth ||
                     p.birth_date ||
                     null,
-
                 gender: p.gender || '',
-
                 phone:
                     p.contact_number ||
                     p.phone ||
                     '—',
-
                 created_at: p.created_at || null,
             }));
 
@@ -77,13 +77,10 @@ export const WaitingPatientsProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [user]);
 
     useEffect(() => {
-        // Birinchi so'rov
         fetchWaiting();
-
-        // Har 1 daqiqada
         const interval = setInterval(() => {
             fetchWaiting();
         }, 60000);
@@ -92,10 +89,6 @@ export const WaitingPatientsProvider = ({ children }) => {
             clearInterval(interval);
         };
     }, [fetchWaiting]);
-
-    // ==========================================
-    // ID BO'YICHA ENG OXIRGI BEMOR
-    // ==========================================
 
     const latestPatient = waitingPatients.reduce(
         (latest, patient) => {

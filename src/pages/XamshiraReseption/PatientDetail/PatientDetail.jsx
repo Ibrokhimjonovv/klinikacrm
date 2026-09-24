@@ -9,6 +9,8 @@ import EditVisit from '../../../components/XamshiraReseption/EditVisit/EditVisit
 import AddVisit from '../../../components/XamshiraReseption/AddVisit/AddVisit';
 import DateTimeFormatter from '../../../components/shared/DateTimeFormatter/DateTimeFormatter';
 import { useAppContext } from '../../../context/context';
+import { createPortal, flushSync } from 'react-dom';
+import PrintReceipt from '../../../components/shared/PrintReceipt/PrintReceipt';
 
 const calcAge = (birthDate) => {
     if (!birthDate) return 'Noma\'lum';
@@ -54,6 +56,20 @@ const NursePatientDetail = () => {
     // Tashxisni o'chirish uchun
     const [visitToDelete, setVisitToDelete] = useState(null);
     const [deletingVisit, setDeletingVisit] = useState(false);
+
+    const [printTarget, setPrintTarget] = useState(null);
+
+    const DEMO_CREDENTIALS = { username: 'xxxxxxxx', password: 'xxxxxxxx' };
+
+    const latestVisit = visits.length
+        ? visits.reduce((a, b) => (Number(b.id) > Number(a.id) ? b : a))
+        : null;
+
+    const handlePrint = (visit = null) => {
+        // chek DOM'ga chiqib bo'lgandan keyingina print ochilishi uchun
+        flushSync(() => setPrintTarget({ visit }));
+        window.print();
+    };
 
     const fetchPatient = async () => {
         try {
@@ -290,6 +306,13 @@ const NursePatientDetail = () => {
         );
     }
 
+    const receiptPatientInfo = [
+        { label: "Tug'ilgan sana", value: patient.date_of_birth },
+        { label: 'Jinsi', value: patient.gender === 'erkak' ? 'Erkak' : patient.gender === 'ayol' ? 'Ayol' : '' },
+        { label: 'Telefon', value: patient.contact_number },
+        { label: 'Manzil', value: patient.address },
+    ].filter((row) => row.value);
+
     return (
         <div className={s.DetailPage}>
             <div className={s.TopBar}>
@@ -298,6 +321,9 @@ const NursePatientDetail = () => {
                 </div>
 
                 <div className={s.ActionButtons}>
+                    {/* <button className={s.PrintBtn} onClick={() => handlePrint()}>
+                        <i className="bi bi-printer"></i> Chop etish
+                    </button> */}
                     <button className={s.EditBtn} onClick={openEditPatientOnly}>
                         <i className="bi bi-pencil"></i> Tahrirlash
                     </button>
@@ -377,7 +403,7 @@ const NursePatientDetail = () => {
                     <i className="bi bi-calendar3"></i>
                     <div>
                         <span>Tug'ilgan sana</span>
-                        <p><DateTimeFormatter format='date' className={s.datt} date={patient.create_date} /></p>
+                        <p><DateTimeFormatter format='date' className={s.datt} date={patient.date_of_birth} /></p>
                     </div>
                 </div>
                 <div className={s.InfoItem}>
@@ -423,6 +449,16 @@ const NursePatientDetail = () => {
                                     </div>
                                 </div>
                                 <div className={s.VisitActions}>
+                                    <button
+                                        className={s.VisitPrintBtn}
+                                        title="Chekni chop etish"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePrint(v);
+                                        }}
+                                    >
+                                        <i className="bi bi-printer"></i>
+                                    </button>
                                     <button
                                         className={s.VisitEditBtn}
                                         onClick={(e) => {
@@ -551,6 +587,19 @@ const NursePatientDetail = () => {
                     </div>
                 </div>
             </Modal>
+
+            {printTarget && createPortal(
+                <PrintReceipt
+                    title="Bemor qabul varaqasi"
+                    patientName={`${patient.first_name} ${patient.last_name} ${patient.middle_name}`.trim()}
+                    patientInfo={receiptPatientInfo}
+                    credentials={DEMO_CREDENTIALS}
+                    complaintId={printTarget.visit?.id}
+                    complaint={printTarget.visit?.complaint}
+                    notes={printTarget.visit?.notes}
+                />,
+                document.body
+            )}
         </div>
     );
 };

@@ -143,9 +143,15 @@ $success-bg: rgba(14, 27, 51, 0.06);
     h2 {
         font-size: 15px;
         font-weight: 700;
-        margin: 10px 0 12px;
+        margin: 0 0 12px;
         color: #1a1a1a;
     }
+}
+
+.ComplaintsList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
 }
 
 .ComplaintsHint {
@@ -158,8 +164,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
 .ComplaintCard {
     display: block;
     width: 100%;
-    min-width: 0; // grid ichida kengayib ketmasligi uchun
-    overflow: hidden; // tashqariga chiqqanini yashiradi
     text-align: left;
     font-family: inherit;
     cursor: pointer;
@@ -180,11 +184,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
         font-size: 14px;
         color: #1f2937;
         line-height: 1.4;
-
-        // bitta qatorda kesib, oxiriga "..." qo'yadi
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
 }
 
@@ -383,6 +382,7 @@ $success-bg: rgba(14, 27, 51, 0.06);
     border-radius: 14px;
     padding: 20px;
     margin-bottom: 20px;
+    margin-top: 15px !important;
 }
 
 .PlanFormHead {
@@ -1045,147 +1045,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
-/* =========================
-   YOTIB DAVOLANISH — XONA / YOTOQ TANLASH
-========================= */
-.RoomSection {
-    margin: 4px 0 18px;
-}
-
-.RoomGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.RoomOption {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    text-align: left;
-    font-family: inherit;
-    cursor: pointer;
-
-    border: 1px solid $border;
-    border-radius: 12px;
-    padding: 12px 14px;
-    background: #fafbfc;
-
-    transition: border-color 0.15s, background 0.15s;
-
-    &:hover:not(:disabled) {
-        border-color: $primary;
-        background: $success-bg;
-    }
-
-    &:disabled {
-        cursor: default;
-    }
-}
-
-.RoomOptionSelected {
-    border-color: $primary;
-    background: $success-bg;
-    box-shadow: 0 0 0 1px $primary;
-}
-
-.RoomOptionFull {
-    opacity: 0.55;
-    cursor: not-allowed;
-    background: #f4f5f7;
-
-    &:hover {
-        border-color: $border !important;
-        background: #f4f5f7 !important;
-    }
-}
-
-.RoomOptionTitle {
-    font-size: 14px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-.RoomOptionMeta {
-    font-size: 12px;
-    color: $text-muted;
-}
-
-.BedSection {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px dashed $border;
-}
-
-.BedGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.BedOption {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-
-    font-family: inherit;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-
-    border: 1px solid $border;
-    border-radius: 10px;
-    padding: 10px 8px;
-
-    transition: border-color 0.15s, background 0.15s, color 0.15s;
-
-    span {
-        font-size: 11px;
-        font-weight: 500;
-        color: $text-muted;
-    }
-}
-
-.BedOptionFree {
-    background: #fff;
-    color: #1a1a1a;
-
-    &:hover:not(:disabled) {
-        border-color: $primary;
-        background: $success-bg;
-    }
-}
-
-.BedOptionOccupied {
-    background: #fee2e2;
-    color: #b91c1c;
-    cursor: not-allowed;
-    opacity: 0.8;
-
-    span {
-        color: #b91c1c;
-    }
-}
-
-.BedOptionSelected {
-    border-color: $primary;
-    background: $primary;
-    color: #fff;
-
-    span {
-        color: rgba(255, 255, 255, 0.75);
-    }
-
-    &:hover {
-        background: $primary-light !important;
-        border-color: $primary-light !important;
-    }
-}
-
 .PriceSummaryBox {
     border: 1px solid $border;
     border-radius: 14px;
@@ -1593,11 +1452,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
-.MetaDot {
-    color: #d1d5db;
-    font-size: 12px;
-}
-
 .DiagRequestNote {
     margin: 10px 0 0;
 
@@ -1759,131 +1613,5 @@ $success-bg: rgba(14, 27, 51, 0.06);
     &.cancelled {
         background: rgba(239, 68, 68, 0.12);
         color: #dc2626;
-    }
-}
-
-.ComplaintsList {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-}
-
-.ComplaintGroup {
-    width: 100%;
-    /* qolganlari o'sha-o'sha */
-}
-
-.ComplaintGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    min-width: 0;
-    border: 1px solid $border;
-    border-radius: 14px;
-    background: #fff;
-    overflow: hidden;
-    transition: border-color 0.15s, box-shadow 0.15s;
-
-    &:hover {
-        border-color: rgba(14, 27, 51, 0.35);
-    }
-}
-
-.ComplaintGroupSelected {
-    border-color: $primary;
-    box-shadow: 0 0 0 1px $primary;
-}
-
-// Shikoyat sarlavhasi (endi to'liq kenglikda, matn kesilmaydi)
-.ComplaintCard {
-    display: block;
-    width: 100%;
-    text-align: left;
-    font-family: inherit;
-    cursor: pointer;
-    border: none;
-    border-left: 4px solid $primary;
-    border-radius: 0;
-    padding: 16px 20px;
-    background: #fafbfc;
-    transition: background 0.15s;
-
-    &:hover {
-        background: #f3f4f6;
-    }
-
-    p {
-        margin: 10px 0 0;
-        font-size: 15px;
-        font-weight: 500;
-        color: #1f2937;
-        line-height: 1.5;
-        white-space: normal;
-        word-break: break-word;
-    }
-}
-
-.ComplaintGroupSelected .ComplaintCard {
-    background: $success-bg;
-}
-
-.ComplaintTop {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-// ===== SHIKOYAT OSTIDAGI DIAGNOSTIKALAR =====
-.ComplaintDiagWrap {
-    padding: 16px 20px 20px;
-    border-top: 1px solid $border;
-    background: #fff;
-}
-
-.ComplaintDiagTitle {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0 0 12px;
-    font-size: 13px;
-    font-weight: 700;
-    color: $primary;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-
-    i {
-        font-size: 15px;
-    }
-}
-
-.ComplaintDiagList {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 12px;
-
-    .DiagRequestCard {
-        display: flex;
-        flex-direction: column;
-        padding: 14px 16px;
-        border-radius: 12px;
-        background: #fafbfc;
-        min-width: 0;
-    }
-
-    .DiagStatusRow {
-        margin-top: auto;   // holat doim kartaning pastida turadi
-    }
-}
-
-.ComplaintForm {
-    padding: 20px;
-    border-top: 1px solid $border;
-    background: #fff;
-
-    .PlanFormHead {
-        margin-bottom: 14px;
-        align-items: center;
     }
 }

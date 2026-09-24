@@ -1,0 +1,415 @@
+$primary: #0e1b33;
+$primary-light: #16264a;
+$border: #e5e7eb;
+$text-muted: #6b7280;
+
+.Page {
+    background: #fff;
+    border-radius: 20px;
+}
+
+.TopRow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    h1 {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0 0 4px;
+        color: #1a1a1a;
+    }
+
+    p {
+        margin: 0;
+        font-size: 13px;
+        color: $text-muted;
+    }
+}
+
+.AddBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: $primary;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background: $primary-light;
+    }
+}
+
+.SearchRow {
+    margin-bottom: 16px;
+}
+
+.SearchBox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 9px 12px;
+    max-width: 320px;
+
+    i {
+        color: $text-muted;
+    }
+
+    input {
+        border: none;
+        outline: none;
+        font-size: 14px;
+        width: 100%;
+        font-family: inherit;
+
+        &::placeholder {
+            color: #9ca3af;
+        }
+    }
+}
+
+.State,
+.Empty {
+    color: $text-muted;
+    font-size: 14px;
+    padding: 30px 0;
+    text-align: center;
+}
+
+.TableWrap {
+    overflow-x: auto;
+    border: 1px solid $border;
+    border-radius: 14px;
+}
+
+.Table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+
+    th {
+        text-align: left;
+        padding: 12px 16px;
+        background: #fafbfc;
+        color: $text-muted;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        border-bottom: 1px solid $border;
+    }
+
+    td {
+        padding: 12px 16px;
+        border-bottom: 1px solid $border;
+        color: #1f2937;
+        vertical-align: middle;
+    }
+
+    tr:last-child td {
+        border-bottom: none;
+    }
+}
+
+.NameCell {
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.DescCell {
+    color: $text-muted;
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.StatusToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &.active {
+        background: #d1fae5;
+        color: #047857;
+    }
+
+    &.inactive {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+}
+
+.ActionsCell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.IconBtn {
+    background: none;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 6px 9px;
+    cursor: pointer;
+    color: #374151;
+
+    &:hover {
+        background: #f3f4f6;
+        border-color: $primary;
+    }
+
+    &.danger:hover {
+        border-color: #b91c1c;
+        color: #b91c1c;
+        background: #fee2e2;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: default;
+    }
+}
+
+/* ---- Modal ---- */
+
+.ModalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.Modal {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 460px;
+    padding: 22px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.ModalHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    h2 {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+        color: #1a1a1a;
+    }
+}
+
+.CloseBtn {
+    background: none;
+    border: none;
+    color: $text-muted;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 6px;
+
+    &:hover {
+        background: #f3f4f6;
+        color: #1a1a1a;
+    }
+}
+
+.Field {
+    margin-bottom: 14px;
+    flex: 1;
+
+    label {
+        display: block;
+        font-size: 13px;
+        color: #374151;
+        margin-bottom: 6px;
+        font-weight: 500;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        border: 1px solid $border;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+
+        &:focus {
+            outline: none;
+            border-color: $primary;
+        }
+
+        &::placeholder {
+            color: #9ca3af;
+        }
+
+        &:disabled {
+            background: #f9fafb;
+        }
+    }
+}
+
+.FieldRow {
+    display: flex;
+    gap: 12px;
+}
+
+.CheckboxRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #374151;
+    margin-bottom: 16px;
+    cursor: pointer;
+
+    input {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+}
+
+.FormError {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b91c1c;
+    font-size: 13px;
+    margin: -4px 0 14px;
+}
+
+.ModalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.CancelBtn {
+    background: #f3f4f6;
+    color: #374151;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: #e5e7eb;
+    }
+}
+
+.AssignSub {
+    font-size: 13px;
+    color: $text-muted;
+    margin: -6px 0 14px;
+
+    strong {
+        color: $primary;
+        font-weight: 600;
+    }
+}
+
+.AssignedList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    max-height: 220px;
+    overflow-y: auto;
+}
+
+.AssignedRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 8px 10px;
+}
+
+.AssignedName {
+    flex: 1;
+    font-size: 13px;
+    color: #1a1a1a;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.AssignForm {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+
+    select {
+        flex: 1;
+        border: 1px solid $border;
+        border-radius: 10px;
+        padding: 9px 10px;
+        font-size: 13px;
+        font-family: inherit;
+        color: #374151;
+        cursor: pointer;
+
+        &:focus {
+            outline: none;
+            border-color: $primary;
+        }
+    }
+
+    .AddBtn {
+        white-space: nowrap;
+        padding: 9px 14px;
+        font-size: 13px;
+    }
+}
+
+.SaveBtn {
+    background: $primary;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: $primary-light;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+}

@@ -3,13 +3,6 @@ import s from "./DoctorHome.module.scss"
 import { useAppContext } from '../../../context/context'
 import { api } from '../../../App';
 
-const getPatientStatus = (progress) => {
-  const p = progress ?? 0
-  if (p >= 100) return { label: 'Tugallandi', key: 'done' }
-  if (p > 0) return { label: 'Jarayonda', key: 'progress' }
-  return { label: 'Kutilmoqda', key: 'pending' }
-}
-
 const DoctorHome = () => {
   const { user, doctorCounts, fetchDoctorCounts } = useAppContext()
 
@@ -17,31 +10,36 @@ const DoctorHome = () => {
   const [patientsLoading, setPatientsLoading] = useState(true)
   const [patientsError, setPatientsError] = useState(null)
 
-  const fetchDoctorPatients = async () => {
-    try {
-      setPatientsLoading(true)
-      const token = localStorage.getItem('hospital_access')
-      const res = await fetch(`${api}/doctorPatient/`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
-      const data = await res.json()
-      setPatients(Array.isArray(data) ? data : data.results || [])
-    } catch (err) {
-      console.error('Bemorlarni olishda xatolik:', err)
-      setPatientsError(err.message)
-    } finally {
-      setPatientsLoading(false)
-    }
-  }
-
   useEffect(() => {
+    const controller = new AbortController()
+
+    const fetchDoctorPatients = async () => {
+      try {
+        setPatientsLoading(true)
+        setPatientsError(null)
+        const token = localStorage.getItem('hospital_access')
+        const res = await fetch(`${api}/doctorPatient/`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          signal: controller.signal,
+        })
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+        const data = await res.json()
+        setPatients(Array.isArray(data) ? data : data.results || [])
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Bemorlarni olishda xatolik:', err)
+          setPatientsError(err.message)
+        }
+      } finally {
+        setPatientsLoading(false)
+      }
+    }
+
     fetchDoctorPatients()
-    fetchDoctorCounts()
   }, [])
 
   const getPatientStatus = (patient) => {
