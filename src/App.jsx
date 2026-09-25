@@ -39,8 +39,9 @@ import AssistantDoctorPatients from './pages/AssistantDoctor/AssistantDoctorPati
 import AssistantDoctorTaskDetail from './pages/AssistantDoctor/AssistantDoctorPatientsDetail/AssistantDoctorPatientsDetail'
 import AdminRooms from './pages/Admin/AdminRooms/AdminRooms'
 import DoctorRooms from './pages/Shifokor/DoctorRooms/DoctorRooms'
+import NurseInpatients from './pages/Xamshira/NurseInpatients/NurseInpatients'
 
-export const api = 'http://192.168.1.24:8000/api/v1'
+export const api = 'http://192.168.1.50:8000/api/v1'
 // export const api = 'https://bkapi.aoc.uz/api/v1'
 // export const api = 'https://6397-87-192-225-30.ngrok-free.app/api/v1'
 
@@ -102,6 +103,7 @@ function App() {
               <Route path="/" element={<NurseHome />} />
               <Route path="/nurse-patients" element={<NurseProgressPatients />} />
               <Route path="/nurse-profile" element={<NurseProfile />} />
+              <Route path="/nurse-inpatients" element={<NurseInpatients />} />
               {/* <Route path="/reception-nurse-profile" element={<NurseProfile />} /> */}
             </>
           )}

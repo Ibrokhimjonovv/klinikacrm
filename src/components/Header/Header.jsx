@@ -84,6 +84,7 @@ const menuLinks = {
         patientsTitle: 'BEMORLAR',
         patients: [
             { to: '/nurse-patients', icon: 'bi-clock', text: 'Bemorlar ro\'yxati', countKey: 'process' },
+            { to: '/nurse-inpatients', icon: 'bi-hospital', text: 'Yotib davolanayotgan bemorlar' },
         ],
         roomsTitle: null,
         rooms: [
