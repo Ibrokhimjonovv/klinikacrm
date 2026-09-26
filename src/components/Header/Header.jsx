@@ -1,14 +1,42 @@
 import s from "./Header.module.scss"
 import { useLocation, Link } from 'react-router-dom';
 import { useAppContext } from '../../context/context'
-import React, { useState } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
+
+const SIDEBAR_STORAGE_KEY = 'klinika_sidebar_collapsed'
 
 const menuLinks = {
     admin: {
         main: [
             { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
-            { to: '/services', icon: 'bi-sliders2', text: 'Servislar' },
-            { to: '/admin-rooms', icon: 'bi-hospital', text: 'Xonalar' },
+        ],
+        sections: [
+            {
+                title: 'XIZMATLAR',
+                links: [
+                    { to: '/services', icon: 'bi-sliders2', text: 'Servislar' },
+                ],
+            },
+            {
+                title: 'XONALAR',
+                links: [
+                    { to: '/admin-rooms', icon: 'bi-hospital', text: 'Xonalar' },
+                ],
+            },
+            {
+                title: 'XODIMLAR',
+                links: [
+                    { to: '/admin-doctors', icon: 'bi-people', text: 'Barcha xodimlar' },
+                    // { to: '/admin-nurses', icon: 'bi-people', text: 'Hamshiralar' },
+                    // { to: '/admin-res-nurses', icon: 'bi-people', text: 'Qabul Hamshiralari' },
+                ],
+            },
+            {
+                title: 'Dori-darmonlar',
+                links: [
+                    { to: '/admin-medicines', icon: 'bi-capsule', text: 'Dorilar' },
+                ],
+            },
         ],
         patientsTitle: null,
         patients: [
@@ -123,6 +151,26 @@ const Header = () => {
     const location = useLocation()
     const [openMenu, setOpenMenu] = useState(null)
 
+    // Sahifa ochilganda (yoki F5 bosilganda) localStorage'dagi holatni
+    // tiklaymiz. useLayoutEffect ishlatilmoqda — bu birinchi bo'yashdan
+    // oldin ishlaydi, shu bilan ochiq -> yopiq "milt etish"ni kamaytiradi.
+    useLayoutEffect(() => {
+        const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY)
+        if (stored === null) return
+        const storedValue = stored === 'true'
+        if (storedValue !== collapsed) {
+            setCollapsed(storedValue)
+        }
+        // faqat mount paytida — collapsed/setCollapsed'ni deps'ga qo'shmaymiz
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const toggleSidebar = () => {
+        const next = !collapsed
+        setCollapsed(next)
+        localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next))
+    }
+
     if (location.pathname === '/sign-in') {
         return null
     }
@@ -186,16 +234,29 @@ const Header = () => {
         else return "Aniqlanmadi"
     }
 
+    // ✅ Profil rasmi bo'lsa shuni, bo'lmasa avvalgidek bosh harfni
+    // ko'rsatish uchun ajratildi. Doctor/Nurse/ResNurse/AssistantDoctor
+    // hammasi `user?.doctor` obyektidan foydalanadi (yuqoridagi
+    // userName/userRole bilan bir xil naqsh), Patient esa `user?.patient`.
+    const profileImage = user?.doctor?.profile_image || user?.patient?.profile_image || null
+
+    const profileInitial = () => {
+        if (user?.doctor?.first_name) return user.doctor.first_name[0].toUpperCase()
+        if (user?.patient?.first_name) return user.patient.first_name[0].toUpperCase()
+        if (user?.role === "Admin") return "A"
+        return "?"
+    }
+
     return (
         <div className={`${s.aside} ${collapsed ? s.collapsed : ''}`}>
             <div className={s.Logo}>
                 <div className={s.LogoImg}>
                     <div className={s.LogoMark}>✦</div>
-                    <span className={s.Brand}>Klinika CRM</span>
+                    <span className={s.Brand}>AOC CRM</span>
                 </div>
                 <button
                     className={s.arrow}
-                    onClick={() => setCollapsed(!collapsed)}
+                    onClick={toggleSidebar}
                 >
                     <i className={`bi ${collapsed ? 'bi-caret-right-square-fill' : 'bi-caret-left-square-fill'}`}></i>
                 </button>
@@ -229,6 +290,37 @@ const Header = () => {
                         </li>
                     )}
                 </ul>
+
+                {/* Umumiy, har biri o'z sarlavhasi bilan chiqadigan
+                    guruhlar (hozircha Admin uchun: XIZMATLAR, XONALAR,
+                    XODIMLAR). Boshqa rollarga ham shu tarzda osongina
+                    guruh qo'shish mumkin — links.sections massivini
+                    to'ldirish kifoya. */}
+                {links?.sections?.map((section, si) => (
+                    <React.Fragment key={si}>
+                        {section.title && (
+                            <p className={s.asosiy}>{section.title}</p>
+                        )}
+
+                        <ul className={s.AsideLinks}>
+                            {section.links.map((link, index) => (
+                                <li key={index}>
+                                    <Link
+                                        to={link.to}
+                                        className={isActive(link.to) ? s.ActiveLink : ''}
+                                    >
+                                        <span className={s.icon}><i className={`bi ${link.icon}`}></i></span>
+                                        <span className={s.text}>{link.text}</span>
+
+                                        {link.countKey && (
+                                            <p>{doctorCounts[link.countKey] ?? 0}</p>
+                                        )}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </React.Fragment>
+                ))}
 
                 {links && links.patients.length > 0 && (
                     <>
@@ -380,11 +472,16 @@ const Header = () => {
             <div className={s.AsideBottom}>
                 <div className={s.Me}>
                     <div className={s.ProfileLogo}>
-                        {user?.doctor?.first_name ? user?.doctor?.first_name[0].toUpperCase() : user?.patient?.first_name ? user?.patient?.first_name[0].toUpperCase() : user?.role == "Admin" ? `A` : "?"}
+                        {profileImage ? (
+                            <img src={profileImage} alt={userName()} className={s.ProfileLogoImg} />
+                        ) : (
+                            profileInitial()
+                        )}
                     </div>
                     <div className={s.ProfileDatas}>
                         <p>{userName()}</p>
-                        <p>{userRole()}</p>
+                        <p>{user?.doctor?.department_detail?.name}</p>
+                        {/* <p>{userRole()}</p> */}
                     </div>
                 </div>
                 <button className={s.Logout} onClick={logout}>

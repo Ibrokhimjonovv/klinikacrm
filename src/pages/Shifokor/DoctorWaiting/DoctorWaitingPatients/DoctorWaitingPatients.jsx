@@ -8,10 +8,20 @@ const calcAge = (birthDate) => {
     const diff = Date.now() - new Date(birthDate).getTime()
     return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25))
 }
+const DIAG_STATUS_MAP = {
+    WAITING: { label: 'Kutilmoqda', key: 'watch' },
+    IN_PROGRESS: { label: 'Jarayonda', key: 'progress' },
+    COMPLETED: { label: 'Yakunlangan', key: 'done' },
+    NO_SHOW: { label: 'Kelmagan', key: 'cancelled' },
+    CANCELLED: { label: 'Bekor qilingan', key: 'cancelled' },
+}
+
+const getDiagStatusInfo = (status) =>
+    DIAG_STATUS_MAP[status] || { label: status || 'Kutilmoqda', key: 'watch' }
 
 const DoctorWaitingPatients = () => {
     const navigate = useNavigate()
-    const [view, setView] = useState('table') // 'table' | 'card'
+    const [view, setView] = useState('table')
     const [search, setSearch] = useState('')
 
     const [patients, setPatients] = useState([])
@@ -45,8 +55,7 @@ const DoctorWaitingPatients = () => {
                     birth_date: patient.date_of_birth || patient.birth_date || null,
                     gender: patient.gender || '',
                     phone: patient.contact_number || patient.phone || '—',
-                    // last_visit: patient.create_date || patient.created_at || null,
-                    status: patient.status || (patient.complaints?.length ? 'Faol' : 'Kuzatuvda'),
+                    diagnosticStatusInfo: getDiagStatusInfo(patient.diagnostic_status),
                 }))
 
                 setPatients(formatted)
@@ -67,8 +76,11 @@ const DoctorWaitingPatients = () => {
     })
 
     const [searchParams] = useSearchParams()
-    const flow = searchParams.get('flow') || 'treatment' // default
+    const flow = searchParams.get('flow') || 'treatment'
+    const TREATMENT_STATUS_INFO = { label: 'Kutilmoqda', key: 'watch' }
 
+    const getDisplayStatus = (patient) =>
+        flow === 'treatment' ? TREATMENT_STATUS_INFO : patient.diagnosticStatusInfo
 
     if (loading) {
         return (
@@ -137,6 +149,7 @@ const DoctorWaitingPatients = () => {
                                 <th>Telefon</th>
                                 {/* <th>Oxirgi tashrif</th> */}
                                 <th>Holati</th>
+                                {flow === 'treatment' && <th>Diagnostika holati</th>}
                                 <th></th>
                             </tr>
                         </thead>
@@ -151,17 +164,18 @@ const DoctorWaitingPatients = () => {
                                     </td>
                                     <td>{calcAge(p.birth_date)} yosh</td>
                                     <td>{p.phone}</td>
-                                    {/* <td>
-                                        {p.last_visit
-                                            ? new Date(p.last_visit).toLocaleDateString('uz-UZ')
-                                            : '—'}
-                                    </td> */}
                                     <td>
-                                        {/* <span className={`${s.StatusBadge} ${p.status === 'Faol' ? s.active : s.watch}`}>
-                                            {p.status}
-                                        </span> */}
-                                        <span className={`${s.StatusBadge} ${s.watch}`}>Kutilmoqda</span>
+                                        <span className={`${s.StatusBadge} ${s[getDisplayStatus(p).key]}`}>
+                                            {getDisplayStatus(p).label}
+                                        </span>
                                     </td>
+                                    {flow === 'treatment' && (
+                                        <td>
+                                            <span className={`${s.StatusBadge} ${s[p.diagnosticStatusInfo.key]}`}>
+                                                {p.diagnosticStatusInfo.label}
+                                            </span>
+                                        </td>
+                                    )}
                                     <td className={s.ArrowCell}><i className="bi bi-chevron-right"></i></td>
                                 </tr>
                             ))}
@@ -180,20 +194,12 @@ const DoctorWaitingPatients = () => {
                         >
                             <div className={s.CardTop}>
                                 <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
-                                {/* <span className={`${s.StatusBadge} ${p.status === 'Faol' ? s.active : s.watch}`}>
-                                    {p.status}
-                                </span> */}
-                                <span className={`${s.StatusBadge} ${s.watch}`}>Kutilmoqda</span>
+                                <span className={`${s.StatusBadge} ${s[getDisplayStatus(p).key]}`}>
+                                    {getDisplayStatus(p).label}
+                                </span>
                             </div>
                             <h3>{p.first_name} {p.last_name}</h3>
                             <p className={s.CardAge}>{calcAge(p.birth_date)} yosh · {p.gender === 'erkak' ? 'Erkak' : 'Ayol'}</p>
-                            {/* <div className={s.CardInfo}>
-                                <span><i className="bi bi-telephone"></i> {p.phone}</span>
-                                <span>
-                                    <i className="bi bi-clock-history"></i>
-                                    {p.last_visit ? new Date(p.last_visit).toLocaleDateString('uz-UZ') : '—'}
-                                </span>
-                            </div> */}
                         </div>
                     ))}
                 </div>

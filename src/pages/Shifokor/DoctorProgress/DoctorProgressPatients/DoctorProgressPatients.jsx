@@ -15,7 +15,6 @@ const formatDate = (dateStr) => {
     return new Date(dateStr).toLocaleDateString('uz-UZ')
 }
 
-// Tashxis boshlangan va tugash sanasini, hamda bajarilish foizini hisoblaydi
 const getPlanProgress = (plan) => {
     if (!plan) return null
 
@@ -53,7 +52,7 @@ const getPlanProgress = (plan) => {
 
 const DoctorProgressPatients = () => {
     const navigate = useNavigate()
-    const [view, setView] = useState('table') // 'table' | 'card'
+    const [view, setView] = useState('table')
     const [search, setSearch] = useState('')
 
     const [patients, setPatients] = useState([])
@@ -80,10 +79,10 @@ const DoctorProgressPatients = () => {
                 const data = await res.json()
 
                 const formatted = data.map((patient, index) => {
-                    // Eng so'nggi / faol davolash rejasi
+                    const plans = patient.treatment_plan || []
                     const activePlan =
-                        patient.active_treatment_plan ||
-                        patient.treatment_plans?.[patient.treatment_plans.length - 1] ||
+                        plans.find(pl => !pl.is_end) ||
+                        plans[plans.length - 1] ||
                         null
 
                     return {
@@ -94,9 +93,7 @@ const DoctorProgressPatients = () => {
                         birth_date: patient.date_of_birth || null,
                         gender: patient.gender || '',
                         phone: patient.contact_number || '—',
-
-                        treatment_plan: patient.treatment_plan,
-
+                        treatment_plan: activePlan,
                         progress: patient.progress,
                     }
                 })

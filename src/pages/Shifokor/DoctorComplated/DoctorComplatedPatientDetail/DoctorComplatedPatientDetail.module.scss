@@ -101,6 +101,7 @@ $text-muted: #6b7280;
     @media (max-width: 900px) {
         grid-template-columns: repeat(2, 1fr);
     }
+
     @media (max-width: 560px) {
         grid-template-columns: 1fr;
     }
@@ -126,7 +127,8 @@ $text-muted: #6b7280;
         margin-bottom: 2px;
     }
 
-    p, .datt {
+    p,
+    .datt {
         margin: 0;
         font-size: 14px;
         font-weight: 600;
@@ -233,7 +235,7 @@ $text-muted: #6b7280;
 
 .PlanDaysGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
 }
 
@@ -244,6 +246,14 @@ $text-muted: #6b7280;
     background: #fafbfc;
 }
 
+// ✅ YANGI: kun sarlavhasi qatori — kun raqami + kunlik narx.
+.PlanDayCardHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
 .DayBadge {
     display: inline-block;
     background: $primary;
@@ -252,6 +262,13 @@ $text-muted: #6b7280;
     font-weight: 700;
     padding: 4px 12px;
     border-radius: 20px;
+}
+
+.DayPriceTag {
+    font-size: 12px;
+    font-weight: 700;
+    color: $primary;
+    white-space: nowrap;
 }
 
 .CheckList {
@@ -321,10 +338,21 @@ $text-muted: #6b7280;
     background: $primary;
     flex-shrink: 0;
 
-    &.waiting { background: #d97706; }
-    &.in_progress { background: #2563eb; }
-    &.completed { background: #059669; }
-    &.cancelled { background: #dc2626; }
+    &.waiting {
+        background: #d97706;
+    }
+
+    &.in_progress {
+        background: #2563eb;
+    }
+
+    &.completed {
+        background: #059669;
+    }
+
+    &.cancelled {
+        background: #dc2626;
+    }
 }
 
 .PlanTitleRow {
@@ -345,10 +373,12 @@ $text-muted: #6b7280;
         background: #f0f0f0;
         color: #888;
     }
+
     &.active {
         background: #fff4e0;
         color: #d99400;
     }
+
     &.done {
         background: #d1fae5;
         color: #047857;
@@ -371,6 +401,10 @@ $text-muted: #6b7280;
 
     i {
         color: $primary;
+    }
+
+    strong {
+        color: #1a1a1a;
     }
 }
 
@@ -552,17 +586,24 @@ $text-muted: #6b7280;
     }
 }
 
+// ------------------------------------------------------------
+// ✅ TUZATILDI: har bir band endi ikki qatorli — ustida icon +
+// matn, ostida esa (agar mavjud bo'lsa) xizmat/vaqt/narx
+// belgilari (.ItemMetaRow). Shu sabab <li> flex-direction'ini
+// "row" dan "align-items: flex-start" bilan saqlab, ichiga
+// .ItemBody (column) qo'shildi.
+// ------------------------------------------------------------
 .ItemsPlainList {
     list-style: none;
     margin: 10px 0 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 
     li {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         gap: 8px;
         font-size: 13px;
         color: #1f2937;
@@ -570,15 +611,106 @@ $text-muted: #6b7280;
         i {
             font-size: 16px;
             flex-shrink: 0;
+            margin-top: 1px;
 
             &.bi-check-circle-fill {
                 color: #047857;
             }
+
             &.bi-circle {
                 color: #d1d5db;
             }
         }
     }
+}
+
+.ItemBody {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+// ------------------------------------------------------------
+// ✅ YANGI: har bir band ostidagi xizmat / vaqt / narx / davomiylik
+// belgilari (API'dan kelayotgan service_detail va time uchun).
+// ------------------------------------------------------------
+.ItemMetaRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ItemMetaTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: rgba(14, 27, 51, 0.06);
+    color: #0e1b33;
+    font-size: 11px;
+    font-weight: 600;
+
+    i {
+        font-size: 12px;
+        color: #0e1b33;
+        margin-top: 0;
+    }
+}
+
+// ------------------------------------------------------------
+// ✅ YANGI: kunlik dorilar bloki (TreatmentPlanDay.medicines,
+// item'lardan alohida keladigan massiv).
+// ------------------------------------------------------------
+.DayMedicinesBox {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed $border;
+}
+
+.DayMedicinesTitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: $text-muted;
+
+    i {
+        color: $primary;
+    }
+}
+
+.DayMedicinesList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    li {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+        font-size: 12px;
+        color: #1f2937;
+    }
+}
+
+.DayMedicineName {
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.DayMedicineCalc {
+    color: $text-muted;
+    white-space: nowrap;
 }
 
 .CheckedText {

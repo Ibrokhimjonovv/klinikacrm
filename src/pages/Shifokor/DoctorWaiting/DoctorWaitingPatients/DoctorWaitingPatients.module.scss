@@ -11,8 +11,16 @@
     flex-wrap: wrap;
     gap: 15px;
 
-    h1 { font-size: 24px; color: #0E1B33; }
-    p { color: #888; margin-top: 4px; font-size: 13px; }
+    h1 {
+        font-size: 24px;
+        color: #0E1B33;
+    }
+
+    p {
+        color: #888;
+        margin-top: 4px;
+        font-size: 13px;
+    }
 }
 
 .ViewSwitch {
@@ -47,7 +55,9 @@
     padding: 10px 14px;
     max-width: 350px;
 
-    i { color: #999; }
+    i {
+        color: #999;
+    }
 
     input {
         border: none;
@@ -63,8 +73,6 @@
     text-align: center;
     padding: 40px 0;
 }
-
-// TABLE
 
 .TableWrap {
     overflow-x: auto;
@@ -129,16 +137,31 @@
     border-radius: 20px;
     font-weight: 500;
 
-    &.active { background-color: #e9f7ef; color: #17643c; }
-    &.watch { background-color: #f0f0f0; color: #888; }
+    &.watch {
+        background-color: #f0f0f0;
+        color: #888;
+    }
+
+    &.progress {
+        background-color: #fff4e0;
+        color: #d99400;
+    }
+
+    &.done {
+        background-color: #e9f7ef;
+        color: #17643c;
+    }
+
+    &.cancelled {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
 }
 
 .ArrowCell {
     text-align: right;
     color: #ccc;
 }
-
-// CARDS
 
 .CardsGrid {
     display: grid;
@@ -156,7 +179,7 @@
     color: #0E1B33;
 
     &:hover {
-        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
         transform: translateY(-2px);
     }
 

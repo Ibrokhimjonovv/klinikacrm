@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
+import Modal from '../../../../components/Modal/Modal';
 import s from './DoctorWaitingPatientDetail.module.scss';
 import { api } from '../../../../App';
 import DateTimeFormatter from '../../../../components/shared/DateTimeFormatter/DateTimeFormatter';
+import ImageZoomViewer from '../../../../components/shared/ImageZoomViewer/ImageZoomViewer';
 
 // ============================================================
 // HELPERS
@@ -59,6 +60,12 @@ const getFileUrl = (path) => {
     }
 };
 
+// Helper: check if a URL points to an image (by extension)
+const isImageFile = (url) => {
+    if (!url) return false;
+    return /\.(jpg|jpeg|png|gif|bmp|webp|svg)(\?.*)?$/i.test(url);
+};
+
 // ============================================================
 // COMPONENT
 // ============================================================
@@ -90,6 +97,10 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
     // Real examination requests
     const [diagnosticRequests, setDiagnosticRequests] = useState([]);
     const [requestsLoading, setRequestsLoading] = useState(false);
+
+    // Modal state for image preview
+    const [modalOpen, setModalOpen] = useState(false);
+    const [modalImage, setModalImage] = useState(null);
 
     useEffect(() => {
         fetchPatient();
@@ -218,6 +229,28 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
     }, [selectedComplaint, diagnosticRequests]);
 
     const alreadySentForComplaint = existingRequestsForComplaint.length > 0;
+
+    // ------------------------------------------------------------
+    // ✅ FAQAT FAOL DIAGNOSTIKASI BOR SHIKOYATLAR
+    // ------------------------------------------------------------
+
+    const visibleComplaints = useMemo(() => {
+        const waitingComplaints = (patient?.complaints || []).filter(
+            (complaint) => complaint.status === 'WAITING'
+        );
+
+        return waitingComplaints.filter((complaint) => {
+            const requests = diagnosticRequests.filter(
+                (request) => Number(request.medical_visit) === Number(complaint.id)
+            );
+
+            // Agar diagnostika umuman yuborilmagan bo'lsa — shikoyat ko'rinadi (yuborish mumkin)
+            if (requests.length === 0) return true;
+
+            // Agar yuborilgan bo'lsa — faqat bittasi ham faol bo'lsa ko'rinadi
+            return requests.some((request) => request.status !== 'COMPLETED');
+        });
+    }, [patient, diagnosticRequests]);
 
     const resetDiagState = () => {
         setSelectedServices([]);
@@ -381,11 +414,26 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
     };
 
     // ------------------------------------------------------------
+    // OPEN IMAGE MODAL
+    // ------------------------------------------------------------
+
+    const openImageModal = (url) => {
+        setModalImage(url);
+        setModalOpen(true);
+    };
+
+    const closeImageModal = () => {
+        setModalOpen(false);
+        setModalImage(null);
+    };
+
+    // ------------------------------------------------------------
     // BITTA DIAGNOSTIKA SO'ROVI KARTASI
     // ------------------------------------------------------------
 
     const renderRequestCard = (request) => {
         const fileUrl = getFileUrl(request.result?.result_file);
+        const fileIsImage = isImageFile(fileUrl);
 
         return (
             <div key={request.id} className={s.DiagRequestCard}>
@@ -434,40 +482,48 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                     </span>
                 </div>
 
+                {/* ✅ Natija */}
                 {request.result && (
-                    <div
-                        className={s.DiagRequestMeta}
-                        style={{
-                            marginTop: 12,
-                            paddingTop: 12,
-                            borderTop: '1px dashed #e5e7eb',
-                            flexDirection: 'column',
-                            alignItems: 'flex-start',
-                            gap: 8,
-                        }}
-                    >
+                    <div className={s.DiagResultBox}>
+                        <div className={s.DiagResultHeader}>
+                            <i className="bi bi-clipboard2-check-fill"></i>
+                            <span>Diagnostika natijasi</span>
+                        </div>
+
                         {request.result.result_text && (
-                            <p
-                                className={s.DiagRequestNote}
-                                style={{ borderTop: 'none', paddingTop: 0, margin: 0 }}
-                            >
-                                <i className="bi bi-file-text"></i> {request.result.result_text}
-                            </p>
+                            <p className={s.DiagResultText}>{request.result.result_text}</p>
                         )}
 
                         {fileUrl && (
-                            <a href={fileUrl} target="_blank" rel="noreferrer" className={s.FieldHint}>
-                                <i className="bi bi-paperclip"></i> Natija faylini ko'rish
-                            </a>
+                            fileIsImage ? (
+                                <button
+                                    type="button"
+                                    className={s.DiagResultFileBtn}
+                                    onClick={() => openImageModal(fileUrl)}
+                                >
+                                    <i className="bi bi-image"></i> Natijani ko'rish
+                                </button>
+                            ) : (
+                                <a
+                                    href={fileUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className={s.DiagResultFileBtn}
+                                >
+                                    <i className="bi bi-paperclip"></i> Natija faylini ko'rish
+                                </a>
+                            )
                         )}
 
-                        <span>
+                        <div className={s.DiagResultFooter}>
                             <i className="bi bi-person-check"></i>
                             Kim bajardi:{' '}
-                            {request.result.completed_by_detail?.full_name ||
-                                request.result.completed_by_detail?.username ||
-                                '-'}
-                        </span>
+                            <strong>
+                                {request.result.completed_by_detail?.full_name ||
+                                    request.result.completed_by_detail?.username ||
+                                    '-'}
+                            </strong>
+                        </div>
                     </div>
                 )}
             </div>
@@ -478,129 +534,147 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
     // DIAGNOSTIKAGA YUBORISH FORMASI (shikoyat ichida ochiladi)
     // ------------------------------------------------------------
 
-    const renderDiagnosticForm = () => (
-        <form className={s.ComplaintForm} onSubmit={handleSubmitDiagnostics}>
-            <div className={s.PlanFormHead}>
-                <h2>Diagnostikaga yuborish</h2>
+    const renderDiagnosticForm = () => {
+        const totalPrice = selectedServices.reduce((sum, serviceId) => {
+            const service = services.find(
+                (item) => Number(item.id) === Number(serviceId)
+            );
 
-                <button
-                    type="button"
-                    className={s.CancelSelectBtn}
-                    onClick={() => {
-                        setSelectedComplaintId(null);
-                        resetDiagState();
-                    }}
-                >
-                    <i className="bi bi-x-lg"></i>
-                </button>
-            </div>
+            return sum + Number(service?.price || 0);
+        }, 0);
 
-            <div className={s.Field}>
-                <label>Diagnostika xizmatlari *</label>
+        return (
+            <form className={s.ComplaintForm} onSubmit={handleSubmitDiagnostics}>
+                <div className={s.PlanFormHead}>
+                    <h2>Diagnostikaga yuborish</h2>
 
-                {servicesLoading ? (
-                    <div className={s.LoadingText}>
-                        <i className="bi bi-arrow-repeat"></i>
-                        Xizmatlar yuklanmoqda...
-                    </div>
-                ) : services.length === 0 ? (
-                    <div className={s.EmptyServices}>
-                        <i className="bi bi-info-circle"></i>
-                        <span>Hozircha faol diagnostika xizmati mavjud emas</span>
-                    </div>
-                ) : (
-                    <div className={s.DiagnosticServices}>
-                        {services.map((service) => {
-                            const selected = selectedServices.includes(Number(service.id));
-                            const serviceDoctors = getDoctorsForService(service.id);
+                    <button
+                        type="button"
+                        className={s.CancelSelectBtn}
+                        onClick={() => {
+                            setSelectedComplaintId(null);
+                            resetDiagState();
+                        }}
+                    >
+                        <i className="bi bi-x-lg"></i>
+                    </button>
+                </div>
 
-                            return (
-                                <div
-                                    key={service.id}
-                                    className={`${s.DiagnosticServiceRow} ${
-                                        selected ? s.DiagnosticServiceRowActive : ''
-                                    }`}
-                                >
-                                    <button
-                                        type="button"
-                                        className={s.DiagnosticServiceSelect}
-                                        onClick={() => toggleService(Number(service.id))}
-                                        disabled={diagSaving}
+                <div className={s.Field}>
+                    <label>Diagnostika xizmatlari *</label>
+
+                    {servicesLoading ? (
+                        <div className={s.LoadingText}>
+                            <i className="bi bi-arrow-repeat"></i>
+                            Xizmatlar yuklanmoqda...
+                        </div>
+                    ) : services.length === 0 ? (
+                        <div className={s.EmptyServices}>
+                            <i className="bi bi-info-circle"></i>
+                            <span>Hozircha faol diagnostika xizmati mavjud emas</span>
+                        </div>
+                    ) : (
+                        <div className={s.DiagnosticServices}>
+                            {services.map((service) => {
+                                const selected = selectedServices.includes(Number(service.id));
+                                const serviceDoctors = getDoctorsForService(service.id);
+
+                                return (
+                                    <div
+                                        key={service.id}
+                                        className={`${s.DiagnosticServiceRow} ${selected ? s.DiagnosticServiceRowActive : ''
+                                            }`}
                                     >
-                                        <span className={s.ServiceCheck}>
-                                            {selected ? <i className="bi bi-check"></i> : null}
-                                        </span>
-
-                                        <span className={s.ServiceInfo}>
-                                            <strong>{service.name}</strong>
-                                            {service.description && <small>{service.description}</small>}
-                                        </span>
-
-                                        <span className={s.ServicePrice}>
-                                            {Number(service.price).toLocaleString('uz-UZ')} so'm
-                                        </span>
-
-                                        <span className={s.ServiceDuration}>
-                                            <i className="bi bi-clock"></i>
-                                            {service.duration_minutes} daqiqa
-                                        </span>
-
-                                        <div className={s.ServiceDoctor}>
-                                            <span className={s.DoctorLabel}>
-                                                <i className="bi bi-person-badge"></i>
-                                                Shifokor
+                                        <button
+                                            type="button"
+                                            className={s.DiagnosticServiceSelect}
+                                            onClick={() => toggleService(Number(service.id))}
+                                            disabled={diagSaving}
+                                        >
+                                            <span className={s.ServiceCheck}>
+                                                {selected ? <i className="bi bi-check"></i> : null}
                                             </span>
 
-                                            {serviceDoctors.length > 0 ? (
-                                                <div className={s.AssignedDoctor}>
-                                                    <span>{serviceDoctors[0].full_name}</span>
-                                                </div>
-                                            ) : (
-                                                <div className={s.NoAssignedDoctor}>
-                                                    <span>Shifokor biriktirilmagan</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </button>
-                                </div>
-                            );
-                        })}
+                                            <span className={s.ServiceInfo}>
+                                                <strong>{service.name}</strong>
+                                                {service.description && <small>{service.description}</small>}
+                                            </span>
+
+                                            <span className={s.ServicePrice}>
+                                                {Number(service.price).toLocaleString('uz-UZ')} so'm
+                                            </span>
+
+                                            <span className={s.ServiceDuration}>
+                                                <i className="bi bi-clock"></i>
+                                                {service.duration_minutes} daqiqa
+                                            </span>
+
+                                            <div className={s.ServiceDoctor}>
+                                                <span className={s.DoctorLabel}>
+                                                    <i className="bi bi-person-badge"></i>
+                                                    Shifokor
+                                                </span>
+
+                                                {serviceDoctors.length > 0 ? (
+                                                    <div className={s.AssignedDoctor}>
+                                                        <span>{serviceDoctors[0].full_name}</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className={s.NoAssignedDoctor}>
+                                                        <span>Shifokor biriktirilmagan</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    <span className={s.FieldHint}>Bemor uchun kerakli diagnostika xizmatlarini tanlang</span>
+                </div>
+
+                <div className={s.SelectedServicesSummary}>
+                    <div className={s.SelectedServicesTotal}>
+                        <span>Jami:</span>
+                        <strong>
+                            {totalPrice.toLocaleString('uz-UZ')} so'm
+                        </strong>
                     </div>
+                </div>
+
+                <div className={s.Field}>
+                    <label>Izoh (ixtiyoriy)</label>
+                    <textarea
+                        rows={2}
+                        placeholder="Masalan: natija shoshilinch kerak"
+                        value={diagNote}
+                        onChange={(e) => setDiagNote(e.target.value)}
+                        disabled={diagSaving}
+                    />
+                </div>
+
+                {diagError && (
+                    <p className={s.FormError}>
+                        <i className="bi bi-exclamation-circle-fill"></i>
+                        {diagError}
+                    </p>
                 )}
 
-                <span className={s.FieldHint}>Bemor uchun kerakli diagnostika xizmatlarini tanlang</span>
-            </div>
+                {diagSuccess && (
+                    <p className={s.FormSuccess}>
+                        <i className="bi bi-check-circle-fill"></i>
+                        Bemor diagnostikaga yuborildi.
+                    </p>
+                )}
 
-            <div className={s.Field}>
-                <label>Izoh (ixtiyoriy)</label>
-                <textarea
-                    rows={2}
-                    placeholder="Masalan: natija shoshilinch kerak"
-                    value={diagNote}
-                    onChange={(e) => setDiagNote(e.target.value)}
-                    disabled={diagSaving}
-                />
-            </div>
-
-            {diagError && (
-                <p className={s.FormError}>
-                    <i className="bi bi-exclamation-circle-fill"></i>
-                    {diagError}
-                </p>
-            )}
-
-            {diagSuccess && (
-                <p className={s.FormSuccess}>
-                    <i className="bi bi-check-circle-fill"></i>
-                    Bemor diagnostikaga yuborildi.
-                </p>
-            )}
-
-            <button type="submit" className={s.SubmitPlanBtn} disabled={diagSaving || servicesLoading}>
-                {diagSaving ? 'Yuborilmoqda...' : 'Diagnostikaga yuborish'}
-            </button>
-        </form>
-    );
+                <button type="submit" className={s.SubmitPlanBtn} disabled={diagSaving || servicesLoading}>
+                    {diagSaving ? 'Yuborilmoqda...' : 'Diagnostikaga yuborish'}
+                </button>
+            </form>
+        );
+    };
 
     // ------------------------------------------------------------
     // RENDER STATES
@@ -696,98 +770,118 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
             </div>
 
             {/* COMPLAINTS */}
-            {patient.complaints?.length > 0 && (
+            {/* COMPLAINTS */}
+            {visibleComplaints.length > 0 ? (
                 <div className={s.ComplaintsSection}>
                     <h2>Shikoyatlar</h2>
                     <p className={s.ComplaintsHint}>Diagnostikaga yuborish uchun shikoyatni tanlang</p>
 
                     <div className={s.ComplaintsList}>
-                        {patient.complaints
-                            .filter((complaint) => complaint.status === 'WAITING')
-                            .map((complaint) => {
-                                const complaintRequests = diagnosticRequests.filter(
-                                    (request) => Number(request.medical_visit) === Number(complaint.id)
-                                );
-                                const hasDiagnostics = complaintRequests.length > 0;
-                                const isSelected = selectedComplaintId === complaint.id;
+                        {visibleComplaints.map((complaint) => {
+                            const complaintRequests = diagnosticRequests.filter(
+                                (request) => Number(request.medical_visit) === Number(complaint.id)
+                            );
 
-                                return (
-                                    <div
-                                        key={complaint.id}
-                                        className={`${s.ComplaintGroup} ${
-                                            isSelected ? s.ComplaintGroupSelected : ''
-                                        }`}
+                            const activeRequests = complaintRequests.filter(
+                                (request) => request.status !== 'COMPLETED'
+                            );
+
+                            const hasDiagnostics = complaintRequests.length > 0;
+                            const hasActiveDiagnostics = activeRequests.length > 0;
+                            const isSelected = selectedComplaintId === complaint.id;
+
+                            return (
+                                <div key={complaint.id} className={`${s.ComplaintGroup}`}>
+                                    <button
+                                        type="button"
+                                        className={s.ComplaintCard}
+                                        onClick={() => handleSelectComplaint(complaint)}
                                     >
-                                        {/* SHIKOYAT */}
-                                        <button
-                                            type="button"
-                                            className={s.ComplaintCard}
-                                            onClick={() => handleSelectComplaint(complaint)}
-                                        >
-                                            <div className={s.ComplaintTop}>
-                                                <span
-                                                    className={`${s.StatusTag} ${
-                                                        s[complaint.status?.toLowerCase()]
-                                                    }`}
-                                                >
-                                                    {STATUS_LABELS[complaint.status] || complaint.status}
+                                        <div className={s.ComplaintTop}>
+                                            <span
+                                                className={`${s.StatusTag} ${s[complaint.status?.toLowerCase()]}`}
+                                            >
+                                                {STATUS_LABELS[complaint.status] || complaint.status}
+                                            </span>
+
+                                            <DateTimeFormatter
+                                                date={complaint.created_at}
+                                                format="datetime"
+                                                className={s.ComplaintDate}
+                                            />
+                                        </div>
+
+                                        <p>{complaint.complaint}</p>
+
+                                        <div className={s.ComplaintBadges}>
+                                            {hasDiagnostics && (
+                                                <span className={s.DiagSentTag}>
+                                                    <i className="bi bi-check-circle-fill"></i>
+                                                    Diagnostikaga yuborilgan ({complaintRequests.length})
                                                 </span>
+                                            )}
+                                        </div>
+                                    </button>
 
-                                                <DateTimeFormatter
-                                                    date={complaint.created_at}
-                                                    format="datetime"
-                                                    className={s.ComplaintDate}
-                                                />
-                                            </div>
+                                    {requestsLoading && !hasDiagnostics ? (
+                                        <div className={s.LoadingText}>
+                                            <i className="bi bi-arrow-repeat"></i>
+                                            Diagnostikalar yuklanmoqda...
+                                        </div>
+                                    ) : (
+                                        hasActiveDiagnostics && (
+                                            <div className={s.ComplaintDiagWrap}>
+                                                <h3 className={s.ComplaintDiagTitle}>
+                                                    <i className="bi bi-clipboard2-pulse"></i>
+                                                    Diagnostikalar
+                                                </h3>
 
-                                            <p>{complaint.complaint}</p>
-
-                                            <div className={s.ComplaintBadges}>
-                                                {hasDiagnostics && (
-                                                    <span className={s.DiagSentTag}>
-                                                        <i className="bi bi-check-circle-fill"></i>
-                                                        Diagnostikaga yuborilgan ({complaintRequests.length})
-                                                    </span>
-                                                )}
-
-                                                {isSelected && (
-                                                    <span className={s.SelectedTag}>
-                                                        <i className="bi bi-check-circle-fill"></i>
-                                                        Tanlandi
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </button>
-
-                                        {/* SHU SHIKOYATNING DIAGNOSTIKALARI */}
-                                        {requestsLoading && !hasDiagnostics ? (
-                                            <div className={s.LoadingText}>
-                                                <i className="bi bi-arrow-repeat"></i>
-                                                Diagnostikalar yuklanmoqda...
-                                            </div>
-                                        ) : (
-                                            hasDiagnostics && (
-                                                <div className={s.ComplaintDiagWrap}>
-                                                    <h3 className={s.ComplaintDiagTitle}>
-                                                        <i className="bi bi-clipboard2-pulse"></i>
-                                                        Diagnostikalar
-                                                    </h3>
-
-                                                    <div className={s.ComplaintDiagList}>
-                                                        {complaintRequests.map(renderRequestCard)}
-                                                    </div>
+                                                <div className={s.ComplaintDiagList}>
+                                                    {activeRequests.map(renderRequestCard)}
                                                 </div>
-                                            )
-                                        )}
+                                            </div>
+                                        )
+                                    )}
 
-                                        {/* FORMA — tanlangan shikoyat ichida, hali yuborilmagan bo'lsa */}
-                                        {isSelected && !hasDiagnostics && renderDiagnosticForm()}
-                                    </div>
-                                );
-                            })}
+                                    {isSelected && !hasDiagnostics && renderDiagnosticForm()}
+                                </div>
+                            );
+                        })}
                     </div>
                 </div>
+            ) : (
+                patient?.complaints?.length > 0 && (
+                    <div className={s.AllDiagDoneCard}>
+                        <i className="bi bi-check-circle-fill"></i>
+                        <p>
+                            Barcha diagnostikalar yakunlangan. Ularni bemorning
+                            davolanish sahifasida ko'rishingiz mumkin.
+                        </p>
+                        <button
+                            type="button"
+                            className={s.GoToTreatmentBtn}
+                            onClick={() => navigate(`/doctor-waiting-patients/${id}/treatment`)}
+                        >
+                            Davolanish sahifasiga o'tish
+                            <i className="bi bi-arrow-right"></i>
+                        </button>
+                    </div>
+                )
             )}
+
+            {/* IMAGE MODAL (fullWidth + zoom) */}
+            <Modal
+                isOpen={modalOpen}
+                onClose={closeImageModal}
+                fullWidth
+            >
+                {modalImage && (
+                    <ImageZoomViewer
+                        src={modalImage}
+                        alt="Diagnostika natijasi"
+                    />
+                )}
+            </Modal>
         </div>
     );
 };

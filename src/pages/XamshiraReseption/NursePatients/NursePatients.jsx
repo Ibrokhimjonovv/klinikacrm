@@ -39,9 +39,9 @@ const NursePatients = () => {
                             <Link to={`/nurse-patients/${p.id}`}>
                                 <div className={s.PatientLeft}>
                                     <div className={s.Avatar}>{p.name ? p.name[0] : '?'}</div>
-                                    <div>
+                                    <div className={s.PatientInfo}>
                                         <p>{p.name}</p>
-                                        <span>{p.complaint}</span>
+                                        <span className="truncate">{p.complaint}</span>
                                     </div>
                                 </div>
                                 <div className={s.PatientRight}>

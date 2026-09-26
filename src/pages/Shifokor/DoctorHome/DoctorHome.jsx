@@ -40,6 +40,8 @@ const DoctorHome = () => {
     }
 
     fetchDoctorPatients()
+
+    return () => controller.abort()
   }, [])
 
   const getPatientStatus = (patient) => {
@@ -82,21 +84,27 @@ const DoctorHome = () => {
     },
     {
       title: 'Jarayondagi bemorlar',
-      value: doctorCounts.process,
+      value: doctorCounts.process,      // context "in_progress" -> "process" deb map qiladi
       change: "So'nggi oydan +3",
       icon: 'bi-heart-pulse'
     },
     {
       title: 'Yakunlangan',
-      value: doctorCounts.completed,
+      value: doctorCounts.completed,     // context "done" -> "completed" deb map qiladi
       change: "So'nggi oydan +5",
       icon: 'bi-check-circle'
     },
   ]
 
-  // Davolash jarayoni foizi — barcha bemorlar orasida nechtasi yakunlangan
-  const progressPercent = doctorCounts.all > 0
-    ? Math.round((doctorCounts.completed / doctorCounts.all) * 100)
+  // ✅ Foizni backend "all"iga emas, real holatlar yig'indisiga (waiting+process+completed)
+  // nisbatan hisoblaymiz — chunki backend "all" har doim shu yig'indiga teng bo'lmasligi mumkin
+  const totalForProgress =
+    (doctorCounts.waiting || 0) +
+    (doctorCounts.process || 0) +
+    (doctorCounts.completed || 0)
+
+  const progressPercent = totalForProgress > 0
+    ? Math.round(((doctorCounts.completed || 0) / totalForProgress) * 100)
     : 0
 
   // So'nggi 4 ta bemor (ro'yxatda ko'rsatish uchun)
@@ -106,7 +114,7 @@ const DoctorHome = () => {
     return {
       id: p.id,
       name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || "Noma'lum",
-      task: p.complaints?.[0].complaint || "Ko'rsatilmagan",
+      task: p.complaints?.[0]?.complaint || "Ko'rsatilmagan",
       avatar: p.first_name ? p.first_name[0].toUpperCase() : '?',
       statusLabel: statusInfo.label,
       statusKey: statusInfo.key,
@@ -164,7 +172,7 @@ const DoctorHome = () => {
                 <li key={p.id}>
                   <div className={s.PatientLeft}>
                     <div className={s.Avatar}>{p.avatar}</div>
-                    <div>
+                    <div className={s.PatientInfo}>
                       <p>{p.name}</p>
                       <span>{p.task}</span>
                     </div>

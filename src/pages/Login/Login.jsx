@@ -97,7 +97,7 @@ const Login = () => {
                             {/* <img src={logo} alt="" />
                                             <span>CRM</span> */}
                             <div className={s.LogoMark}>✦</div>
-                            <span className={s.Brand}>Klinika CRM</span>
+                            <span className={s.Brand}>AOC CRM</span>
                         </div>
 
                         <h2>Bemorlarni boshqarish endi osonroq</h2>

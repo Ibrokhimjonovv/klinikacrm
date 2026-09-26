@@ -5,8 +5,15 @@
     background: linear-gradient(180deg, #16274A 0%, #0E1B33 100%);
     border-radius: 20px;
     padding: 20px;
-    transition: width 0.55s cubic-bezier(0.16, 1, 0.3, 1),
-    min-width 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+    // Ochilish va yopilish bir xil davomiylik/egri chiziqda ishlaydi —
+    // avval .collapsed ichida boshqacha transition (0.3s ease-in) qayta
+    // e'lon qilingani sabab ikki tomon tezligi bir-biriga mos kelmay,
+    // "notekis" his qilinardi. Endi shu yerdagi bitta qiymat ikkala
+    // yo'nalish uchun ham ishlatiladi.
+    transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+        min-width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: width;
+    contain: layout style;
     overflow: hidden;
     position: relative;
     float: left;
@@ -49,7 +56,7 @@
                 white-space: nowrap;
                 opacity: 1;
                 max-width: 200px;
-                transition: opacity 0.25s ease 0.12s, max-width 0.25s ease;
+                transition: opacity 0.2s ease 0.1s, max-width 0.2s ease;
             }
         }
 
@@ -146,7 +153,7 @@
                     overflow: hidden;
                     opacity: 1;
                     max-width: 200px;
-                    transition: opacity 0.25s ease 0.12s, max-width 0.25s ease;
+                    transition: opacity 0.2s ease 0.1s, max-width 0.2s ease;
                 }
 
                 p {
@@ -231,7 +238,7 @@
             overflow: hidden;
             opacity: 1;
             max-width: 200px;
-            transition: opacity 0.25s ease 0.12s, max-width 0.25s ease;
+            transition: opacity 0.2s ease 0.1s, max-width 0.2s ease;
         }
 
         p {
@@ -352,6 +359,7 @@
         from {
             transform: rotate(0deg);
         }
+
         to {
             transform: rotate(360deg);
         }
@@ -377,7 +385,7 @@
         overflow-x: hidden;
 
         &::-webkit-scrollbar {
-            width: 5px;
+            width: 1px;
         }
 
         &::-webkit-scrollbar-track {
@@ -419,6 +427,13 @@
                 border-radius: 50%;
                 color: #fff;
                 font-size: 14px;
+
+                img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                    border-radius: inherit;
+                }
             }
 
             .ProfileDatas {
@@ -429,7 +444,7 @@
                 opacity: 1;
                 max-width: 200px;
                 overflow: hidden;
-                transition: opacity 0.25s ease 0.12s, max-width 0.25s ease;
+                transition: opacity 0.2s ease 0.1s, max-width 0.2s ease;
 
                 p {
                     &:first-child {
@@ -478,7 +493,7 @@
                 opacity: 1;
                 max-width: 150px;
                 overflow: hidden;
-                transition: opacity 0.25s ease 0.12s, max-width 0.25s ease;
+                transition: opacity 0.2s ease 0.1s, max-width 0.2s ease;
             }
         }
     }
@@ -487,7 +502,12 @@
     &.collapsed {
         width: 90px;
         min-width: 90px;
-        transition: width 0.3s ease-in, min-width 0.3s ease-in;
+        // Diqqat: bu yerda avval alohida "transition: width .3s ease-in..."
+        // qatori bor edi — shu sabab ochilish (.aside bazaviy qiymati) va
+        // yopilish (shu yerdagi qiymat) turli tezlik/egri chiziqda
+        // ishlar edi. Endi bu yerda umuman qayta e'lon qilinmaydi, shuning
+        // uchun ikkala yo'nalish ham yuqoridagi bitta transition qiymatidan
+        // foydalanadi.
 
         .Logo {
             flex-direction: column-reverse;

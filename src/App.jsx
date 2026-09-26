@@ -40,8 +40,13 @@ import AssistantDoctorTaskDetail from './pages/AssistantDoctor/AssistantDoctorPa
 import AdminRooms from './pages/Admin/AdminRooms/AdminRooms'
 import DoctorRooms from './pages/Shifokor/DoctorRooms/DoctorRooms'
 import NurseInpatients from './pages/Xamshira/NurseInpatients/NurseInpatients'
+import NurseInpatientDetail from './pages/Xamshira/NurseInpatientDetail/NurseInpatientDetail'
+import AdminDoctors from './pages/Admin/AdminDoctors/AdminDoctors'
+import AdminNurses from './pages/Admin/AdminNurses/AdminNurses'
+import AdminResNurses from './pages/Admin/AdminResNurses/AdminResNurses'
+import AdminMedicines from './pages/Admin/AdminMedicines/AdminMedicines'
 
-export const api = 'http://192.168.1.50:8000/api/v1'
+export const api = 'http://10.244.157.222:8000/api/v1'
 // export const api = 'https://bkapi.aoc.uz/api/v1'
 // export const api = 'https://6397-87-192-225-30.ngrok-free.app/api/v1'
 
@@ -103,7 +108,8 @@ function App() {
               <Route path="/" element={<NurseHome />} />
               <Route path="/nurse-patients" element={<NurseProgressPatients />} />
               <Route path="/nurse-profile" element={<NurseProfile />} />
-              <Route path="/nurse-inpatients" element={<NurseInpatients />} />
+              <Route path="nurse-inpatients" element={<NurseInpatients />} />
+              <Route path="nurse-inpatients/:id" element={<NurseInpatientDetail />} />
               {/* <Route path="/reception-nurse-profile" element={<NurseProfile />} /> */}
             </>
           )}
@@ -113,6 +119,10 @@ function App() {
               <Route path="/" element={<AdminHome />} />
               <Route path="/services" element={<AdminServices />} />
               <Route path="/admin-rooms" element={<AdminRooms />} />
+              <Route path="/admin-doctors" element={<AdminDoctors />} />
+              <Route path="/admin-nurses" element={<AdminNurses />} />
+              <Route path="/admin-res-nurses" element={<AdminResNurses />} />
+              <Route path="/admin-medicines" element={<AdminMedicines />} />
             </>
           )}
 

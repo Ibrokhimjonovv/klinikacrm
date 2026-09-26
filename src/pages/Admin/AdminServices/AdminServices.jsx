@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import s from './AdminServices.module.scss';
-// ⚠️ Fayl qaysi papkada joylashishiga qarab shu yo'lni to'g'rilang (masalan '../../App'):
+// ⚠️ Fayllar qaysi papkada joylashishiga qarab yo'llarni to'g'rilang:
+import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
 
 const authHeaders = (token, json = true) => ({
@@ -26,11 +27,30 @@ const AdminServices = () => {
     const [saving, setSaving] = useState(false)
     const [formError, setFormError] = useState('')
 
-    const [deletingId, setDeletingId] = useState(null)
+    const [deleteTarget, setDeleteTarget] = useState(null)
+    const [deleting, setDeleting] = useState(false)
+
+    // ---------- Toast (window.alert o'rniga) ----------
+
+    const [toast, setToast] = useState(null) // { type: 'error' | 'success', message }
+    const toastTimer = useRef(null)
+
+    const showToast = (type, message) => {
+        if (toastTimer.current) clearTimeout(toastTimer.current)
+        setToast({ type, message })
+        toastTimer.current = setTimeout(() => setToast(null), 3500)
+    }
+
+    useEffect(() => {
+        return () => {
+            if (toastTimer.current) clearTimeout(toastTimer.current)
+        }
+    }, [])
 
     // ---- Xizmatga xodim (shifokor) biriktirish ----
-    // ⚠️ "/doctors/" endpoint mavjudligi taxmin qilindi, javob {id, first_name, last_name, specialty}
-    // ko'rinishida bo'lishi kutiladi (agar boshqacha bo'lsa, doctorLabel() funksiyasini moslang).
+    // ⚠️ "/doctors/assists/" endpoint mavjudligi taxmin qilindi, javob
+    // {id, first_name, last_name, specialty} ko'rinishida bo'lishi kutiladi
+    // (agar boshqacha bo'lsa, doctorLabel() funksiyasini moslang).
     const [doctors, setDoctors] = useState([])
     const [doctorsLoading, setDoctorsLoading] = useState(true)
 
@@ -42,6 +62,9 @@ const AdminServices = () => {
     const [selectedDoctorId, setSelectedDoctorId] = useState('')
     const [assignSaving, setAssignSaving] = useState(false)
     const [assignError, setAssignError] = useState('')
+
+    const [removeTarget, setRemoveTarget] = useState(null)
+    const [removing, setRemoving] = useState(false)
 
     const fetchDoctors = async () => {
         try {
@@ -190,6 +213,7 @@ const AdminServices = () => {
 
             setAssignments(prev => [...prev, data])
             setSelectedDoctorId('')
+            showToast('success', "Shifokor xizmatga biriktirildi")
         } catch (err) {
             setAssignError("Serverga ulanishda xatolik yuz berdi. Qaytadan urinib ko'ring.")
         } finally {
@@ -208,22 +232,38 @@ const AdminServices = () => {
             if (!res.ok) throw new Error()
             setAssignments(prev => prev.map(a => a.id === assignment.id ? { ...a, is_active: !a.is_active } : a))
         } catch {
-            alert("Holatni o'zgartirishda xatolik yuz berdi")
+            showToast('error', "Holatni o'zgartirishda xatolik yuz berdi")
         }
     }
 
-    const removeAssignment = async (assignment) => {
-        if (!window.confirm("Bu shifokorni xizmatdan uzishni tasdiqlaysizmi?")) return
+    // ---------- Biriktirishni uzish (tasdiqlash modali) ----------
+
+    const askRemoveAssignment = (assignment) => {
+        setRemoveTarget(assignment)
+    }
+
+    const closeRemoveModal = () => {
+        if (removing) return
+        setRemoveTarget(null)
+    }
+
+    const confirmRemoveAssignment = async () => {
+        if (!removeTarget) return
+        setRemoving(true)
         try {
             const token = localStorage.getItem('hospital_access')
-            const res = await fetch(`${api}/service-employees/${assignment.id}/`, {
+            const res = await fetch(`${api}/service-employees/${removeTarget.id}/`, {
                 method: 'DELETE',
                 headers: authHeaders(token, false),
             })
             if (!res.ok) throw new Error()
-            setAssignments(prev => prev.filter(a => a.id !== assignment.id))
+            setAssignments(prev => prev.filter(a => a.id !== removeTarget.id))
+            setRemoveTarget(null)
+            showToast('success', "Shifokor xizmatdan uzildi")
         } catch {
-            alert("O'chirishda xatolik yuz berdi")
+            showToast('error', "O'chirishda xatolik yuz berdi")
+        } finally {
+            setRemoving(false)
         }
     }
 
@@ -333,6 +373,7 @@ const AdminServices = () => {
             }
 
             setModalOpen(false)
+            showToast('success', editingId ? 'Xizmat yangilandi' : "Yangi xizmat qo'shildi")
             fetchServices()
         } catch (err) {
             setFormError("Serverga ulanishda xatolik yuz berdi. Qaytadan urinib ko'ring.")
@@ -352,43 +393,65 @@ const AdminServices = () => {
             if (!res.ok) throw new Error()
             setServices(prev => prev.map(sv => sv.id === service.id ? { ...sv, is_active: !sv.is_active } : sv))
         } catch {
-            alert("Holatni o'zgartirishda xatolik yuz berdi")
+            showToast('error', "Holatni o'zgartirishda xatolik yuz berdi")
         }
     }
 
-    const handleDelete = async (service) => {
-        if (!window.confirm(`"${service.name}" xizmatini o'chirishni tasdiqlaysizmi?`)) return
+    // ---------- Xizmatni o'chirish (tasdiqlash modali) ----------
 
-        setDeletingId(service.id)
+    const askDelete = (service) => {
+        setDeleteTarget(service)
+    }
+
+    const closeDeleteModal = () => {
+        if (deleting) return
+        setDeleteTarget(null)
+    }
+
+    const confirmDelete = async () => {
+        if (!deleteTarget) return
+        setDeleting(true)
         try {
             const token = localStorage.getItem('hospital_access')
-            const res = await fetch(`${api}/services/${service.id}/`, {
+            const res = await fetch(`${api}/services/${deleteTarget.id}/`, {
                 method: 'DELETE',
                 headers: authHeaders(token, false),
             })
             if (!res.ok) throw new Error()
-            setServices(prev => prev.filter(sv => sv.id !== service.id))
+            setServices(prev => prev.filter(sv => sv.id !== deleteTarget.id))
+            setDeleteTarget(null)
+            showToast('success', "Xizmat o'chirildi")
         } catch {
-            alert("O'chirishda xatolik yuz berdi")
+            showToast('error', "O'chirishda xatolik yuz berdi")
         } finally {
-            setDeletingId(null)
+            setDeleting(false)
         }
     }
 
     return (
-        <div className={s.Page}>
-            <div className={s.TopRow}>
-                <div>
-                    <h1>Xizmatlar</h1>
-                    <p>Klinika xizmatlari va narxlarini boshqarish</p>
+        <div className={s.wrapper}>
+            {toast && (
+                <div className={`${s.toast} ${s[toast.type]}`}>
+                    <i className={`bi ${toast.type === 'error' ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill'}`}></i>
+                    <span>{toast.message}</span>
+                    <button type="button" onClick={() => setToast(null)}>
+                        <i className="bi bi-x"></i>
+                    </button>
                 </div>
-                <button className={s.AddBtn} onClick={openCreateModal}>
+            )}
+
+            <div className={s.header}>
+                <div>
+                    <h2>Xizmatlar</h2>
+                    <p className={s.subtitle}>Klinika xizmatlari va narxlarini boshqarish</p>
+                </div>
+                <button className={s.primaryBtn} onClick={openCreateModal}>
                     <i className="bi bi-plus-lg"></i> Xizmat qo'shish
                 </button>
             </div>
 
-            <div className={s.SearchRow}>
-                <div className={s.SearchBox}>
+            <div className={s.searchRow}>
+                <div className={s.searchBox}>
                     <i className="bi bi-search"></i>
                     <input
                         type="text"
@@ -399,16 +462,16 @@ const AdminServices = () => {
                 </div>
             </div>
 
-            {loading && <p className={s.State}>Yuklanmoqda...</p>}
-            {error && <p className={s.State}>Xatolik: {error}</p>}
+            {loading && <p className={s.loading}>Yuklanmoqda...</p>}
+            {error && <p className={s.loading}>Xatolik: {error}</p>}
 
             {!loading && !error && filtered.length === 0 && (
-                <p className={s.Empty}>Hech qanday xizmat topilmadi</p>
+                <p className={s.empty}>Hech qanday xizmat topilmadi</p>
             )}
 
             {!loading && !error && filtered.length > 0 && (
-                <div className={s.TableWrap}>
-                    <table className={s.Table}>
+                <div className={s.tableWrap}>
+                    <table className={s.table}>
                         <thead>
                             <tr>
                                 <th>Nomi</th>
@@ -422,32 +485,31 @@ const AdminServices = () => {
                         <tbody>
                             {filtered.map((sv) => (
                                 <tr key={sv.id}>
-                                    <td className={s.NameCell}>{sv.name}</td>
-                                    <td className={s.DescCell}>{sv.description || '—'}</td>
+                                    <td className={s.nameCell}>{sv.name}</td>
+                                    <td className={s.descCell}>{sv.description || '—'}</td>
                                     <td>{formatSum(sv.price)}</td>
                                     <td>{sv.duration_minutes} daqiqa</td>
                                     <td>
                                         <button
                                             type="button"
-                                            className={`${s.StatusToggle} ${sv.is_active ? s.active : s.inactive}`}
+                                            className={`${s.statusToggle} ${sv.is_active ? s.active : s.inactive}`}
                                             onClick={() => toggleActive(sv)}
                                         >
                                             <i className={`bi ${sv.is_active ? 'bi-check-circle-fill' : 'bi-slash-circle'}`}></i>
                                             {sv.is_active ? 'Faol' : 'Nofaol'}
                                         </button>
                                     </td>
-                                    <td className={s.ActionsCell}>
-                                        <button type="button" className={s.IconBtn} title="Xodimlarni biriktirish" onClick={() => openAssignModal(sv)}>
+                                    <td className={s.rowActions}>
+                                        <button type="button" title="Xodimlarni biriktirish" onClick={() => openAssignModal(sv)}>
                                             <i className="bi bi-people"></i>
                                         </button>
-                                        <button type="button" className={s.IconBtn} title="Tahrirlash" onClick={() => openEditModal(sv)}>
+                                        <button type="button" title="Tahrirlash" onClick={() => openEditModal(sv)}>
                                             <i className="bi bi-pencil"></i>
                                         </button>
                                         <button
                                             type="button"
-                                            className={`${s.IconBtn} ${s.danger}`}
-                                            onClick={() => handleDelete(sv)}
-                                            disabled={deletingId === sv.id}
+                                            className={s.dangerIcon}
+                                            onClick={() => askDelete(sv)}
                                         >
                                             <i className="bi bi-trash3"></i>
                                         </button>
@@ -459,176 +521,198 @@ const AdminServices = () => {
                 </div>
             )}
 
-            {modalOpen && (
-                <div className={s.ModalOverlay} onClick={closeModal}>
-                    <div className={s.Modal} onClick={(e) => e.stopPropagation()}>
-                        <div className={s.ModalHead}>
-                            <h2>{editingId ? 'Xizmatni tahrirlash' : 'Yangi xizmat qo\'shish'}</h2>
-                            <button type="button" className={s.CloseBtn} onClick={closeModal} disabled={saving}>
-                                <i className="bi bi-x-lg"></i>
-                            </button>
-                        </div>
+            {/* Xizmat qo'shish / tahrirlash */}
+            <Modal isOpen={modalOpen} onClose={closeModal}>
+                <div className={s.modalContent}>
+                    <h3>{editingId ? 'Xizmatni tahrirlash' : "Yangi xizmat qo'shish"}</h3>
 
-                        <form onSubmit={handleSubmit}>
-                            <div className={s.Field}>
-                                <label>Nomi *</label>
+                    <form onSubmit={handleSubmit}>
+                        <label>
+                            Nomi *
+                            <input
+                                type="text"
+                                placeholder="Masalan: Shifokor ko'rigi"
+                                value={form.name}
+                                onChange={(e) => handleFieldChange('name', e.target.value)}
+                                disabled={saving}
+                            />
+                        </label>
+
+                        <label>
+                            Tavsif
+                            <textarea
+                                rows={3}
+                                placeholder="Xizmat haqida qisqacha ma'lumot (ixtiyoriy)"
+                                value={form.description}
+                                onChange={(e) => handleFieldChange('description', e.target.value)}
+                                disabled={saving}
+                            />
+                        </label>
+
+                        <div className={s.fieldRow}>
+                            <label>
+                                Narxi (so'm) *
                                 <input
-                                    type="text"
-                                    placeholder="Masalan: Shifokor ko'rigi"
-                                    value={form.name}
-                                    onChange={(e) => handleFieldChange('name', e.target.value)}
+                                    type="number"
+                                    min={0}
+                                    step="0.01"
+                                    placeholder="0"
+                                    value={form.price}
+                                    onChange={(e) => handleFieldChange('price', e.target.value)}
                                     disabled={saving}
                                 />
-                            </div>
-
-                            <div className={s.Field}>
-                                <label>Tavsif</label>
-                                <textarea
-                                    rows={3}
-                                    placeholder="Xizmat haqida qisqacha ma'lumot (ixtiyoriy)"
-                                    value={form.description}
-                                    onChange={(e) => handleFieldChange('description', e.target.value)}
-                                    disabled={saving}
-                                />
-                            </div>
-
-                            <div className={s.FieldRow}>
-                                <div className={s.Field}>
-                                    <label>Narxi (so'm) *</label>
-                                    <input
-                                        type="number"
-                                        min={0}
-                                        step="0.01"
-                                        placeholder="0"
-                                        value={form.price}
-                                        onChange={(e) => handleFieldChange('price', e.target.value)}
-                                        disabled={saving}
-                                    />
-                                </div>
-
-                                <div className={s.Field}>
-                                    <label>Davomiyligi (daqiqa) *</label>
-                                    <input
-                                        type="number"
-                                        min={0}
-                                        placeholder="0"
-                                        value={form.duration_minutes}
-                                        onChange={(e) => handleFieldChange('duration_minutes', e.target.value)}
-                                        disabled={saving}
-                                    />
-                                </div>
-                            </div>
-
-                            <label className={s.CheckboxRow}>
-                                <input
-                                    type="checkbox"
-                                    checked={form.is_active}
-                                    onChange={(e) => handleFieldChange('is_active', e.target.checked)}
-                                    disabled={saving}
-                                />
-                                Xizmat faol (bemorlarga ko'rinadi)
                             </label>
 
-                            {formError && (
-                                <p className={s.FormError}>
-                                    <i className="bi bi-exclamation-circle-fill"></i> {formError}
-                                </p>
-                            )}
-
-                            <div className={s.ModalActions}>
-                                <button type="button" className={s.CancelBtn} onClick={closeModal} disabled={saving}>
-                                    Bekor qilish
-                                </button>
-                                <button type="submit" className={s.SaveBtn} disabled={saving}>
-                                    {saving ? 'Saqlanmoqda...' : 'Saqlash'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-            {assignModalOpen && assignService && (
-                <div className={s.ModalOverlay} onClick={closeAssignModal}>
-                    <div className={s.Modal} onClick={(e) => e.stopPropagation()}>
-                        <div className={s.ModalHead}>
-                            <h2>Xodimlarni biriktirish</h2>
-                            <button type="button" className={s.CloseBtn} onClick={closeAssignModal} disabled={assignSaving}>
-                                <i className="bi bi-x-lg"></i>
-                            </button>
+                            <label>
+                                Davomiyligi (daqiqa) *
+                                <input
+                                    type="number"
+                                    min={0}
+                                    placeholder="0"
+                                    value={form.duration_minutes}
+                                    onChange={(e) => handleFieldChange('duration_minutes', e.target.value)}
+                                    disabled={saving}
+                                />
+                            </label>
                         </div>
 
-                        <p className={s.AssignSub}>Xizmat: <strong>{assignService.name}</strong></p>
+                        <label className={s.checkboxLabel}>
+                            <input
+                                type="checkbox"
+                                checked={form.is_active}
+                                onChange={(e) => handleFieldChange('is_active', e.target.checked)}
+                                disabled={saving}
+                            />
+                            Xizmat faol (bemorlarga ko'rinadi)
+                        </label>
 
-                        <div className={s.AssignedList}>
-                            {assignmentsLoading ? (
-                                <p className={s.State}>Yuklanmoqda...</p>
-                            ) : assignmentsForService.length === 0 ? (
-                                <p className={s.Empty}>Hali hech kim biriktirilmagan</p>
-                            ) : (
-                                assignmentsForService.map((a) => {
-                                    const doctor = getEmployeeDoctor(a)
-
-                                    return (
-                                        <div key={a.id} className={s.AssignedRow}>
-                                            <span className={s.AssignedName}>
-                                                {doctorLabel(doctor)}
-                                            </span>
-
-                                            <button
-                                                type="button"
-                                                className={`${s.StatusToggle} ${a.is_active ? s.active : s.inactive
-                                                    }`}
-                                                onClick={() => toggleAssignmentActive(a)}
-                                            >
-                                                <i
-                                                    className={`bi ${a.is_active
-                                                            ? 'bi-check-circle-fill'
-                                                            : 'bi-slash-circle'
-                                                        }`}
-                                                ></i>
-
-                                                {a.is_active ? 'Faol' : 'Nofaol'}
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                className={`${s.IconBtn} ${s.danger}`}
-                                                onClick={() => removeAssignment(a)}
-                                            >
-                                                <i className="bi bi-x"></i>
-                                            </button>
-                                        </div>
-                                    )
-                                })
-                            )}
-                        </div>
-
-                        <form className={s.AssignForm} onSubmit={handleAddAssignment}>
-                            <select
-                                value={selectedDoctorId}
-                                onChange={(e) => setSelectedDoctorId(e.target.value)}
-                                disabled={assignSaving || doctorsLoading}
-                            >
-                                <option value="">
-                                    {doctorsLoading ? "Shifokorlar yuklanmoqda..." : "Shifokorni tanlang..."}
-                                </option>
-                                {doctors.map((d) => (
-                                    <option key={d.id} value={d.id}>{doctorLabel(d)}</option>
-                                ))}
-                            </select>
-                            <button type="submit" className={s.AddBtn} disabled={assignSaving}>
-                                <i className="bi bi-plus-lg"></i> {assignSaving ? 'Qo\'shilmoqda...' : 'Qo\'shish'}
-                            </button>
-                        </form>
-
-                        {assignError && (
-                            <p className={s.FormError}>
-                                <i className="bi bi-exclamation-circle-fill"></i> {assignError}
+                        {formError && (
+                            <p className={s.formError}>
+                                <i className="bi bi-exclamation-circle-fill"></i> {formError}
                             </p>
                         )}
+
+                        <div className={s.modalActions}>
+                            <button type="button" className={s.secondaryBtn} onClick={closeModal} disabled={saving}>
+                                Bekor qilish
+                            </button>
+                            <button type="submit" className={s.primaryBtn} disabled={saving}>
+                                {saving ? 'Saqlanmoqda...' : 'Saqlash'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
+
+            {/* Xodimlarni biriktirish */}
+            <Modal isOpen={assignModalOpen && !!assignService} onClose={closeAssignModal}>
+                <div className={s.modalContent}>
+                    <h3>Xodimlarni biriktirish</h3>
+
+                    {assignService && (
+                        <p className={s.assignSub}>Xizmat: <strong>{assignService.name}</strong></p>
+                    )}
+
+                    <div className={s.assignedList}>
+                        {assignmentsLoading ? (
+                            <p className={s.loading}>Yuklanmoqda...</p>
+                        ) : assignmentsForService.length === 0 ? (
+                            <p className={s.empty}>Hali hech kim biriktirilmagan</p>
+                        ) : (
+                            assignmentsForService.map((a) => {
+                                const doctor = getEmployeeDoctor(a)
+
+                                return (
+                                    <div key={a.id} className={s.assignedRow}>
+                                        <span className={s.assignedName}>
+                                            {doctorLabel(doctor)}
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            className={`${s.statusToggle} ${a.is_active ? s.active : s.inactive}`}
+                                            onClick={() => toggleAssignmentActive(a)}
+                                        >
+                                            <i className={`bi ${a.is_active ? 'bi-check-circle-fill' : 'bi-slash-circle'}`}></i>
+                                            {a.is_active ? 'Faol' : 'Nofaol'}
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className={s.dangerIcon}
+                                            onClick={() => askRemoveAssignment(a)}
+                                        >
+                                            <i className="bi bi-x"></i>
+                                        </button>
+                                    </div>
+                                )
+                            })
+                        )}
+                    </div>
+
+                    <form className={s.assignForm} onSubmit={handleAddAssignment}>
+                        <select
+                            value={selectedDoctorId}
+                            onChange={(e) => setSelectedDoctorId(e.target.value)}
+                            disabled={assignSaving || doctorsLoading}
+                        >
+                            <option value="">
+                                {doctorsLoading ? "Shifokorlar yuklanmoqda..." : "Shifokorni tanlang..."}
+                            </option>
+                            {doctors.map((d) => (
+                                <option key={d.id} value={d.id}>{doctorLabel(d)}</option>
+                            ))}
+                        </select>
+                        <button type="submit" className={s.primaryBtn} disabled={assignSaving}>
+                            <i className="bi bi-plus-lg"></i> {assignSaving ? 'Qo\'shilmoqda...' : 'Qo\'shish'}
+                        </button>
+                    </form>
+
+                    {assignError && (
+                        <p className={s.formError}>
+                            <i className="bi bi-exclamation-circle-fill"></i> {assignError}
+                        </p>
+                    )}
+                </div>
+            </Modal>
+
+            {/* Xizmatni o'chirishni tasdiqlash */}
+            <Modal isOpen={!!deleteTarget} onClose={closeDeleteModal}>
+                <div className={s.confirmContent}>
+                    <h3>Xizmatni o'chirish</h3>
+                    <p>
+                        {deleteTarget && (
+                            <>"{deleteTarget.name}" xizmatini o'chirishni tasdiqlaysizmi?</>
+                        )}
+                    </p>
+
+                    <div className={s.modalActions}>
+                        <button type="button" className={s.secondaryBtn} onClick={closeDeleteModal} disabled={deleting}>
+                            Bekor qilish
+                        </button>
+                        <button type="button" className={s.primaryBtn} onClick={confirmDelete} disabled={deleting}>
+                            {deleting ? "O'chirilmoqda..." : "O'chirish"}
+                        </button>
                     </div>
                 </div>
-            )}
+            </Modal>
+
+            {/* Xodimni xizmatdan uzishni tasdiqlash */}
+            <Modal isOpen={!!removeTarget} onClose={closeRemoveModal}>
+                <div className={s.confirmContent}>
+                    <h3>Xodimni xizmatdan uzish</h3>
+                    <p>Bu shifokorni xizmatdan uzishni tasdiqlaysizmi?</p>
+
+                    <div className={s.modalActions}>
+                        <button type="button" className={s.secondaryBtn} onClick={closeRemoveModal} disabled={removing}>
+                            Bekor qilish
+                        </button>
+                        <button type="button" className={s.primaryBtn} onClick={confirmRemoveAssignment} disabled={removing}>
+                            {removing ? "O'chirilmoqda..." : "Uzish"}
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     )
 }

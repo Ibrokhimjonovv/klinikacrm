@@ -17,7 +17,11 @@ const DoctorProfile = () => {
       <div className={s.ProfileHeader}>
         <div className={s.ProfileInfo}>
           <div className={s.Avatar}>
-            {doctor?.first_name?.[0] || "D"}
+            {doctor?.profile_image ? (
+              <img src={doctor.profile_image} alt={`${doctor?.first_name || ''} ${doctor?.last_name || ''}`} />
+            ) : (
+              doctor?.first_name?.[0] || "D"
+            )}
           </div>
 
           <div>
@@ -25,7 +29,7 @@ const DoctorProfile = () => {
               {doctor?.first_name} {doctor?.last_name}
             </h1>
 
-            <p>{doctor?.specialty}</p>
+            <p>{doctor?.department_detail?.name}</p>
           </div>
         </div>
 
@@ -80,13 +84,13 @@ const DoctorProfile = () => {
 
           <div className={s.InfoRow}>
             <span>Mutaxassislik</span>
-            <p>{doctor?.specialty}</p>
+            <p>{doctor?.department_detail?.name}</p>
           </div>
 
-          <div className={s.InfoRow}>
+          {/* <div className={s.InfoRow}>
             <span>Lavozim</span>
             <p>{doctor?.department}</p>
-          </div>
+          </div> */}
 
           <div className={s.InfoRow}>
             <span>Tajriba</span>

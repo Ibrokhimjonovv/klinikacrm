@@ -6,6 +6,9 @@ import { api } from '../../../App';
 import { IMaskInput } from 'react-imask';
 
 // role: 'doctor' | 'patient' | 'nurse' — user obyektidan qaysi kalitdan o'qish kerakligini bildiradi
+// To'liq format: +998 XX XXX XX XX (masalan: +998 90 123 45 67)
+const PHONE_REGEX = /^\+998 \d{2} \d{3} \d{2} \d{2}$/
+
 const EditProfile = ({ role = 'doctor', title = "Profilni tahrirlash", subtitle, onSubmit }) => {
     const { user, fetchMe } = useAppContext();
 
@@ -20,6 +23,11 @@ const EditProfile = ({ role = 'doctor', title = "Profilni tahrirlash", subtitle,
         address: source.address || '',
         profile_image: null,
     });
+
+    // ✅ Backendda saqlangan mavjud rasm URL'i. Foydalanuvchi yangi rasm
+    // tanlamaguncha shu ko'rsatiladi; yangi fayl tanlansa, pastdagi
+    // previewSrc formData.profile_image'dan olinadi.
+    const existingImageUrl = source.profile_image || null;
 
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
@@ -61,6 +69,8 @@ const EditProfile = ({ role = 'doctor', title = "Profilni tahrirlash", subtitle,
 
         if (!formData.contact_number.trim())
             newErrors.contact_number = "Telefon raqami kiritilishi shart";
+        else if (!PHONE_REGEX.test(formData.contact_number))
+            newErrors.contact_number = "Telefon raqami to'liq kiritilishi kerak (+998 XX XXX XX XX)";
 
         setErrors(newErrors);
 
@@ -130,8 +140,15 @@ const EditProfile = ({ role = 'doctor', title = "Profilni tahrirlash", subtitle,
                 <div className={s.ProfileImageSection}>
                     <div className={s.ProfileImage}>
                         {formData.profile_image ? (
+                            // Yangi tanlangan rasm — hali saqlanmagan, faqat oldindan ko'rish
                             <img
                                 src={URL.createObjectURL(formData.profile_image)}
+                                alt=""
+                            />
+                        ) : existingImageUrl ? (
+                            // Backendda mavjud bo'lgan joriy profil rasmi
+                            <img
+                                src={existingImageUrl}
                                 alt=""
                             />
                         ) : (

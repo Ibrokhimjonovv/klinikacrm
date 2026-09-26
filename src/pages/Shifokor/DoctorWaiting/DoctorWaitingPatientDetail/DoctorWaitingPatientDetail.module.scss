@@ -154,45 +154,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     margin: -6px 0 12px;
 }
 
-// eski .ComplaintCard ni SHU BILAN ALMASHTIRING (endi button):
-.ComplaintCard {
-    display: block;
-    width: 100%;
-    min-width: 0; // grid ichida kengayib ketmasligi uchun
-    overflow: hidden; // tashqariga chiqqanini yashiradi
-    text-align: left;
-    font-family: inherit;
-    cursor: pointer;
-    border: 1px solid $border;
-    border-left: 3px solid $primary;
-    border-radius: 10px;
-    padding: 12px 14px;
-    background: #fafbfc;
-    transition: border-color 0.15s, background 0.15s;
-    position: relative;
-
-    &:hover {
-        background: #f3f4f6;
-    }
-
-    p {
-        margin: 6px 0 0;
-        font-size: 14px;
-        color: #1f2937;
-        line-height: 1.4;
-
-        // bitta qatorda kesib, oxiriga "..." qo'yadi
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
-
-.ComplaintCardSelected {
-    border-color: $primary;
-    background: $success-bg;
-}
-
 .SelectedTag {
     display: inline-flex;
     align-items: center;
@@ -201,12 +162,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     font-size: 12px;
     font-weight: 600;
     color: $primary;
-}
-
-.ComplaintTop {
-    display: flex;
-    // flex-direction: column;
-    justify-content: space-between;
 }
 
 .StatusTag {
@@ -513,33 +468,72 @@ $success-bg: rgba(14, 27, 51, 0.06);
     margin-bottom: 10px;
 }
 
+// ------------------------------------------------------------
+// Band qatori (ItemRow) — tartib raqami, matn, vaqt, dori+miqdor,
+// xizmat va o'chirish tugmasi. Har bir ustunning kengligi
+// .ItemsHeaderRow / .ItemsHeaderCell bilan bir xil bo'lishi kerak,
+// aks holda sarlavha ustunlar bilan mos kelmaydi.
+// ------------------------------------------------------------
 .ItemRow {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
 
     i {
         color: $primary;
         font-size: 15px;
         flex-shrink: 0;
     }
+}
 
-    input {
-        flex: 1;
-        border: 1px solid $border;
-        border-radius: 8px;
-        padding: 8px 10px;
-        font-size: 13px;
-        font-family: inherit;
+// ⚠️ Eslatma: bu klass avval ".ItemRow input" umumiy selektori
+// orqali berilgan edi. Umumiy "input" selektori boshqa maxsus
+// input'larga (masalan .QtyInputAttached, .ItemTimeInput) ham
+// tegib, ularning o'z stilini bosib qo'yardi (chunki
+// ".ItemRow input" specificity'si ".QtyInputAttached" dan
+// yuqori edi). Shu sabab endi faqat matn input'iga maxsus
+// klass beriladi.
+.ItemTextInput {
+    flex: 1 1 220px;
+    min-width: 160px;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
 
-        &:focus {
-            outline: none;
-            border-color: $primary;
-        }
+    &:focus {
+        outline: none;
+        border-color: $primary;
+    }
 
-        &::placeholder {
-            color: #9ca3af;
-        }
+    &::placeholder {
+        color: #9ca3af;
+    }
+
+    &:disabled {
+        background: #f9fafb;
+    }
+}
+
+// ✅ Vaqt input'i (yangi)
+.ItemTimeInput {
+    flex: 0 0 100px;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 8px 6px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #374151;
+
+    &:focus {
+        outline: none;
+        border-color: $primary;
+    }
+
+    &:disabled {
+        background: #f9fafb;
     }
 }
 
@@ -699,6 +693,56 @@ $success-bg: rgba(14, 27, 51, 0.06);
     margin-bottom: 8px;
 }
 
+// ------------------------------------------------------------
+// ✅ YANGI: Ustunlar sarlavhasi (jadval "th" qatoriga o'xshab)
+// .ItemRow bilan bir xil flex tartibida — shu sabab ustunlar
+// bir-biriga to'g'ri tushadi.
+// ------------------------------------------------------------
+.ItemsHeaderRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 2px;
+    margin-bottom: 2px;
+}
+
+.ItemsHeaderCell {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: $text-muted;
+
+    // tartib raqami ustuni
+    &:nth-child(1) {
+        flex: 0 0 28px;
+        text-align: center;
+    }
+
+    // matn (tavsif) ustuni — .ItemTextInput bilan bir xil
+    &:nth-child(2) {
+        flex: 1 1 220px;
+        min-width: 160px;
+    }
+
+    // vaqt ustuni — .ItemTimeInput bilan bir xil
+    &:nth-child(3) {
+        flex: 0 0 100px;
+    }
+
+    // dori + miqdor ustuni — .MedicineGroup bilan bir xil
+    &:nth-child(4) {
+        flex: 1 1 220px;
+        min-width: 200px;
+    }
+
+    // xizmat ustuni — .ServiceSelect bilan bir xil
+    &:nth-child(5) {
+        flex: 1 1 200px;
+        min-width: 180px;
+    }
+}
+
 .HistorySection {
     margin-top: 24px;
 
@@ -805,8 +849,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     border-top: 1px dashed $border;
     padding-top: 8px;
 }
-
-
 
 .ItemTypeSwitch {
     display: flex;
@@ -935,7 +977,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
-
 .PlanMediaBlock {
     margin: 4px 0 18px;
 }
@@ -1010,38 +1051,55 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
+// ------------------------------------------------------------
+// ⚠️ Muhim tuzatish: bu klass avval o'zining border/padding'iga
+// ega edi, lekin u react-select'ning WRAPPER div'iga qo'llanadi —
+// haqiqiy ko'rinadigan border/padding esa SERVICE_SELECT_STYLES
+// (inline styles) orqali react-select "control" elementiga
+// beriladi. Ikkalasi bir vaqtda ishlaganda ikkita border/padding
+// ustma-ust chiqib, ko'rinish "chalkashib" ketardi. Endi bu
+// klass faqat FLEX o'lchamini beradi.
 .ServiceSelect {
-    flex: 1;
+    flex: 1 1 200px;
     min-width: 180px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
-    padding: 8px 10px;
     font-size: 13px;
-    font-family: inherit;
-    // background: #fff;
-    color: #374151;
-
-    &.SearchInput {
-        border: none;
-    }
-
-    &:focus {
-        outline: none;
-        border-color: $primary;
-    }
 }
 
-.QtyInput {
+// ------------------------------------------------------------
+// ✅ YANGI: Dori select'i va unga yopishgan miqdor input'ini
+// bitta guruh qilib turadi — shu sabab ular haqiqatan ham
+// bir-biriga "yopishib" ko'rinadi.
+// ------------------------------------------------------------
+.MedicineGroup {
+    display: flex;
+    align-items: stretch;
+    flex: 1 1 220px;
+    min-width: 200px;
+    font-size: 13px;
+}
+
+// ✅ Miqdor input'i — dori select'iga o'ng tomondan yopishadi
+.QtyInputAttached {
+    flex: 0 0 55px;
     width: 55px;
-    border: 1px solid #e5e7eb;
-    border-radius: 8px;
+    border: 1px solid $border;
+    border-left: none;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
     padding: 8px 6px;
     font-size: 13px;
+    font-family: inherit;
     text-align: center;
 
     &:focus {
         outline: none;
         border-color: $primary;
+    }
+
+    &:disabled {
+        background: #f9fafb;
     }
 }
 
@@ -1278,8 +1336,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
 }
 
 .DiagnosticServiceRow {
-    // display: grid;
-    // grid-template-columns: minmax(260px, 1fr) 320px;
     align-items: center;
     gap: 16px;
 
@@ -1302,6 +1358,11 @@ $success-bg: rgba(14, 27, 51, 0.06);
 .DiagnosticServiceRowActive {
     border-color: $primary;
     background: rgba(14, 27, 51, 0.025);
+
+    .ServiceCheck {
+        background: $primary;
+        border-color: $primary;
+    }
 }
 
 .DiagnosticServiceSelect {
@@ -1354,14 +1415,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     i {
         font-size: 12px;
         color: #fff;
-    }
-}
-
-.DiagnosticServiceRowActive {
-
-    .ServiceCheck {
-        background: $primary;
-        border-color: $primary;
     }
 }
 
@@ -1449,9 +1502,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
 .DoctorSelect {
     flex: 1;
     min-width: 0;
-}
-
-.DoctorSelect {
 
     :global(.doctor-select__control) {
         min-height: 38px;
@@ -1648,12 +1698,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
-// =========================================================
-// DoctorWaitingPatientDetail.module.scss faylingizga
-// qo'shing (mavjud .SubmitPlanBtn, .FormError va
-// h.k. yonida)
-// =========================================================
-
 .SentBadge {
     display: flex;
     align-items: center;
@@ -1687,14 +1731,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
-.ComplaintBadges {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-}
-
 .DiagSentTag {
     display: inline-flex;
     align-items: center;
@@ -1711,9 +1747,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
-// Diagnostika allaqachon yuborilgan bo'lsa,
-// xizmat qatorlarini "qulflangan" ko'rinishda
-// (checked, lekin bosib bo'lmaydigan) ko'rsatish
 .DiagnosticServiceRowLocked {
     opacity: 0.85;
     cursor: not-allowed;
@@ -1723,8 +1756,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
-// Request kartasidagi holat - endi select emas,
-// faqat o'qish uchun badge
 .DiagStatusBadge {
     display: inline-flex;
     align-items: center;
@@ -1769,11 +1800,9 @@ $success-bg: rgba(14, 27, 51, 0.06);
     gap: 16px;
 }
 
-.ComplaintGroup {
-    width: 100%;
-    /* qolganlari o'sha-o'sha */
-}
-
+// Diqqatni jamlash rejimi: bitta shikoyat tanlanganda
+// boshqalari xiralashib, bosib bo'lmaydigan holatga o'tadi —
+// shifokorning e'tibori davolash rejasi formasidan chalg'imasin.
 .ComplaintGroup {
     display: flex;
     flex-direction: column;
@@ -1783,7 +1812,7 @@ $success-bg: rgba(14, 27, 51, 0.06);
     border-radius: 14px;
     background: #fff;
     overflow: hidden;
-    transition: border-color 0.15s, box-shadow 0.15s;
+    transition: border-color 0.15s, box-shadow 0.15s, filter 0.25s ease, opacity 0.25s ease;
 
     &:hover {
         border-color: rgba(14, 27, 51, 0.35);
@@ -1795,7 +1824,24 @@ $success-bg: rgba(14, 27, 51, 0.06);
     box-shadow: 0 0 0 1px $primary;
 }
 
-// Shikoyat sarlavhasi (endi to'liq kenglikda, matn kesilmaydi)
+.ComplaintGroupBlurred {
+    filter: blur(3px);
+    opacity: 0.45;
+    pointer-events: none;
+
+    &:hover {
+        border-color: $border;
+    }
+}
+
+// ------------------------------------------------------------
+// ✅ TUZATILDI: .ComplaintCard va .ComplaintTop avval FAYLDA
+// IKKI MARTA aniqlangan edi (bittasi eski, bittasi yangi
+// .ComplaintGroup dizayni uchun). Ikkalasi bir xil klass nomi
+// bilan ustma-ust yozilgani uchun xususiyatlar aralashib,
+// ko'rinish "chalkashib" ketardi. Endi faqat BITTA, to'g'ri
+// (ComplaintGroup ichida ishlatiladigan) versiya qoldirildi.
+// ------------------------------------------------------------
 .ComplaintCard {
     display: block;
     width: 100%;
@@ -1808,6 +1854,7 @@ $success-bg: rgba(14, 27, 51, 0.06);
     padding: 16px 20px;
     background: #fafbfc;
     transition: background 0.15s;
+    position: relative;
 
     &:hover {
         background: #f3f4f6;
@@ -1860,7 +1907,7 @@ $success-bg: rgba(14, 27, 51, 0.06);
 
 .ComplaintDiagList {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
     gap: 12px;
 
     .DiagRequestCard {
@@ -1886,4 +1933,321 @@ $success-bg: rgba(14, 27, 51, 0.06);
         margin-bottom: 14px;
         align-items: center;
     }
+}
+
+.SelectedServicesSummary {
+    margin-bottom: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 14px;
+    background: #fafbfc;
+}
+
+.SelectedServicesTotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.DiagResultBox {
+    margin-top: 14px;
+    padding: 16px;
+    background-color: #eefaf1;
+    border: 1px solid #bfe8cb;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.DiagResultHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #17643c;
+
+    i {
+        font-size: 18px;
+    }
+}
+
+.DiagResultText {
+    font-size: 15px;
+    line-height: 1.5;
+    color: #14532d;
+    margin: 0;
+}
+
+.DiagResultFileBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: flex-start;
+    padding: 8px 14px;
+    background-color: #17643c;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #124d2f;
+    }
+}
+
+.DiagResultFooter {
+    font-size: 13px;
+    color: #3f6b52;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    strong {
+        color: #17643c;
+    }
+}
+
+// ============================================================
+// MEDIA PREVIEW MODAL (bitta rasm uchun)
+// ============================================================
+
+.MediaPreviewModal {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.MediaPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 16px;
+}
+
+// ============================================================
+// GALLERY (barcha natijalar uchun)
+// ============================================================
+
+.GalleryBox {
+    padding: 4px;
+    height: 100%;
+    width: 100%;
+}
+
+.GalleryHead {
+    text-align: center;
+    margin-bottom: 20px;
+
+    h2 {
+        font-size: 17px;
+        font-weight: 700;
+        margin: 0 0 4px;
+        color: #1a1a1a;
+    }
+
+    p {
+        font-size: 13px;
+        color: $text-muted;
+        margin: 0;
+    }
+}
+
+.GalleryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+    width: 100%;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.GalleryItem {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    border: 1px solid $border;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.15s;
+    width: 100%;
+    background: #fff;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+        border-color: $primary;
+        transform: translateY(-2px);
+
+        .GalleryOpenHint {
+            opacity: 1;
+        }
+    }
+}
+
+.GalleryThumb {
+    width: 100%;
+    aspect-ratio: 1;
+    background: #f4f5f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    i {
+        font-size: 36px;
+        color: #dc2626;
+    }
+}
+
+.GalleryCaption {
+    margin: 0;
+    padding: 8px 10px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1f2937;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.GalleryOpenHint {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 10px 10px;
+    font-size: 11px;
+    color: $primary;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+// ============================================================
+// DIAGNOSIS MEDIA BUTTON (shikoyat kartasidagi "N ta natija fayli")
+// ============================================================
+
+.DiagnosisMediaBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(14, 27, 51, 0.06);
+    color: $primary;
+    border: none;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background: rgba(14, 27, 51, 0.12);
+    }
+}
+
+.ComplaintBadges {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.ComplaintBadgesLeft {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.PlanHintTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(14, 27, 51, 0.06);
+    color: #0e1b33;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px dashed rgba(14, 27, 51, 0.35);
+
+    i {
+        font-size: 13px;
+    }
+}
+
+.AllDiagDoneCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    padding: 40px 24px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #f8fafc;
+    margin-top: 20px;
+
+    i {
+        font-size: 32px;
+        color: #10b981;
+    }
+
+    p {
+        margin: 0;
+        font-size: 14px;
+        color: #4b5563;
+        max-width: 360px;
+    }
+}
+
+.GoToTreatmentBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #0e1b33;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background: #16264a;
+    }
+}
+
+.ItemOrderBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
 }

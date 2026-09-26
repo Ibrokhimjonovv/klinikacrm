@@ -1,5 +1,7 @@
 .VisitClickable {
     cursor: pointer;
+    display: flex;
+    gap: 10px;
 
     &:hover {
         background-color: #f0f6f3 !important;
@@ -152,6 +154,14 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 1; // <-- qo'shildi
+    min-width: 0; // <-- qo'shildi
+}
+
+.VisitInfo {
+    // <-- yangi klass
+    flex: 1;
+    min-width: 0;
 }
 
 .VisitNotes {

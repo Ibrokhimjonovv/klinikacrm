@@ -15,9 +15,13 @@ const authHeaders = (token, json = true) => ({
     ...(json ? { 'Content-Type': 'application/json' } : {}),
 })
 
+const formatSum = (n) => Math.round(Number(n) || 0).toLocaleString('uz-UZ') + " so'm"
+
+// ✅ plan.doctors[i] va plan.created_by.doctor kabi NASTED
+// obyektlar (first_name/middle_name/last_name) uchun ishlatiladi.
 const doctorFullName = (doc) => {
     if (!doc) return ''
-    return [doc.first_name, doc.middle_name, doc.last_name].filter(Boolean).join(' ')
+    return [doc.first_name, doc.last_name, doc.middle_name].filter(Boolean).join(' ')
 }
 
 const DoctorComplatedPatientDetail = () => {
@@ -80,6 +84,73 @@ const DoctorComplatedPatientDetail = () => {
     if (loading) return <div className={s.State}><p>Yuklanmoqda...</p></div>
     if (error) return <div className={s.State}><p>Xatolik: {error}</p></div>
     if (!patient) return null
+
+    // ------------------------------------------------------------
+    // ✅ Bandning "xizmat / vaqt / narx / davomiylik" belgilari.
+    // API har bir item bilan birga service_detail va time
+    // qaytaradi — avval bular umuman ko'rsatilmasdi.
+    // ------------------------------------------------------------
+    const renderItemMeta = (item) => {
+        const hasMeta = item.service_detail?.name || item.time || item.service_detail?.price != null
+        if (!hasMeta) return null
+
+        return (
+            <div className={s.ItemMetaRow}>
+                {item.service_detail?.name && (
+                    <span className={s.ItemMetaTag}>
+                        <i className="bi bi-clipboard2-pulse"></i>
+                        {item.service_detail.name}
+                    </span>
+                )}
+                {item.time && (
+                    <span className={s.ItemMetaTag}>
+                        <i className="bi bi-clock"></i>
+                        {item.time}
+                    </span>
+                )}
+                {item.service_detail?.price != null && (
+                    <span className={s.ItemMetaTag}>
+                        <i className="bi bi-cash"></i>
+                        {formatSum(item.service_detail.price)}
+                    </span>
+                )}
+                {item.service_detail?.duration_minutes != null && (
+                    <span className={s.ItemMetaTag}>
+                        <i className="bi bi-hourglass-split"></i>
+                        {item.service_detail.duration_minutes} daq.
+                    </span>
+                )}
+            </div>
+        )
+    }
+
+    // ------------------------------------------------------------
+    // ✅ Kunlik dorilar ro'yxati (TreatmentPlanDay.medicines,
+    // item'lardan alohida keladigan massiv).
+    // ------------------------------------------------------------
+    const renderDayMedicines = (day) => {
+        if (!day.medicines || day.medicines.length === 0) return null
+
+        return (
+            <div className={s.DayMedicinesBox}>
+                <p className={s.DayMedicinesTitle}>
+                    <i className="bi bi-capsule"></i> Dorilar
+                </p>
+                <ul className={s.DayMedicinesList}>
+                    {day.medicines.map((med) => (
+                        <li key={med.id}>
+                            <span className={s.DayMedicineName}>
+                                {med.medicine_name || 'Nomaʼlum dori'}
+                            </span>
+                            <span className={s.DayMedicineCalc}>
+                                {med.quantity} dona × {formatSum(med.unit_price)} = {formatSum(med.total_price)}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        )
+    }
 
     return (
         <div className={s.DetailPage}>
@@ -154,13 +225,21 @@ const DoctorComplatedPatientDetail = () => {
                         const progress = Math.round(plan.progress ?? 0)
                         const doctor = plan.doctors?.[0]
 
+                        // ✅ Umumiy narx — plan'ning o'zida "total_price"
+                        // maydoni yo'q, shu sabab har bir kunning
+                        // "price" qiymatlarini qo'shib chiqaramiz.
+                        const totalPrice = (plan.days || []).reduce(
+                            (sum, day) => sum + (Number(day.price) || 0),
+                            0
+                        )
+
                         return (
                             <div key={plan.id} className={s.PlanCard}>
 
                                 <div className={s.PlanCardHead}>
                                     <div className={s.PlanCardHeadLeft}>
                                         <div className={s.PlanTitleRow}>
-                                            <h3>Shikoyat: {plan.patient.complaint}</h3>
+                                            <h3>Shikoyat: {plan.patient?.complaint}</h3>
                                         </div>
                                         <br />
                                         <div className={s.PlanTitleRow}>
@@ -195,6 +274,12 @@ const DoctorComplatedPatientDetail = () => {
                                                     Yakunlangan: <DateTimeFormatter date={plan.completed_at} format="date" />
                                                 </span>
                                             )}
+                                            {totalPrice > 0 && (
+                                                <span>
+                                                    <i className="bi bi-receipt"></i>
+                                                    Umumiy narx: <strong>{formatSum(totalPrice)}</strong>
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
 
@@ -212,18 +297,28 @@ const DoctorComplatedPatientDetail = () => {
                                 <div className={s.PlanDaysGrid}>
                                     {plan.days?.map((day, dayIndex) => (
                                         <div key={day.id} className={s.PlanDayCard}>
-                                            <span className={s.DayBadge}>{day.day_number || dayIndex + 1}-kun</span>
+                                            <div className={s.PlanDayCardHead}>
+                                                <span className={s.DayBadge}>{day.day_number || dayIndex + 1}-kun</span>
+                                                {day.price != null && (
+                                                    <span className={s.DayPriceTag}>{formatSum(day.price)}</span>
+                                                )}
+                                            </div>
 
                                             <ul className={s.ItemsPlainList}>
                                                 {day.items?.map((item) => (
                                                     <li key={item.id}>
                                                         <i className={`bi ${item.checked ? 'bi-check-circle-fill' : 'bi-circle'}`}></i>
-                                                        <span className={item.checked ? s.CheckedText : ''}>
-                                                            {item.text}
-                                                        </span>
+                                                        <div className={s.ItemBody}>
+                                                            <span className={item.checked ? s.CheckedText : ''}>
+                                                                {item.text}
+                                                            </span>
+                                                            {renderItemMeta(item)}
+                                                        </div>
                                                     </li>
                                                 ))}
                                             </ul>
+
+                                            {renderDayMedicines(day)}
 
                                             {day.note && <p className={s.PlanDayNote}>{day.note}</p>}
                                         </div>

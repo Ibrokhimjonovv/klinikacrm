@@ -17,6 +17,8 @@ const authHeaders = (token, json = true) => ({
     ...(json ? { 'Content-Type': 'application/json' } : {}),
 })
 
+const formatSum = (n) => Math.round(Number(n) || 0).toLocaleString('uz-UZ') + " so'm"
+
 const getPlanStatus = (plan) => {
     const progress = plan.progress ?? 0
 
@@ -31,9 +33,23 @@ const getPlanStatus = (plan) => {
     return { label: 'Boshlanmagan', className: 'watch' }
 }
 
+// ✅ "doctor" obyektidan (first_name/middle_name/last_name) to'liq
+// ism yasaydi. Bu faqat plan.created_by.doctor kabi NASTED
+// obyektlar uchun ishlatiladi. checked_by_detail uchun EMAS —
+// u backend'da allaqachon tayyor "full_name" bilan keladi.
 const doctorFullName = (doc) => {
     if (!doc) return ''
-    return [doc.first_name, doc.middle_name, doc.last_name].filter(Boolean).join(' ')
+    return [doc.first_name, doc.last_name, doc.middle_name].filter(Boolean).join(' ')
+}
+
+// ✅ item.checked_by — bu shunchaki ID raqami (masalan 4), obyekt
+// EMAS. Kim belgilagani haqidagi to'liq ma'lumot (username, role,
+// tayyor full_name) faqat item.checked_by_detail ichida keladi.
+// Shu sabab bu yordamchi funksiya checked_by_detail'dan foydalanadi.
+const checkedByName = (item) => {
+    const detail = item.checked_by_detail
+    if (!detail) return null
+    return detail.full_name || detail.username || null
 }
 
 const DoctorProgressPatientDetail = () => {
@@ -257,7 +273,48 @@ const DoctorProgressPatientDetail = () => {
     if (error) return <div className={s.State}><p>Xatolik: {error}</p></div>
     if (!patient) return null
 
+    // ------------------------------------------------------------
+    // ✅ Bandning "xizmat / vaqt / narx" belgilarini ko'rsatadi.
+    // API endi har bir item bilan birga service_detail (nomi,
+    // narxi, davomiyligi) va time (vaqt) qaytaradi.
+    // ------------------------------------------------------------
+    const renderItemMeta = (item) => {
+        const hasMeta = item.service_detail?.name || item.time || item.service_detail?.price
+        if (!hasMeta) return null
+
+        return (
+            <div className={s.ItemMetaRow}>
+                {item.service_detail?.name && (
+                    <span className={s.ItemMetaTag}>
+                        <i className="bi bi-clipboard2-pulse"></i>
+                        {item.service_detail.name}
+                    </span>
+                )}
+                {item.time && (
+                    <span className={s.ItemMetaTag}>
+                        <i className="bi bi-clock"></i>
+                        {item.time}
+                    </span>
+                )}
+                {item.service_detail?.price != null && (
+                    <span className={s.ItemMetaTag}>
+                        <i className="bi bi-cash"></i>
+                        {formatSum(item.service_detail.price)}
+                    </span>
+                )}
+                {item.service_detail?.duration_minutes != null && (
+                    <span className={s.ItemMetaTag}>
+                        <i className="bi bi-hourglass-split"></i>
+                        {item.service_detail.duration_minutes} daq.
+                    </span>
+                )}
+            </div>
+        )
+    }
+
     const renderItemDisplay = (plan, day, item) => {
+        const checkedName = checkedByName(item)
+
         if (item.dif) {
             const isUploading = uploadingItemId === item.id
             const hasFile = !!item.medical_media || !!item.file
@@ -273,6 +330,7 @@ const DoctorProgressPatientDetail = () => {
                                 {hasFile ? 'Fayl yuklandi' : 'Media kutilmoqda'}
                             </p>
                             <p className={s.MediaCardDesc}>{item.text}</p>
+                            {renderItemMeta(item)}
                         </div>
                     </div>
 
@@ -315,13 +373,6 @@ const DoctorProgressPatientDetail = () => {
                             >
                                 <i className="bi bi-eye"></i> Ko'rish
                             </a>
-                            // <button
-                            //     type="button"
-                            //     className={s.MediaViewBtn}
-                            //     onClick={() => setSelectedMedia(item.medical_media)}
-                            // >
-                            //     <i className="bi bi-eye"></i> Ko'rish
-                            // </button>
                         )}
                     </div>
 
@@ -330,8 +381,8 @@ const DoctorProgressPatientDetail = () => {
                         title={
                             !hasFile
                                 ? "Avval fayl yuklang"
-                                : (item.checked && item.checked_by
-                                    ? `${doctorFullName(item.checked_by.doctor) || item.checked_by.username} tomonidan belgilangan`
+                                : (item.checked && checkedName
+                                    ? `${checkedName} tomonidan belgilangan`
                                     : undefined)
                         }
                     >
@@ -372,6 +423,8 @@ const DoctorProgressPatientDetail = () => {
                         <p className={s.MediaCardDesc}>
                             {item.text}
                         </p>
+
+                        {renderItemMeta(item)}
                     </div>
                 </div>
 
@@ -381,12 +434,8 @@ const DoctorProgressPatientDetail = () => {
                         : ''
                         }`}
                     title={
-                        item.checked && item.checked_by
-                            ? `${doctorFullName(
-                                item.checked_by.doctor
-                            ) ||
-                            item.checked_by.username
-                            } tomonidan belgilangan`
+                        item.checked && checkedName
+                            ? `${checkedName} tomonidan belgilangan`
                             : undefined
                     }
                 >
@@ -413,6 +462,36 @@ const DoctorProgressPatientDetail = () => {
                         <i className="bi bi-check-lg"></i>
                     )}
                 </label>
+            </div>
+        )
+    }
+
+    // ------------------------------------------------------------
+    // ✅ YANGI: kunlik dorilar ro'yxati. Backend TreatmentPlanDay
+    // uchun "medicines" massivini alohida qaytaradi (item ichida
+    // emas), shu sabab uni items ro'yxatidan keyin alohida
+    // ko'rsatamiz.
+    // ------------------------------------------------------------
+    const renderDayMedicines = (day) => {
+        if (!day.medicines || day.medicines.length === 0) return null
+
+        return (
+            <div className={s.DayMedicinesBox}>
+                <p className={s.DayMedicinesTitle}>
+                    <i className="bi bi-capsule"></i> Dorilar
+                </p>
+                <ul className={s.DayMedicinesList}>
+                    {day.medicines.map((med) => (
+                        <li key={med.id}>
+                            <span className={s.DayMedicineName}>
+                                {med.medicine_name || 'Nomaʼlum dori'}
+                            </span>
+                            <span className={s.DayMedicineCalc}>
+                                {med.quantity} dona × {formatSum(med.unit_price)} = {formatSum(med.total_price)}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
             </div>
         )
     }
@@ -462,17 +541,6 @@ const DoctorProgressPatientDetail = () => {
                 </div>
             </div>
 
-            {/* {patient.complaints?.length > 0 && (
-                <div className={s.ComplaintsRow}>
-                    {patient.complaints.filter(c => c.status !== "DONE").map((c) => (
-                        <div key={c.id} className={s.ComplaintChip}>
-                            <span className={`${s.StatusDot} ${s[c.status?.toLowerCase()]}`}></span>
-                            <span>{c.complaint}</span>
-                        </div>
-                    ))}
-                </div>
-            )} */}
-
             {uploadError && (
                 <p className={s.FormError}><i className="bi bi-exclamation-circle-fill"></i> {uploadError}</p>
             )}
@@ -493,6 +561,14 @@ const DoctorProgressPatientDetail = () => {
                     {treatmentHistory.map((plan) => {
                         const statusInfo = getPlanStatus(plan)
                         const progress = Math.round(plan.progress ?? 0)
+                        // ✅ Reja qaysi shifokor tomonidan yaratilgani —
+                        // plan.created_by.doctor NASTED obyekt, shu
+                        // sabab bu yerda doctorFullName ishlatiladi
+                        // (checked_by_detail'dan farqli o'laroq).
+                        const createdByName =
+                            doctorFullName(plan.created_by?.doctor) ||
+                            plan.created_by?.username ||
+                            null
 
                         return (
                             <div key={plan.id} className={s.PlanCard}>
@@ -526,6 +602,14 @@ const DoctorProgressPatientDetail = () => {
                                                         <i className="bi bi-chat-square-text"></i> {plan.complaint}
                                                     </p>
                                                 )}
+
+                                                {createdByName && (
+                                                    <span>
+                                                        <i className="bi bi-person-badge"></i>
+                                                        Shifokor: {createdByName}
+                                                    </span>
+                                                )}
+
                                                 {plan.created_at && (
                                                     <span>
                                                         <i className="bi bi-calendar-plus"></i>
@@ -560,6 +644,8 @@ const DoctorProgressPatientDetail = () => {
                                                     </li>
                                                 ))}
                                             </ul>
+
+                                            {renderDayMedicines(day)}
 
                                             {day.note && <p className={s.PlanDayNote}>{day.note}</p>}
                                         </div>

@@ -1,220 +1,254 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import s from "./NurseInpatients.module.scss"
+import { useNavigate } from 'react-router-dom'
 import { api } from '../../../App';
 
-const STATUS_MAP = {
-  WAITING: { label: 'Kutilmoqda', key: 'pending' },
-  IN_PROGRESS: { label: 'Jarayonda', key: 'progress' },
-  DONE: { label: 'Bajarildi', key: 'done' },
+const calcAge = (birthDate) => {
+    if (!birthDate) return '?'
+    const diff = Date.now() - new Date(birthDate).getTime()
+    return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25))
 }
 
-const TABS = [
-  { key: 'ALL', label: 'Barchasi' },
-  { key: 'WAITING', label: 'Kutilmoqda' },
-  { key: 'IN_PROGRESS', label: 'Jarayonda' },
-  { key: 'DONE', label: 'Bajarilgan' },
-]
+// Bitta bemorga tegishli barcha kunlik muolaja itemlarini
+// bitta qatorga birlashtiradi.
+const groupByPatient = (waiting, inProgress, completed) => {
+    const all = [
+        ...waiting.map(i => ({ ...i, _bucket: 'WAITING' })),
+        ...inProgress.map(i => ({ ...i, _bucket: 'IN_PROGRESS' })),
+        ...completed.map(i => ({ ...i, _bucket: 'DONE' })),
+    ]
+
+    const map = new Map()
+
+    for (const item of all) {
+        const patient = item.patient || {}
+        const key = patient.id
+
+        if (!map.has(key)) {
+            map.set(key, {
+                id: patient.id,
+                first_name: patient.first_name || '',
+                last_name: patient.last_name || '',
+                middle_name: patient.middle_name || '',
+                birth_date: patient.date_of_birth || null,
+                gender: patient.gender || '',
+                phone: patient.contact_number || '—',
+                doctors: new Map(),
+                items: [],
+                waitingCount: 0,
+                progressCount: 0,
+                doneCount: 0,
+            })
+        }
+
+        const entry = map.get(key)
+        entry.items.push(item)
+
+        if (item.status === 'WAITING') entry.waitingCount++
+        else if (item.status === 'IN_PROGRESS') entry.progressCount++
+        else if (item.status === 'DONE') entry.doneCount++
+
+        for (const doc of item.doctors || []) {
+            entry.doctors.set(doc.id, `${doc.first_name || ''} ${doc.last_name || ''}`.trim())
+        }
+    }
+
+    return Array.from(map.values()).map(entry => {
+        let statusKey = 'pending'
+        let statusLabel = 'Kutilmoqda'
+
+        if (entry.progressCount > 0) {
+            statusKey = 'progress'
+            statusLabel = 'Jarayonda'
+        } else if (entry.waitingCount === 0 && entry.doneCount > 0) {
+            statusKey = 'done'
+            statusLabel = 'Yakunlangan'
+        }
+
+        return {
+            ...entry,
+            items: entry.items.sort((a, b) => a.day_number - b.day_number),
+            doctorsLabel: Array.from(entry.doctors.values()).join(', ') || "Ko'rsatilmagan",
+            totalDays: entry.items.length,
+            statusKey,
+            statusLabel,
+        }
+    })
+}
 
 const NurseInpatients = () => {
+    const navigate = useNavigate()
+    const [view, setView] = useState('table') // 'table' | 'card'
+    const [search, setSearch] = useState('')
 
-  const [listData, setListData] = useState({
-    waiting: [],
-    in_progress: [],
-    completed: [],
-  })
+    const [patients, setPatients] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [actionLoadingId, setActionLoadingId] = useState(null)
-  const [activeTab, setActiveTab] = useState('ALL')
+    useEffect(() => {
+        const controller = new AbortController()
 
-  const getHeaders = () => {
-    const token = localStorage.getItem('hospital_access')
-    return {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
+        const fetchTreatments = async () => {
+            try {
+                setLoading(true)
+                setError(null)
+                const token = localStorage.getItem('hospital_access')
+                const res = await fetch(`${api}/nurse/treatments/`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    signal: controller.signal,
+                })
+
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
+
+                const data = await res.json()
+                const grouped = groupByPatient(data.waiting || [], data.in_progress || [], data.completed || [])
+                setPatients(grouped)
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error('API xatosi:', err)
+                    setError(err.message)
+                }
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchTreatments()
+        return () => controller.abort()
+    }, [])
+
+    const filtered = patients.filter(p => {
+        const fullName = `${p.first_name} ${p.last_name} ${p.middle_name}`.toLowerCase()
+        return fullName.includes(search.toLowerCase())
+    })
+
+    if (loading) {
+        return (
+            <div className={s.PatientsPage}>
+                <p>Ma'lumotlar yuklanmoqda...</p>
+            </div>
+        )
     }
-  }
 
-  const fetchAll = useCallback(async (signal) => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      const res = await fetch(`${api}/nurse/treatments/`, {
-        method: 'GET',
-        headers: getHeaders(),
-        signal,
-      })
-
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
-
-      const data = await res.json()
-
-      setListData({
-        waiting: data.waiting || [],
-        in_progress: data.in_progress || [],
-        completed: data.completed || [],
-      })
-    } catch (err) {
-      if (err.name !== 'AbortError') {
-        console.error('Muolajalarni olishda xatolik:', err)
-        setError(err.message)
-      }
-    } finally {
-      setLoading(false)
+    if (error) {
+        return (
+            <div className={s.PatientsPage}>
+                <p>Ma'lumotlarni yuklashda xatolik: {error}</p>
+            </div>
+        )
     }
-  }, [])
 
-  useEffect(() => {
-    const controller = new AbortController()
-    fetchAll(controller.signal)
-    return () => controller.abort()
-  }, [fetchAll])
+    return (
+        <div className={s.PatientsPage}>
 
-  const handleStart = async (id) => {
-    try {
-      setActionLoadingId(id)
-      const res = await fetch(`${api}/nurse/treatments/${id}/start/`, {
-        method: 'POST',
-        headers: getHeaders(),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.detail || `HTTP error! status: ${res.status}`)
-      await fetchAll()
-    } catch (err) {
-      console.error('Muolajani boshlashda xatolik:', err)
-      alert(err.message || 'Muolajani boshlashda xatolik yuz berdi')
-    } finally {
-      setActionLoadingId(null)
-    }
-  }
+            <div className={s.TopRow}>
+                <div>
+                    <h1>Yotib davolanayotgan bemorlar</h1>
+                    <p>Sizga biriktirilgan bemorlar va muolajalar ro'yxati</p>
+                </div>
 
-  const handleComplete = async (id) => {
-    try {
-      setActionLoadingId(id)
-      const res = await fetch(`${api}/nurse/treatments/${id}/complete/`, {
-        method: 'POST',
-        headers: getHeaders(),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.detail || `HTTP error! status: ${res.status}`)
-      await fetchAll()
-    } catch (err) {
-      console.error('Muolajani tugatishda xatolik:', err)
-      alert(err.message || 'Muolajani tugatishda xatolik yuz berdi')
-    } finally {
-      setActionLoadingId(null)
-    }
-  }
+                <div className={s.ViewSwitch}>
+                    <button
+                        className={view === 'table' ? s.Active : ''}
+                        onClick={() => setView('table')}
+                    >
+                        <i className="bi bi-list-ul"></i>
+                    </button>
+                    <button
+                        className={view === 'card' ? s.Active : ''}
+                        onClick={() => setView('card')}
+                    >
+                        <i className="bi bi-grid-3x3-gap-fill"></i>
+                    </button>
+                </div>
+            </div>
 
-  const { waiting, in_progress, completed } = listData
+            <div className={s.SearchRow}>
+                <div className={s.SearchBox}>
+                    <i className="bi bi-search"></i>
+                    <input
+                        type="text"
+                        placeholder="Bemor ismi bo'yicha qidirish..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+            </div>
 
-  const combinedList = [...waiting, ...in_progress, ...completed]
-    .sort((a, b) => a.id - b.id)
+            {filtered.length === 0 && (
+                <p className={s.Empty}>Hech qanday bemor topilmadi</p>
+            )}
 
-  const visibleList = activeTab === 'ALL'
-    ? combinedList
-    : combinedList.filter(item => item.status === activeTab)
+            {view === 'table' && filtered.length > 0 && (
+                <div className={s.TableWrap}>
+                    <table className={s.Table}>
+                        <thead>
+                            <tr>
+                                <th>F.I.O</th>
+                                <th>Yoshi</th>
+                                <th>Telefon</th>
+                                <th>Kunlar</th>
+                                <th>Holati</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {filtered.map(p => (
+                                <tr key={p.id} onClick={() => navigate(`/nurse-inpatients/${p.id}`)}>
+                                    <td>
+                                        <div className={s.NameCell}>
+                                            <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
+                                            <span>{p.first_name} {p.last_name}</span>
+                                        </div>
+                                    </td>
+                                    <td>{calcAge(p.birth_date)} yosh</td>
+                                    <td>{p.phone}</td>
+                                    <td>{p.doneCount}/{p.totalDays} bajarilgan</td>
+                                    <td>
+                                        <span className={`${s.StatusBadge} ${s[p.statusKey]}`}>
+                                            {p.statusLabel}
+                                        </span>
+                                    </td>
+                                    <td className={s.ArrowCell}><i className="bi bi-chevron-right"></i></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
-  const getPatientName = (patient) => {
-    if (!patient) return "Noma'lum"
-    return `${patient.first_name || ''} ${patient.last_name || ''}`.trim() || "Noma'lum"
-  }
+            {view === 'card' && filtered.length > 0 && (
+                <div className={s.CardsGrid}>
+                    {filtered.map(p => (
+                        <div
+                            key={p.id}
+                            className={s.PatientCard}
+                            onClick={() => navigate(`/nurse-inpatients/${p.id}`)}
+                        >
+                            <div className={s.CardTop}>
+                                <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
+                                <span className={`${s.StatusBadge} ${s[p.statusKey]}`}>
+                                    {p.statusLabel}
+                                </span>
+                            </div>
+                            <h3>{p.first_name} {p.last_name}</h3>
+                            <p className={s.CardAge}>{calcAge(p.birth_date)} yosh · {p.gender === 'erkak' ? 'Erkak' : 'Ayol'}</p>
+                            <div className={s.CardInfo}>
+                                <span><i className="bi bi-calendar2-week"></i> {p.doneCount}/{p.totalDays} kun bajarilgan</span>
+                                <span><i className="bi bi-telephone"></i> {p.phone}</span>
+                                <span><i className="bi bi-person-badge"></i> {p.doctorsLabel}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
 
-  const getDoctorsLabel = (doctors) => {
-    if (!doctors || doctors.length === 0) return null
-    return doctors.map(d => `${d.first_name || ''} ${d.last_name || ''}`.trim()).join(', ')
-  }
-
-  return (
-    <section className={s.Dashboard}>
-
-      <div className={s.TopRow}>
-        <div>
-          <h1>Yotib davolanayotgan bemorlar</h1>
-          <p>Sizga biriktirilgan bemorlar va muolajalar ro'yxati</p>
         </div>
-      </div>
-
-      <div className={s.PatientsCard}>
-        <div className={s.UpcomingHead}>
-          <h3>Yotib davolanayotgan bemorlar</h3>
-          <div className={s.Tabs}>
-            {TABS.map(tab => (
-              <button
-                key={tab.key}
-                className={`${s.TabBtn} ${activeTab === tab.key ? s.TabBtnActive : ''}`}
-                onClick={() => setActiveTab(tab.key)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {loading ? (
-          <p className={s.Empty}>Yuklanmoqda...</p>
-        ) : error ? (
-          <p className={s.Empty}>Xatolik: {error}</p>
-        ) : visibleList.length === 0 ? (
-          <p className={s.Empty}>Bu bo'limda bemorlar mavjud emas</p>
-        ) : (
-          <ul>
-            {visibleList.map((item) => {
-              const statusInfo = STATUS_MAP[item.status] || { label: item.status, key: 'pending' }
-              const doctorsLabel = getDoctorsLabel(item.doctors)
-
-              return (
-                <li key={item.id}>
-                  <div className={s.PatientLeft}>
-                    <div className={s.Avatar}>
-                      {item.patient?.first_name ? item.patient.first_name[0].toUpperCase() : '?'}
-                    </div>
-                    <div>
-                      <p>{getPatientName(item.patient)}</p>
-                      <span>{item.treatment || "Ko'rsatilmagan"}</span>
-                      <div className={s.MetaRow}>
-                        <span className={s.MetaTag}>Kun {item.day_number}</span>
-                        {doctorsLabel && <span className={s.MetaTag}>{doctorsLabel}</span>}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={s.RowRight}>
-                    <span className={`${s.Status} ${s[statusInfo.key]}`}>
-                      {statusInfo.label}
-                    </span>
-
-                    {item.status === 'WAITING' && (
-                      <button
-                        className={s.ActionBtn}
-                        disabled={actionLoadingId === item.id}
-                        onClick={() => handleStart(item.id)}
-                      >
-                        {actionLoadingId === item.id ? '...' : 'Boshlash'}
-                      </button>
-                    )}
-
-                    {item.status === 'IN_PROGRESS' && (
-                      <button
-                        className={`${s.ActionBtn} ${s.ActionBtnDone}`}
-                        disabled={actionLoadingId === item.id}
-                        onClick={() => handleComplete(item.id)}
-                      >
-                        {actionLoadingId === item.id ? '...' : 'Tugatish'}
-                      </button>
-                    )}
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        )}
-      </div>
-
-    </section>
-  )
+    )
 }
 
 export default NurseInpatients

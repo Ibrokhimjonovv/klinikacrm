@@ -5,7 +5,7 @@ import { api } from '../../../App';
 import VisitForm from '../../shared/VisitForm/VisitForm';
 import { IMaskInput } from 'react-imask';
 import { useAppContext } from '../../../context/context';
-import PrintReceipt from '../../shared/PrintReceipt/PrintReceipt';
+import PrintReceipt, { logoReady } from '../../shared/PrintReceipt/PrintReceipt';
 import { createPortal } from 'react-dom';
 
 const STEPS = ['Bemor ma\'lumotlari', 'Kirish ma\'lumotlari', 'Shikoyat']
@@ -118,7 +118,12 @@ const PatientAdmission = ({ onSuccess }) => {
         setTimeout(() => setCopied(''), 1500)
     }
 
-    const handlePrint = () => {
+    const handlePrint = async () => {
+        // Odatda bu ekranda logotip allaqachon yuklangan bo'ladi (finished
+        // holati o'rnatilgandan keyin foydalanuvchi tugmani bosguncha vaqt
+        // o'tadi), lekin tezkor bosilganda yoki sekin internetda xuddi
+        // PatientDetail'dagi kabi muammo takrorlanmasligi uchun baribir kutamiz.
+        await logoReady
         window.print()
     }
 

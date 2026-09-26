@@ -10,7 +10,7 @@ import AddVisit from '../../../components/XamshiraReseption/AddVisit/AddVisit';
 import DateTimeFormatter from '../../../components/shared/DateTimeFormatter/DateTimeFormatter';
 import { useAppContext } from '../../../context/context';
 import { createPortal, flushSync } from 'react-dom';
-import PrintReceipt from '../../../components/shared/PrintReceipt/PrintReceipt';
+import PrintReceipt, { logoReady } from '../../../components/shared/PrintReceipt/PrintReceipt';
 
 const calcAge = (birthDate) => {
     if (!birthDate) return 'Noma\'lum';
@@ -65,7 +65,11 @@ const NursePatientDetail = () => {
         ? visits.reduce((a, b) => (Number(b.id) > Number(a.id) ? b : a))
         : null;
 
-    const handlePrint = (visit = null) => {
+    const handlePrint = async (visit = null) => {
+        // Logotip brauzer xotirasida tayyor bo'lguncha kutamiz — aks holda
+        // (bu chek birinchi marta chiqarilayotgani uchun) print() logotip
+        // hali yuklanmasdan turib chaqirilib qolishi mumkin edi.
+        await logoReady;
         // chek DOM'ga chiqib bo'lgandan keyingina print ochilishi uchun
         flushSync(() => setPrintTarget({ visit }));
         window.print();
@@ -437,14 +441,10 @@ const NursePatientDetail = () => {
                         {visits.map((v, i) => (
                             <li key={v.id || i} onClick={() => openVisitDetail(v.id)} className={s.VisitClickable}>
                                 <div className={s.VisitLeft}>
-                                    {/* <span className={`${s.VisitStatus} ${s[(v.status || 'WAITING').toLowerCase()]}`}>
-                                        {VISIT_STATUS_LABELS[v.status] || v.status}
-                                    </span> */}
-                                    <div>
-                                        <p>{v.complaint}</p>
+                                    <div className={s.VisitInfo}>
+                                        <p className="truncate">{v.complaint}</p>
                                         <span className={s.VisitMeta}>
                                             {v.doctorNames && <>Shifokor: {v.doctorNames}</>}
-                                            {/* {v.notes && <> · {v.notes}</>} */}
                                         </span>
                                     </div>
                                 </div>

@@ -52,6 +52,7 @@
             padding: 10px;
             border-radius: 10px;
             color: #1b3050;
+            gap: 10px;
 
             &:hover {
                 background-color: #f9fbfa;
@@ -65,6 +66,8 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 1; // <a>ning ichida .PatientRight'dan qolgan joyni egallasin
+    min-width: 0; // uzun matn borligida o'zi kengayib ketmasligi uchun
 
     p {
         font-size: 14px;
@@ -76,6 +79,11 @@
         font-size: 12px;
         color: #888;
     }
+}
+
+.PatientInfo {
+    flex: 1;
+    min-width: 0; // truncate ishlashi uchun zanjirdagi yana bir bo'g'in
 }
 
 .Avatar {
@@ -96,6 +104,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0; // vaqt/badge siqilib qolmasin
 }
 
 .Time {

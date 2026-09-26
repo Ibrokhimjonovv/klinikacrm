@@ -1,0 +1,341 @@
+$primary: #0e1b33;
+$primary-light: #16264a;
+$border: #e5e7eb;
+$text-muted: #6b7280;
+
+.State {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: $text-muted;
+}
+
+.DetailPage {
+    background: #fff;
+    border-radius: 20px;
+    padding-bottom: 20px;
+}
+
+.BackBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-bottom: 16px;
+
+    &:hover {
+        color: $primary;
+    }
+}
+
+.Banner {
+    background: $primary;
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.BannerLeft {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h1 {
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 14px;
+        margin: 0;
+    }
+}
+
+.Avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.StatusPill {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.InfoRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 560px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.InfoCard {
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    i {
+        color: $primary;
+        font-size: 16px;
+    }
+
+    span {
+        display: block;
+        font-size: 12px;
+        color: $text-muted;
+        margin-bottom: 2px;
+    }
+
+    p {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+}
+
+.DaysSection {
+    h2 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 14px;
+        color: #1a1a1a;
+    }
+}
+
+.FormError {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b91c1c;
+    font-size: 13px;
+    margin: -4px 0 14px;
+}
+
+.FormSuccess {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #047857;
+    background: #d1fae5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin: -4px 0 14px;
+}
+
+.DaysList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.DayItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: #fafbfc;
+    flex-wrap: wrap;
+}
+
+.DayItemDone {
+    background: #f3faf6;
+    border-color: #d1fae5;
+}
+
+.DayItemChecked {
+    border-color: $primary;
+    background: rgba(14, 27, 51, 0.04);
+}
+
+.DayItemLeft {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.Checkbox {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    margin-top: 2px;
+
+    i {
+        font-size: 14px;
+        color: #fff;
+    }
+
+    &:hover:not(:disabled) {
+        border-color: $primary;
+    }
+}
+
+.CheckboxOn {
+    background: $primary;
+    border-color: $primary;
+}
+
+.CheckboxDisabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.DayBadge {
+    margin: 0 0 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: $primary;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.DayText {
+    margin: 0;
+    font-size: 14px;
+    color: #1f2937;
+}
+
+.DayItemRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.StatusBadge {
+    display: inline-block;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+
+    &.waiting {
+        background-color: #f0f0f0;
+        color: #888;
+    }
+
+    &.in_progress {
+        background-color: #fff4e0;
+        color: #d99400;
+    }
+
+    &.done {
+        background-color: #e9f7ef;
+        color: #17643c;
+    }
+}
+
+.ActionBtn {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid $primary;
+    background-color: #fff;
+    color: $primary;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+        background-color: $primary;
+        color: #fff;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+.SaveBar {
+    position: sticky;
+    bottom: 16px;
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: $primary;
+    color: #fff;
+    padding: 14px 18px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(14, 27, 51, 0.25);
+
+    p {
+        margin: 0;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.8);
+    }
+}
+
+.SaveBtn {
+    background: #fff;
+    color: $primary;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+        background: #f0f0f0;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}

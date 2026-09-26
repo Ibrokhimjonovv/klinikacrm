@@ -4,6 +4,8 @@ import s from './DoctorWaitingPatientDetail.module.scss';
 import { api } from '../../../../App';
 import DateTimeFormatter from '../../../../components/shared/DateTimeFormatter/DateTimeFormatter';
 import { useAppContext } from '../../../../context/context';
+import Modal from '../../../../components/Modal/Modal';
+import ImageZoomViewer from '../../../../components/shared/ImageZoomViewer/ImageZoomViewer';
 
 import Select from 'react-select';
 
@@ -50,14 +52,30 @@ const getFileUrl = (path) => {
     }
 }
 
+// Helper: URL rasm ekanligini tekshirish
+const isImageFile = (url) => {
+    if (!url) return false
+    return /\.(jpg|jpeg|png|gif|bmp|webp|svg)(\?.*)?$/i.test(url)
+}
+
 const authHeaders = (token) => ({
     'Authorization': `Bearer ${token}`,
 })
 
-const CONSULTATION_PRICE = 50000
 const formatSum = (n) => Math.round(n).toLocaleString('uz-UZ') + " so'm"
 
-const makeEmptyItem = (nextId) => ({ id: nextId(), type: 'text', text: '', servicePriceId: '', quantity: 1 })
+// ✅ item'da endi: matn, VAQT, dori, xizmat va miqdor bor.
+// "service" — backend TreatmentPlanItem uchun MAJBURIY maydon
+// (serializer.create() da service bo'lmasa ValidationError beradi),
+// shuning uchun uni har doim item bilan birga yuboramiz.
+const makeEmptyItem = (nextId) => ({
+    id: nextId(),
+    text: '',
+    time: '',            // ✅ yangi — muolaja/dori vaqti
+    servicePriceId: '',  // tanlangan DORI id'si
+    serviceId: '',        // tanlangan XIZMAT id'si (backend "service" maydoniga boradi)
+    quantity: 1,
+})
 
 const SERVICE_SELECT_STYLES = {
     control: (base, state) => ({
@@ -66,6 +84,7 @@ const SERVICE_SELECT_STYLES = {
         borderColor: state.isFocused ? '#e5e7eb' : '#e5e7eb',
         boxShadow: 'none',
         cursor: 'pointer',
+        minHeight: '38px',
         '&:hover': {
             borderColor: '#0e1b33',
         },
@@ -99,6 +118,19 @@ const SERVICE_SELECT_STYLES = {
         ...base,
         color: '#111827',
         fontWeight: 500,
+    }),
+}
+
+// ✅ Dori select'i uchun — miqdor input'i unga yopishib turishi
+// uchun o'ng tomondagi burchaklarni to'g'irlaymiz (faqat dori
+// tanlangan holatda ishlatiladi)
+const MEDICINE_SELECT_ATTACHED_STYLES = {
+    ...SERVICE_SELECT_STYLES,
+    control: (base, state) => ({
+        ...SERVICE_SELECT_STYLES.control(base, state),
+        borderTopRightRadius: 0,
+        borderBottomRightRadius: 0,
+        borderRight: 'none',
     }),
 }
 
@@ -136,12 +168,30 @@ const DoctorWaitingPatientTreatmentDetail = () => {
     const [medicines, setMedicines] = useState([])
     const [medicinesLoading, setMedicinesLoading] = useState(true)
 
+    // ✅ Xizmatlar (servicelar) ro'yxati — dori tanlovi yonida
+    const [services, setServices] = useState([])
+    const [servicesLoading, setServicesLoading] = useState(true)
+
     // ---- Davolanish turi (Qatnab / Yotib) va xona-yotoq tanlash ----
     const [careType, setCareType] = useState('OUTPATIENT')
     const [rooms, setRooms] = useState([])
     const [roomsLoading, setRoomsLoading] = useState(false)
     const [selectedRoomId, setSelectedRoomId] = useState('')
     const [selectedBedId, setSelectedBedId] = useState('')
+
+    // ---- Rasm modal (zoom bilan) ----
+    const [modalOpen, setModalOpen] = useState(false)
+    const [modalImage, setModalImage] = useState(null)
+
+    const openImageModal = (url) => {
+        setModalImage(url)
+        setModalOpen(true)
+    }
+
+    const closeImageModal = () => {
+        setModalOpen(false)
+        setModalImage(null)
+    }
 
     const fetchRooms = async () => {
         try {
@@ -204,6 +254,36 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         }
     }
 
+    // ✅ Xizmatlarni yuklash — /services/ endpointi (diagnostika
+    // sahifasida ishlatilgan endpoint bilan bir xil)
+    const fetchServices = async () => {
+        try {
+            setServicesLoading(true)
+            const token = localStorage.getItem('hospital_access')
+            const res = await fetch(`${api}/services/`, {
+                method: 'GET',
+                headers: authHeaders(token),
+            })
+            if (!res.ok) throw new Error(`Services HTTP error: ${res.status}`)
+            const data = await res.json()
+            const list = Array.isArray(data) ? data : data.results || []
+            setServices(
+                list
+                    .filter(sv => sv.is_active)
+                    .map(sv => ({
+                        id: sv.id,
+                        name: sv.name,
+                        description: sv.description,
+                        price: Number(sv.price),
+                    }))
+            )
+        } catch (err) {
+            console.error('Xizmatlar ro\'yxatini olishda xatolik:', err)
+        } finally {
+            setServicesLoading(false)
+        }
+    }
+
     const fetchDiagnosticRequests = async () => {
         try {
             setRequestsLoading(true)
@@ -237,6 +317,7 @@ const DoctorWaitingPatientTreatmentDetail = () => {
     useEffect(() => {
         fetchPatient()
         fetchMedicines()
+        fetchServices()
     }, [id])
 
     useEffect(() => {
@@ -301,10 +382,15 @@ const DoctorWaitingPatientTreatmentDetail = () => {
     const removeSameItem = (itemId) => setSameItems(prev => prev.filter(it => it.id !== itemId))
     const updateSameItemText = (itemId, text) =>
         setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, text } : it))
-    const updateSameItemType = (itemId, type) =>
-        setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, type, text: '' } : it))
-    const updateSameItemService = (itemId, servicePriceId) =>
+    // ✅ Vaqt tanlash
+    const updateSameItemTime = (itemId, time) =>
+        setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, time } : it))
+    // Dori tanlash
+    const updateSameItemMedicine = (itemId, servicePriceId) =>
         setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, servicePriceId } : it))
+    // ✅ Xizmat tanlash
+    const updateSameItemService = (itemId, serviceId) =>
+        setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, serviceId } : it))
     const updateSameItemQuantity = (itemId, quantity) =>
         setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, quantity: Math.max(1, Number(quantity) || 1) } : it))
 
@@ -322,14 +408,22 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, text } : it) }
             : d
     ))
-    const updateItemType = (dayId, itemId, type) => setPlanDays(prev => prev.map(d =>
+    // ✅ Vaqt tanlash
+    const updateItemTime = (dayId, itemId, time) => setPlanDays(prev => prev.map(d =>
         d.id === dayId
-            ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, type, text: '' } : it) }
+            ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, time } : it) }
             : d
     ))
-    const updateItemService = (dayId, itemId, servicePriceId) => setPlanDays(prev => prev.map(d =>
+    // Dori tanlash
+    const updateItemMedicine = (dayId, itemId, servicePriceId) => setPlanDays(prev => prev.map(d =>
         d.id === dayId
             ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, servicePriceId } : it) }
+            : d
+    ))
+    // ✅ Xizmat tanlash
+    const updateItemService = (dayId, itemId, serviceId) => setPlanDays(prev => prev.map(d =>
+        d.id === dayId
+            ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, serviceId } : it) }
             : d
     ))
     const updateItemQuantity = (dayId, itemId, quantity) => setPlanDays(prev => prev.map(d =>
@@ -343,7 +437,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
 
     // ---- JONLI NARX HISOBLASH ----
     const priceSummary = useMemo(() => {
-        const consultationPrice = CONSULTATION_PRICE
         let itemsTotal = 0
         const breakdown = []
 
@@ -356,9 +449,23 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                     breakdown.push({
                         text: it.text,
                         medicineName: medicine.name,
-                        serviceName: medicine.name,
                         quantity: it.quantity || 1,
                         unitPrice: medicine.price,
+                        multiplier,
+                        lineTotal,
+                    })
+                }
+
+                // ✅ Xizmat narxi ham umumiy summaga qo'shiladi
+                const service = services.find(sv => sv.id === Number(it.serviceId))
+                if (service) {
+                    const lineTotal = service.price * multiplier
+                    itemsTotal += lineTotal
+                    breakdown.push({
+                        text: it.text,
+                        medicineName: service.name,
+                        quantity: 1,
+                        unitPrice: service.price,
                         multiplier,
                         lineTotal,
                     })
@@ -383,27 +490,38 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         const bedTotal = bedPricePerDay * treatmentDays
 
         return {
-            consultationPrice,
             itemsTotal,
             bedPricePerDay,
             bedTotal,
             treatmentDays,
-            grandTotal: consultationPrice + itemsTotal + bedTotal,
+            grandTotal: itemsTotal + bedTotal,
             breakdown,
         }
-    }, [planMode, sameItems, sameDayCount, planDays, medicines, careType, selectedRoomForCare])
+    }, [planMode, sameItems, sameDayCount, planDays, medicines, services, careType, selectedRoomForCare])
 
     const calculateDayPrice = (items) => {
         return items.reduce((total, item) => {
-            const medicine = medicines.find(
-                m => m.id === Number(item.servicePriceId)
-            )
+            let sum = total
 
-            if (!medicine) return total
+            const medicine = medicines.find(m => m.id === Number(item.servicePriceId))
+            if (medicine) sum += medicine.price * (item.quantity || 1)
 
-            return total + (medicine.price * (item.quantity || 1))
+            // ✅ xizmat narxi ham kunlik narxga qo'shiladi
+            const service = services.find(sv => sv.id === Number(item.serviceId))
+            if (service) sum += service.price
+
+            return sum
         }, 0)
     }
+
+
+    // ✅ Item'ni backend formatiga o'giramiz: text, time, service.
+    const mapItemForPayload = (it) => ({
+        text: it.text,
+        time: it.time || null,
+        service: it.serviceId || null,
+        dif: false,
+    })
 
     const handleSubmitPlan = async (e) => {
         e.preventDefault()
@@ -449,15 +567,11 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                 day_number: i + 1,
                 note: sameNote,
                 price: dayPrice,
-                items: filledItems.map(it => ({
-                    type: it.type,
-                    text: it.text,
-                    dif: it.type === 'media',
-                })),
+                items: filledItems.map(mapItemForPayload),
                 medicines: filledItems.map(it => ({
                     medicine: it.servicePriceId || null,
                     quantity: it.quantity || 1,
-                }))
+                })),
             }))
         } else {
             if (planDays.length === 0) {
@@ -476,15 +590,11 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                     day_number: index + 1,
                     note: d.note,
                     price: calculateDayPrice(filledItems),
-                    items: filledItems.map(it => ({
-                        type: it.type,
-                        text: it.text,
-                        dif: it.type === 'media',
-                    })),
+                    items: filledItems.map(mapItemForPayload),
                     medicines: filledItems.map(it => ({
                         medicine: it.servicePriceId || null,
                         quantity: it.quantity || 1,
-                    }))
+                    })),
                 }
             })
         }
@@ -497,7 +607,7 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                 complaint: selectedComplaint.id,
                 diagnosis: planDiagnosis,
                 days: daysPayload,
-                total_price: priceSummary.grandTotal, // backend tomonda ham qayta hisoblanishi tavsiya etiladi
+                total_price: priceSummary.grandTotal,
                 care_type: careType,
             }
 
@@ -580,6 +690,27 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         }
     }
 
+    // ------------------------------------------------------------
+    // KO'RINADIGAN SHIKOYATLAR
+    // Faqat WAITING yoki IN_PROGRESS bo'lgan va
+    // hech bo'lmaganda bitta diagnostikasi mavjud shikoyatlar
+    // ------------------------------------------------------------
+
+    const visibleComplaints = useMemo(() => {
+        const active = (patient?.complaints || []).filter(
+            (c) => c.status === 'WAITING' || c.status === 'IN_PROGRESS'
+        )
+
+        return active.filter((complaint) => {
+            const requests = diagnosticRequests.filter(
+                (request) => Number(request.medical_visit) === Number(complaint.id)
+            )
+
+            // Hech bo'lmaganda bitta diagnostika yuborilgan bo'lsa ko'rinadi
+            return requests.length > 0
+        })
+    }, [patient, diagnosticRequests])
+
     if (loading) return <div className={s.State}><p>Yuklanmoqda...</p></div>
     if (error) return <div className={s.State}><p>Xatolik: {error}</p></div>
     if (!patient) return null
@@ -590,6 +721,7 @@ const DoctorWaitingPatientTreatmentDetail = () => {
 
     const renderRequestCard = (request) => {
         const fileUrl = getFileUrl(request.result?.result_file)
+        const fileIsImage = isImageFile(fileUrl)
 
         return (
             <div key={request.id} className={s.DiagRequestCard}>
@@ -629,121 +761,175 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                     </span>
                 </div>
 
+                {/* Natija kartasi */}
                 {request.result && (
-                    <div
-                        className={s.DiagRequestMeta}
-                        style={{ marginTop: 12, paddingTop: 12, borderTop: '1px dashed #e5e7eb', flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}
-                    >
+                    <div className={s.DiagResultBox}>
+                        <div className={s.DiagResultHeader}>
+                            <i className="bi bi-clipboard2-check-fill"></i>
+                            <span>Diagnostika natijasi</span>
+                        </div>
+
                         {request.result.result_text && (
-                            <p className={s.DiagRequestNote} style={{ borderTop: 'none', paddingTop: 0, margin: 0 }}>
-                                <i className="bi bi-file-text"></i> {request.result.result_text}
-                            </p>
+                            <p className={s.DiagResultText}>{request.result.result_text}</p>
                         )}
+
                         {fileUrl && (
-                            <a href={fileUrl} target="_blank" rel="noreferrer" className={s.FieldHint}>
-                                <i className="bi bi-paperclip"></i> Natija faylini ko'rish
-                            </a>
+                            fileIsImage ? (
+                                <button
+                                    type="button"
+                                    className={s.DiagResultFileBtn}
+                                    onClick={() => openImageModal(fileUrl)}
+                                >
+                                    <i className="bi bi-image"></i> Natijani ko'rish
+                                </button>
+                            ) : (
+                                <a
+                                    href={fileUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className={s.DiagResultFileBtn}
+                                >
+                                    <i className="bi bi-paperclip"></i> Natija faylini ko'rish
+                                </a>
+                            )
                         )}
-                        <span>
+
+                        <div className={s.DiagResultFooter}>
                             <i className="bi bi-person-check"></i>
                             Kim bajardi:{' '}
-                            {request.result.completed_by_detail?.full_name ||
-                                request.result.completed_by_detail?.username ||
-                                '-'}
-                        </span>
+                            <strong>
+                                {request.result.completed_by_detail?.full_name ||
+                                    request.result.completed_by_detail?.username ||
+                                    '-'}
+                            </strong>
+                        </div>
                     </div>
                 )}
             </div>
         )
     }
 
-    const renderItemRow = (item, onTypeChange, onTextChange, onServiceChange, onQuantityChange, onRemove, canRemove) => {
+    // ------------------------------------------------------------
+    // Ustunlar sarlavhasi — har bir ItemRow'dagi ustun nima
+    // ekanligini ko'rsatadi (jadval "th" qatoriga o'xshab).
+    // Kenglik/flex qiymatlari renderItemRow bilan bir xil bo'lishi
+    // kerak, aks holda ustunlar bir-biriga to'g'ri kelmaydi.
+    // ------------------------------------------------------------
+
+    const renderItemsHeader = () => (
+        <div className={s.ItemsHeaderRow}>
+            <span className={s.ItemsHeaderCell}>№</span>
+            <span className={s.ItemsHeaderCell}>Muolaja / band tavsifi</span>
+            <span className={s.ItemsHeaderCell}>Vaqti</span>
+            <span className={s.ItemsHeaderCell}>Dori · miqdori</span>
+            <span className={s.ItemsHeaderCell}>Xizmat turi</span>
+        </div>
+    )
+
+    // ------------------------------------------------------------
+    // Har bir band qatorida: tartib raqami, matn, VAQT,
+    // DORI tanlovi (+ tanlangach unga yopishgan miqdor),
+    // va XIZMAT tanlovi (backend uchun majburiy).
+    // ------------------------------------------------------------
+
+    const renderItemRow = (item, orderNumber, onTextChange, onTimeChange, onMedicineChange, onServiceSelectChange, onQuantityChange, onRemove, canRemove) => {
         const medicine = medicines.find(m => m.id === Number(item.servicePriceId))
+        const selectedService = services.find(sv => sv.id === Number(item.serviceId))
 
         return (
             <div key={item.id} className={s.ItemRow}>
-                <div className={s.ItemTypeSwitch}>
-                    <button
-                        type="button"
-                        className={item.type === 'text' ? s.ItemTypeActive : ''}
-                        onClick={() => onTypeChange('text')}
-                        disabled={planSaving}
-                    >
-                        <i className="bi bi-fonts"></i> Matn
-                    </button>
-                    <button
-                        type="button"
-                        className={item.type === 'media' ? s.ItemTypeActive : ''}
-                        onClick={() => onTypeChange('media')}
-                        disabled={planSaving}
-                    >
-                        <i className="bi bi-image"></i> Media
-                    </button>
-                </div>
+                <span className={s.ItemOrderBadge}>{orderNumber}</span>
 
-                {item.type === 'text' ? (
-                    <input
-                        type="text"
-                        placeholder="Masalan: Ertalab 10ml ukol"
-                        value={item.text}
-                        onChange={(e) => onTextChange(e.target.value)}
-                        disabled={planSaving}
+                <input
+                    type="text"
+                    className={s.ItemTextInput}
+                    placeholder="Masalan: Ertalab 10ml ukol"
+                    value={item.text}
+                    onChange={(e) => onTextChange(e.target.value)}
+                    disabled={planSaving}
+                />
+
+                {/* ---- Vaqt tanlovi ---- */}
+                <input
+                    type="time"
+                    className={s.ItemTimeInput}
+                    value={item.time}
+                    onChange={(e) => onTimeChange(e.target.value)}
+                    disabled={planSaving}
+                />
+
+                {/* ---- Dori tanlovi + unga yopishgan miqdor ---- */}
+                <div className={s.MedicineGroup}>
+                    <Select
+                        className={s.ServiceSelect}
+                        isDisabled={planSaving || medicinesLoading}
+                        placeholder={
+                            medicinesLoading
+                                ? "Dorilar yuklanmoqda..."
+                                : "Dorini qidiring..."
+                        }
+                        isSearchable
+                        options={medicines.map(m => ({
+                            value: m.id,
+                            label: `${m.name} — ${formatSum(m.price)}`
+                        }))}
+                        value={
+                            medicine
+                                ? { value: medicine.id, label: `${medicine.name} — ${formatSum(medicine.price)}` }
+                                : null
+                        }
+                        onChange={(selected) =>
+                            onMedicineChange(selected ? selected.value : '')
+                        }
+                        noOptionsMessage={({ inputValue }) =>
+                            inputValue
+                                ? `"${inputValue}" bo'yicha dori topilmadi`
+                                : "Dorilar mavjud emas"
+                        }
+                        styles={medicine ? MEDICINE_SELECT_ATTACHED_STYLES : SERVICE_SELECT_STYLES}
                     />
-                ) : (
-                    <div className={s.MediaInputWrap}>
-                        <i className="bi bi-image"></i>
+
+                    {medicine && (
                         <input
-                            type="text"
-                            placeholder="Masalan: Tish rentgen surati yuklansin"
-                            value={item.text}
-                            onChange={(e) => onTextChange(e.target.value)}
+                            type="number"
+                            min={1}
+                            className={s.QtyInputAttached}
+                            value={item.quantity}
+                            onChange={(e) => onQuantityChange(e.target.value)}
                             disabled={planSaving}
                         />
-                    </div>
-                )}
+                    )}
+                </div>
 
+                {/* ---- Xizmat tanlovi (majburiy) ---- */}
                 <Select
-                    className={`${s.ServiceSelect} ${s.SearchInput}`}
-                    isDisabled={planSaving || medicinesLoading}
+                    className={s.ServiceSelect}
+                    isDisabled={planSaving || servicesLoading}
                     placeholder={
-                        medicinesLoading
-                            ? "Dorilar yuklanmoqda..."
-                            : "Dorini qidiring..."
+                        servicesLoading
+                            ? "Xizmatlar yuklanmoqda..."
+                            : "Xizmatni qidiring..."
                     }
                     isSearchable
-                    options={medicines.map(m => ({
-                        value: m.id,
-                        label: `${m.name} — ${formatSum(m.price)}`
+                    options={services.map(sv => ({
+                        value: sv.id,
+                        label: `${sv.name} — ${formatSum(sv.price)}`
                     }))}
                     value={
-                        medicines
-                            .filter(m => String(m.id) === String(item.servicePriceId))
-                            .map(m => ({
-                                value: m.id,
-                                label: `${m.name} — ${formatSum(m.price)}`
-                            }))[0] || null
+                        selectedService
+                            ? { value: selectedService.id, label: `${selectedService.name} — ${formatSum(selectedService.price)}` }
+                            : null
                     }
                     onChange={(selected) =>
-                        onServiceChange(selected ? selected.value : '')
+                        onServiceSelectChange(selected ? selected.value : '')
                     }
                     noOptionsMessage={({ inputValue }) =>
                         inputValue
-                            ? `"${inputValue}" bo'yicha dori topilmadi`
-                            : "Dorilar mavjud emas"
+                            ? `"${inputValue}" bo'yicha xizmat topilmadi`
+                            : "Xizmatlar mavjud emas"
                     }
                     styles={SERVICE_SELECT_STYLES}
                 />
-
-                {medicine && (
-                    <input
-                        type="number"
-                        min={1}
-                        className={s.QtyInput}
-                        value={item.quantity}
-                        onChange={(e) => onQuantityChange(e.target.value)}
-                        disabled={planSaving}
-                    />
-                )}
 
                 {canRemove && (
                     <button type="button" className={s.RemoveItemBtn} onClick={onRemove} disabled={planSaving}>
@@ -871,13 +1057,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             )}
 
             <div className={s.PlanMediaBlock}>
-                <div className={s.DaysHead}>
-                    <label>Tashxis uchun media va izoh (ixtiyoriy)</label>
-                    <button type="button" className={s.AddDayBtn} onClick={addPlanMedia} disabled={planSaving}>
-                        <i className="bi bi-plus-lg"></i> Media qo'shish
-                    </button>
-                </div>
-
                 {planMedia.length > 0 && (
                     <div className={s.PlanMediaList}>
                         {planMedia.map((m) => (
@@ -946,10 +1125,13 @@ const DoctorWaitingPatientTreatmentDetail = () => {
 
                     <div className={s.ItemsList}>
                         <label className={s.ItemsLabel}>Kunlik tartib</label>
-                        {sameItems.map((item) => renderItemRow(
+                        {renderItemsHeader()}
+                        {sameItems.map((item, index) => renderItemRow(
                             item,
-                            (type) => updateSameItemType(item.id, type),
+                            index + 1,
                             (text) => updateSameItemText(item.id, text),
+                            (time) => updateSameItemTime(item.id, time),
+                            (mid) => updateSameItemMedicine(item.id, mid),
                             (sid) => updateSameItemService(item.id, sid),
                             (qty) => updateSameItemQuantity(item.id, qty),
                             () => removeSameItem(item.id),
@@ -993,10 +1175,13 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                                 </div>
 
                                 <div className={s.ItemsList}>
-                                    {day.items.map((item) => renderItemRow(
+                                    {renderItemsHeader()}
+                                    {day.items.map((item, index) => renderItemRow(
                                         item,
-                                        (type) => updateItemType(day.id, item.id, type),
+                                        index + 1,
                                         (text) => updateItemText(day.id, item.id, text),
+                                        (time) => updateItemTime(day.id, item.id, time),
+                                        (mid) => updateItemMedicine(day.id, item.id, mid),
                                         (sid) => updateItemService(day.id, item.id, sid),
                                         (qty) => updateItemQuantity(day.id, item.id, qty),
                                         () => removeItem(day.id, item.id),
@@ -1028,11 +1213,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                     <span>Hisob-kitob</span>
                 </div>
 
-                <div className={s.PriceLine}>
-                    <span>Shifokor ko'rigi</span>
-                    <span>{formatSum(priceSummary.consultationPrice)}</span>
-                </div>
-
                 {careType === 'INPATIENT' && selectedRoomForCare && (
                     <div className={s.PriceLine}>
                         <span>
@@ -1048,7 +1228,7 @@ const DoctorWaitingPatientTreatmentDetail = () => {
 
                 {priceSummary.breakdown.length > 0 && (
                     <>
-                        <div className={s.PriceDivider}>Muolaja / dori-darmon</div>
+                        <div className={s.PriceDivider}>Muolaja / dori-darmon / xizmatlar</div>
                         {priceSummary.breakdown.map((row, i) => (
                             <div key={i} className={s.PriceLine}>
                                 <span>
@@ -1129,88 +1309,108 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                 </div>
             </div>
 
-            {/* SHIKOYATLAR — har birining ostida o'z diagnostikalari va davolash rejasi formasi */}
-            {patient.complaints?.length > 0 && (
+            {/* SHIKOYATLAR — diagnostikasi yuborilganlar */}
+            {visibleComplaints.length > 0 && (
                 <div className={s.ComplaintsSection}>
                     <h2>Shikoyatlar</h2>
                     <p className={s.ComplaintsHint}>Davolash rejasi qo'shish uchun shikoyatni tanlang</p>
 
                     <div className={s.ComplaintsList}>
-                        {patient.complaints
-                            .filter((c) => c.status === 'WAITING')
-                            .map((c) => {
-                                const complaintRequests = diagnosticRequests.filter(
-                                    (request) => Number(request.medical_visit) === Number(c.id)
-                                )
-                                const hasDiagnostics = complaintRequests.length > 0
-                                const isSelected = selectedComplaintId === c.id
+                        {visibleComplaints.map((c) => {
+                            const complaintRequests = diagnosticRequests.filter(
+                                (request) => Number(request.medical_visit) === Number(c.id)
+                            )
 
-                                return (
-                                    <div
-                                        key={c.id}
-                                        className={`${s.ComplaintGroup} ${isSelected ? s.ComplaintGroupSelected : ''}`}
+                            // ✅ Hamma yuborilgan diagnostikalar ko'rinadi
+                            const visibleRequests = complaintRequests
+
+                            const hasVisibleDiagnostics = visibleRequests.length > 0
+                            const isSelected = selectedComplaintId === c.id
+                            // Boshqa bir shikoyat tanlangan bo'lsa, bu kartani
+                            // xiralashtiramiz — shifokor davolash rejasi
+                            // formasidan chalg'imasligi uchun.
+                            const isDimmed = selectedComplaintId !== null && !isSelected
+
+                            return (
+                                <div
+                                    key={c.id}
+                                    className={`${s.ComplaintGroup} ${isSelected ? s.ComplaintGroupSelected : ''} ${isDimmed ? s.ComplaintGroupBlurred : ''}`}
+                                >
+                                    {/* SHIKOYAT */}
+                                    <button
+                                        type="button"
+                                        className={s.ComplaintCard}
+                                        onClick={() => handleSelectComplaint(c)}
                                     >
-                                        {/* SHIKOYAT */}
-                                        <button
-                                            type="button"
-                                            className={s.ComplaintCard}
-                                            onClick={() => handleSelectComplaint(c)}
-                                        >
-                                            <div className={s.ComplaintTop}>
-                                                <span className={`${s.StatusTag} ${s[c.status?.toLowerCase()]}`}>
-                                                    {STATUS_LABELS[c.status] || c.status}
-                                                </span>
-                                                <DateTimeFormatter date={c.created_at} format="datetime" className={s.ComplaintDate} />
-                                            </div>
+                                        <div className={s.ComplaintTop}>
+                                            <span className={`${s.StatusTag} ${s[c.status?.toLowerCase()]}`}>
+                                                {STATUS_LABELS[c.status] || c.status}
+                                            </span>
+                                            <DateTimeFormatter date={c.created_at} format="datetime" className={s.ComplaintDate} />
+                                        </div>
 
-                                            <p>{c.complaint}</p>
+                                        <p>{c.complaint}</p>
 
-                                            <div className={s.ComplaintBadges}>
-                                                {hasDiagnostics && (
+                                        <div className={s.ComplaintBadges}>
+                                            <div className={s.ComplaintBadgesLeft}>
+                                                {hasVisibleDiagnostics && (
                                                     <span className={s.DiagSentTag}>
                                                         <i className="bi bi-check-circle-fill"></i>
-                                                        Diagnostikaga yuborilgan ({complaintRequests.length})
-                                                    </span>
-                                                )}
-
-                                                {isSelected && (
-                                                    <span className={s.SelectedTag}>
-                                                        <i className="bi bi-check-circle-fill"></i>
-                                                        Tanlandi
+                                                        Diagnostikalar ({visibleRequests.length})
                                                     </span>
                                                 )}
                                             </div>
-                                        </button>
 
-                                        {/* SHU SHIKOYATNING DIAGNOSTIKALARI */}
-                                        {requestsLoading && !hasDiagnostics ? (
-                                            <div className={s.LoadingText}>
-                                                <i className="bi bi-arrow-repeat"></i>
-                                                Diagnostikalar yuklanmoqda...
-                                            </div>
-                                        ) : (
-                                            hasDiagnostics && (
-                                                <div className={s.ComplaintDiagWrap}>
-                                                    <h3 className={s.ComplaintDiagTitle}>
-                                                        <i className="bi bi-clipboard2-pulse"></i>
-                                                        Diagnostikalar
-                                                    </h3>
+                                            <span className={isSelected ? s.SelectedTag : s.PlanHintTag}>
+                                                <i className={`bi ${isSelected ? 'bi-check-circle-fill' : 'bi-plus-circle'}`}></i>
+                                                {isSelected ? 'Tanlandi' : "Reja qo'shish"}
+                                            </span>
+                                        </div>
+                                    </button>
 
-                                                    <div className={s.ComplaintDiagList}>
-                                                        {complaintRequests.map(renderRequestCard)}
-                                                    </div>
+                                    {/* SHU SHIKOYATNING DIAGNOSTIKALARI */}
+                                    {requestsLoading && !hasVisibleDiagnostics ? (
+                                        <div className={s.LoadingText}>
+                                            <i className="bi bi-arrow-repeat"></i>
+                                            Diagnostikalar yuklanmoqda...
+                                        </div>
+                                    ) : (
+                                        hasVisibleDiagnostics && (
+                                            <div className={s.ComplaintDiagWrap}>
+                                                <h3 className={s.ComplaintDiagTitle}>
+                                                    <i className="bi bi-clipboard2-pulse"></i>
+                                                    Diagnostikalar
+                                                </h3>
+
+                                                <div className={s.ComplaintDiagList}>
+                                                    {visibleRequests.map(renderRequestCard)}
                                                 </div>
-                                            )
-                                        )}
+                                            </div>
+                                        )
+                                    )}
 
-                                        {/* DAVOLASH REJASI FORMASI — tanlangan shikoyat ichida */}
-                                        {isSelected && renderPlanForm()}
-                                    </div>
-                                )
-                            })}
+                                    {/* DAVOLASH REJASI FORMASI — tanlangan shikoyat ichida */}
+                                    {isSelected && renderPlanForm()}
+                                </div>
+                            )
+                        })}
                     </div>
                 </div>
             )}
+
+            {/* RASM MODAL — zoom bilan */}
+            <Modal
+                isOpen={modalOpen}
+                onClose={closeImageModal}
+                fullWidth
+            >
+                {modalImage && (
+                    <ImageZoomViewer
+                        src={modalImage}
+                        alt="Diagnostika natijasi"
+                    />
+                )}
+            </Modal>
         </div>
     )
 }

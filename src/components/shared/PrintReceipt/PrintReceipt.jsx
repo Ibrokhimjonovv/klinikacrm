@@ -35,6 +35,21 @@ const mmToPx = (mm) => {
     return px;
 };
 
+// Modul yuklangan zahoti logotipni oldindan yuklab/keshlab qo'yamiz —
+// shunda "Chop etish" bosilganda u allaqachon brauzer xotirasida tayyor
+// bo'ladi. PatientAdmission kabi ekranlarda muammo sezilmaydi, chunki u
+// yerda finished holati o'rnatilgandan keyin foydalanuvchi tugmani
+// bosguncha vaqt o'tadi (rasm shu orada tabiiy yuklanib ulguradi).
+// PatientDetail'dagi kabi "birinchi marta chiqarish + darhol print()"
+// holatida esa bu vaqt yo'q, shuning uchun chaqiruvchi tomon shu
+// promise'ni kutib turishi kerak (handlePrint'ga qarang).
+export const logoReady = new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false); // xato bo'lsa ham chop etishni to'smaymiz
+    img.src = logo;
+});
+
 /**
  * Chop etish uchun umumiy shablon — American Orthopedic Center.
  *

@@ -1,6 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
-
-// App.module.scss yoki alohida _variables.scss faylida
 :root {
     --color-primary: #17643c;
     --color-primary-light: #1e8a53;
@@ -15,7 +13,6 @@
     margin: 0;
     text-decoration: none;
     font-family: "Poppins", sans-serif;
-    // transition: all 0.3s;
 }
 
 body {
@@ -40,4 +37,13 @@ body {
     &.DashMenuLong {
         width: calc(100% - 90px);
     }
+}
+
+:global(.truncate) {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
 }
