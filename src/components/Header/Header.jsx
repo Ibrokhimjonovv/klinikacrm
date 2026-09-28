@@ -78,10 +78,11 @@ const menuLinks = {
     assistantDoctor: {
         main: [
             { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
-            { to: '/waiting-patients', icon: 'bi-sliders2', text: 'Bemorlar' },
         ],
-        patientsTitle: null,
+        patientsTitle: "Bemorlar",
         patients: [
+            { to: '/waiting-patients', icon: 'bi-activity', text: 'Diagnostik bemorlar' },
+            { to: '/assistant-doctor/tasks', icon: 'bi-people', text: 'Biriktirilgan bemorlar' },
         ],
         roomsTitle: null,
         rooms: [

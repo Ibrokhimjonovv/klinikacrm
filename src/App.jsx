@@ -11,7 +11,6 @@ import NursePatientDetail from './pages/XamshiraReseption/PatientDetail/PatientD
 import NursePatients from './pages/XamshiraReseption/NursePatients/NursePatients'
 import VisitDetail from './pages/XamshiraReseption/VisitDetail/VisitDetail'
 import DoctorWaitingPatients from './pages/Shifokor/DoctorWaiting/DoctorWaitingPatients/DoctorWaitingPatients'
-import DoctorWaitingPatientDetail from './pages/Shifokor/DoctorWaiting/DoctorWaitingPatientDetail/DoctorWaitingPatientDiagnosticDetail'
 import DoctorProgressPatientDetail from './pages/Shifokor/DoctorProgress/DoctorProgressPatientDetail/DoctorProgressPatientDetail'
 import DoctorProgressPatients from './pages/Shifokor/DoctorProgress/DoctorProgressPatients/DoctorProgressPatients'
 import DoctorComplatedPatients from './pages/Shifokor/DoctorComplated/DoctorComplatedPatients/DoctorComplatedPatients'
@@ -45,8 +44,10 @@ import AdminDoctors from './pages/Admin/AdminDoctors/AdminDoctors'
 import AdminNurses from './pages/Admin/AdminNurses/AdminNurses'
 import AdminResNurses from './pages/Admin/AdminResNurses/AdminResNurses'
 import AdminMedicines from './pages/Admin/AdminMedicines/AdminMedicines'
+import AssistantDoctorTasks from './pages/AssistantDoctor/AssistantDoctorTasks/AssistantDoctorTasks'
+import AssistantDoctorPTaskDetail from './pages/AssistantDoctor/AssistantDoctorTasksDetail/AssistantDoctorTaskDetail'
 
-export const api = 'http://10.244.157.222:8000/api/v1'
+export const api = 'http://192.168.1.2:8000/api/v1'
 // export const api = 'https://bkapi.aoc.uz/api/v1'
 // export const api = 'https://6397-87-192-225-30.ngrok-free.app/api/v1'
 
@@ -109,7 +110,7 @@ function App() {
               <Route path="/nurse-patients" element={<NurseProgressPatients />} />
               <Route path="/nurse-profile" element={<NurseProfile />} />
               <Route path="nurse-inpatients" element={<NurseInpatients />} />
-              <Route path="nurse-inpatients/:id" element={<NurseInpatientDetail />} />
+              <Route path="/nurse-inpatients/:planId" element={<NurseInpatientDetail />} />
               {/* <Route path="/reception-nurse-profile" element={<NurseProfile />} /> */}
             </>
           )}
@@ -132,6 +133,11 @@ function App() {
                 <Route path="/" element={<AssistantDoctorHome />} />
                 <Route path="/waiting-patients" element={<AssistantDoctorPatients />} />
                 <Route path="/waiting-patients/:id" element={<AssistantDoctorTaskDetail />} />
+                <Route path="/assistant-doctor/tasks" element={<AssistantDoctorTasks />} />
+                <Route
+                  path="/assistant-doctor/tasks/:planId/:serviceId"
+                  element={<AssistantDoctorPTaskDetail />}
+                />
                 <Route path="/doctor-profile" element={<AssistantDoctorProfile />} />
               </>
             )

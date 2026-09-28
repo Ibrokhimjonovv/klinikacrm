@@ -9,9 +9,10 @@ const calcAge = (birthDate) => {
     return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25))
 }
 
-// Bitta bemorga tegishli barcha kunlik muolaja itemlarini
-// bitta qatorga birlashtiradi.
-const groupByPatient = (waiting, inProgress, completed) => {
+// ✅ TUZATILDI: endi bemor bo'yicha emas, HAR BIR REJA (treatment_plan_id)
+// bo'yicha guruhlaymiz — assistant doktordagi kabi, bitta bemorga 2 ta
+// reja biriktirilgan bo'lsa, ro'yxatda 2 ta alohida qator chiqadi.
+const groupByPlan = (waiting, inProgress, completed) => {
     const all = [
         ...waiting.map(i => ({ ...i, _bucket: 'WAITING' })),
         ...inProgress.map(i => ({ ...i, _bucket: 'IN_PROGRESS' })),
@@ -22,11 +23,13 @@ const groupByPatient = (waiting, inProgress, completed) => {
 
     for (const item of all) {
         const patient = item.patient || {}
-        const key = patient.id
+        const planId = item.treatment_plan_id
+        const key = planId
 
         if (!map.has(key)) {
             map.set(key, {
-                id: patient.id,
+                planId,
+                patientId: patient.id,
                 first_name: patient.first_name || '',
                 last_name: patient.last_name || '',
                 middle_name: patient.middle_name || '',
@@ -38,6 +41,12 @@ const groupByPatient = (waiting, inProgress, completed) => {
                 waitingCount: 0,
                 progressCount: 0,
                 doneCount: 0,
+                diagnosis:
+                    item.diagnosis ||
+                    item.plan?.diagnosis ||
+                    item.treatment_plan?.diagnosis ||
+                    item.treatment_plan_diagnosis ||
+                    null,
             })
         }
 
@@ -81,7 +90,7 @@ const NurseInpatients = () => {
     const [view, setView] = useState('table') // 'table' | 'card'
     const [search, setSearch] = useState('')
 
-    const [patients, setPatients] = useState([])
+    const [plans, setPlans] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
@@ -105,8 +114,8 @@ const NurseInpatients = () => {
                 if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
 
                 const data = await res.json()
-                const grouped = groupByPatient(data.waiting || [], data.in_progress || [], data.completed || [])
-                setPatients(grouped)
+                const grouped = groupByPlan(data.waiting || [], data.in_progress || [], data.completed || [])
+                setPlans(grouped)
             } catch (err) {
                 if (err.name !== 'AbortError') {
                     console.error('API xatosi:', err)
@@ -121,7 +130,7 @@ const NurseInpatients = () => {
         return () => controller.abort()
     }, [])
 
-    const filtered = patients.filter(p => {
+    const filtered = plans.filter(p => {
         const fullName = `${p.first_name} ${p.last_name} ${p.middle_name}`.toLowerCase()
         return fullName.includes(search.toLowerCase())
     })
@@ -198,11 +207,16 @@ const NurseInpatients = () => {
                         </thead>
                         <tbody>
                             {filtered.map(p => (
-                                <tr key={p.id} onClick={() => navigate(`/nurse-inpatients/${p.id}`)}>
+                                <tr key={p.planId} onClick={() => navigate(`/nurse-inpatients/${p.planId}`)}>
                                     <td>
                                         <div className={s.NameCell}>
                                             <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
-                                            <span>{p.first_name} {p.last_name}</span>
+                                            <div>
+                                                <span>{p.first_name} {p.last_name}</span>
+                                                {p.diagnosis && (
+                                                    <p className={s.NameCellSub}>{p.diagnosis}</p>
+                                                )}
+                                            </div>
                                         </div>
                                     </td>
                                     <td>{calcAge(p.birth_date)} yosh</td>
@@ -225,9 +239,9 @@ const NurseInpatients = () => {
                 <div className={s.CardsGrid}>
                     {filtered.map(p => (
                         <div
-                            key={p.id}
+                            key={p.planId}
                             className={s.PatientCard}
-                            onClick={() => navigate(`/nurse-inpatients/${p.id}`)}
+                            onClick={() => navigate(`/nurse-inpatients/${p.planId}`)}
                         >
                             <div className={s.CardTop}>
                                 <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
@@ -237,6 +251,9 @@ const NurseInpatients = () => {
                             </div>
                             <h3>{p.first_name} {p.last_name}</h3>
                             <p className={s.CardAge}>{calcAge(p.birth_date)} yosh · {p.gender === 'erkak' ? 'Erkak' : 'Ayol'}</p>
+                            {p.diagnosis && (
+                                <p className={s.NameCellSub}>{p.diagnosis}</p>
+                            )}
                             <div className={s.CardInfo}>
                                 <span><i className="bi bi-calendar2-week"></i> {p.doneCount}/{p.totalDays} kun bajarilgan</span>
                                 <span><i className="bi bi-telephone"></i> {p.phone}</span>

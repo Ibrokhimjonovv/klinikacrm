@@ -111,11 +111,18 @@
     }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 749px) {
     .ModalBox {
+        position: fixed;
         top: 20px;
-        right: 20px;
         left: 20px;
+        bottom: 20px;
+        width: calc(100% - 40px);
         max-width: none;
+        background-color: #fff;
+        border-radius: 16px;
+        padding: 0;
+        overflow-y: auto;
+        animation: slideInRight 0.3s ease-out forwards;
     }
 }

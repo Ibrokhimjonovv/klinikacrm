@@ -17,6 +17,11 @@ const ResNurseHome = () => {
         }
     }, [])
 
+    const handleCloseAdmission = () => {
+        setShowAdmission(false)
+        fetchPatients()
+    }
+
     const stats = [
         {
             title: 'Bugun qabul qilingan',
@@ -136,9 +141,9 @@ const ResNurseHome = () => {
 
             <Modal
                 isOpen={showAdmission}
-                onClose={() => setShowAdmission(false)}
+                onClose={handleCloseAdmission}
             >
-                <PatientAdmission onSuccess={() => setShowAdmission(false)} />
+                <PatientAdmission onSuccess={handleCloseAdmission} />
             </Modal>
         </section>
     )

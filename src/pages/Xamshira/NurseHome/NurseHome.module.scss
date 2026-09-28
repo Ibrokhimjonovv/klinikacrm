@@ -161,6 +161,12 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: #f8f9fb;
+            border-radius: 8px;
+        }
     }
 }
 

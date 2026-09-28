@@ -180,6 +180,7 @@ $text-muted: #6b7280;
 
 .PlanCardHeadLeft {
     width: 100%;
+
     h3 {
         font-size: 16px;
         font-weight: 700;
@@ -232,15 +233,24 @@ $text-muted: #6b7280;
 
 .PlanDaysGrid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
+
+    @media (max-width: 1000px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 700px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .PlanDayCard {
     border: 1px solid $border;
-    border-radius: 10px;
-    padding: 12px;
-    background: #fafbfc;
+    border-radius: 14px;
+    padding: 16px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
 .DayBadge {
@@ -251,6 +261,7 @@ $text-muted: #6b7280;
     font-weight: 700;
     padding: 4px 12px;
     border-radius: 20px;
+    margin-bottom: 10px;
 }
 
 .CheckList {
@@ -579,11 +590,12 @@ $text-muted: #6b7280;
     flex-direction: column;
     gap: 12px;
     width: 100%;
-    border: 1px solid #e5e7eb;
+    border: 1px solid rgba(15, 23, 42, 0.08);
     border-radius: 12px;
     padding: 14px;
-    background: #fafbfc;
-    transition: border-color 0.2s, background 0.2s;
+    background: #ffffff;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
 .MediaCardDone {
@@ -648,7 +660,7 @@ $text-muted: #6b7280;
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
 .ItemMetaTag {
@@ -657,10 +669,11 @@ $text-muted: #6b7280;
     gap: 5px;
     padding: 3px 9px;
     border-radius: 999px;
-    background: rgba(14, 27, 51, 0.06);
+    background: rgba(255, 255, 255, 0.7);
     color: #0e1b33;
     font-size: 11px;
     font-weight: 600;
+    border: 1px solid rgba(14, 27, 51, 0.08);
 
     i {
         font-size: 12px;
@@ -989,4 +1002,218 @@ $text-muted: #6b7280;
     color: $primary;
     opacity: 0.6;
     transition: opacity 0.2s;
+}
+
+.DayServicesBox {
+    margin-bottom: 12px;
+    padding: 12px 12px 14px;
+    border-radius: 12px;
+
+    // ✅ Default: Xizmatlar bloki — ko'k (moviy) ottenka
+    background: #eef4ff;
+    border: 1px solid #dbe6ff;
+    border-left: 3px solid #3b5fe0;
+
+    .DayServicesTitleRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 8px;
+
+        p.DayServicesTitle {
+            margin-bottom: 0;
+        }
+    }
+
+    p.DayServicesTitle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: #2a4bc9;
+        margin-bottom: 8px;
+        margin-top: 0;
+
+        i {
+            color: #2a4bc9;
+        }
+    }
+}
+
+// ✅ Dorilar bloki — yashil ottenka bilan farqlanadi
+.DayServicesBoxMed {
+    background: #eefcf3;
+    border: 1px solid #d3f3de;
+    border-left: 3px solid #16a34a;
+
+    p.DayServicesTitle {
+        color: #15803d;
+
+        i {
+            color: #15803d;
+        }
+    }
+}
+
+.OccurrenceBadge {
+    display: inline-block;
+    background: #0e1b33;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.DayMedicineTopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.DayMedicineDone {
+    opacity: 0.75;
+}
+
+.MedicineCheckRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #444;
+    cursor: pointer;
+
+    input {
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+    }
+
+    &.MedicineCheckRowChecked {
+        color: #17643c;
+        font-weight: 600;
+    }
+}
+
+.ServiceResultText {
+    margin: 0;
+    font-size: 13px;
+    color: #374151;
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.ServiceResultText {
+    margin: 0;
+    font-size: 13px;
+    color: #374151;
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.FileViewBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: $primary;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    align-self: flex-start;
+    width: 100%;
+
+    i {
+        font-size: 15px;
+    }
+
+    &:hover {
+        background: #f3f4f6;
+    }
+}
+
+.ResultModalBox {
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    .FileViewBtn {
+        width: 100%;
+    }
+}
+
+.ResultModalTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a1a;
+
+    i {
+        color: $primary;
+    }
+}
+
+.ResultModalText {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #374151;
+    background: #f8fafc;
+    border: 1px solid $border;
+    border-radius: 10px;
+    padding: 12px 14px;
+    white-space: pre-wrap;
+}
+
+.ResultModalTextEmpty {
+    margin: 0;
+    font-size: 13px;
+    color: $text-muted;
+    font-style: italic;
+}
+
+.ResultModalEmptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 36px 16px;
+    text-align: center;
+    color: $text-muted;
+    background: #f8fafc;
+    border: 1px dashed $border;
+    border-radius: 12px;
+
+    i {
+        font-size: 30px;
+        color: #cbd5e1;
+    }
+
+    p {
+        margin: 0;
+        font-size: 13px;
+        max-width: 220px;
+        line-height: 1.5;
+    }
 }

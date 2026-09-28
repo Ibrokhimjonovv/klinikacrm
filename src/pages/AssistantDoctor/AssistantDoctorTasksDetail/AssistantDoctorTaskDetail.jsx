@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import s from './NurseInpatientDetail.module.scss';
-import { api } from '../../../App';
+import { useNavigate, useParams } from 'react-router-dom';
+import s from './AssistantDoctorTaskDetail.module.scss';
 import Modal from '../../../components/Modal/Modal';
+import { api } from '../../../App';
 import ImageZoomViewer from '../../../components/shared/ImageZoomViewer/ImageZoomViewer';
 
 // ============================================================
@@ -14,6 +14,9 @@ const calcAge = (birthDate) => {
     const diff = Date.now() - new Date(birthDate).getTime();
     return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
 };
+
+const formatSum = (n) =>
+    Math.round(Number(n) || 0).toLocaleString('uz-UZ') + " so'm";
 
 const DAY_STATUS_LABELS = {
     WAITING: { label: 'Kutilmoqda', className: 'waiting' },
@@ -27,59 +30,33 @@ const authHeaders = (token, json = true) => ({
     ...(json ? { 'Content-Type': 'application/json' } : {}),
 });
 
+// Fayl rasmmi yoki yo'qmi — kengaytma bo'yicha aniqlash
 const isImage = (url) => {
     if (!url) return false;
     const clean = String(url).split('?')[0].toLowerCase();
     return /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(clean);
 };
 
-const getPlanDiagnosis = (planItems) => {
-    const first = planItems?.[0] || {};
-    return (
-        first.diagnosis ||
-        first.plan?.diagnosis ||
-        first.treatment_plan?.diagnosis ||
-        first.treatment_plan_diagnosis ||
-        null
-    );
-};
-
-const getDoctorsLabel = (planItems) => {
-    const label = Array.from(
-        new Map(
-            (planItems || [])
-                .flatMap(i => i.doctors || [])
-                .map(d => [d.id, `${d.first_name || ''} ${d.last_name || ''}`.trim()])
-        ).values()
-    ).join(', ');
-    return label || "Ko'rsatilmagan";
-};
-
 // ============================================================
 // Komponent
 // ============================================================
 
-const NurseInpatientDetail = () => {
-    // ✅ TUZATILDI: endi bemor id emas, to'g'ridan-to'g'ri REJA id
-    // (treatment_plan_id) route'dan olinadi — shu sabab bu yerda
-    // "reja tanlash" ekraniga umuman ehtiyoj qolmaydi.
-    const { planId } = useParams();
+const AssistantDoctorPTaskDetail = () => {
     const navigate = useNavigate();
+    const { planId, serviceId } = useParams();
 
     const [patient, setPatient] = useState(null);
-    const [diagnosis, setDiagnosis] = useState(null);
-    const [doctorsLabel, setDoctorsLabel] = useState("Ko'rsatilmagan");
-    const [dayItems, setDayItems] = useState([]);
+    const [service, setService] = useState(null);
+    const [plan, setPlan] = useState(null);
+    const [days, setDays] = useState([]);
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [reloadKey, setReloadKey] = useState(0);
 
     const [activeDayId, setActiveDayId] = useState(null);
     const [pendingFile, setPendingFile] = useState(null);
     const [pendingComment, setPendingComment] = useState('');
     const [saving, setSaving] = useState(false);
-    const [formError, setFormError] = useState('');
 
     const [modalOpen, setModalOpen] = useState(false);
     const [modalImage, setModalImage] = useState(null);
@@ -88,48 +65,69 @@ const NurseInpatientDetail = () => {
         setModalImage(url);
         setModalOpen(true);
     };
+
     const closeImageModal = () => {
         setModalOpen(false);
         setModalImage(null);
     };
 
-    const getToken = () => localStorage.getItem('hospital_access');
+    const activeDay = days.find((d) => d.id === activeDayId) || null;
 
     // ------------------------------------------------------------
-    // FETCH — /nurse/treatments/ dan faqat shu REJAga (planId)
-    // tegishli kunlarni ajratib olamiz.
+    // Fetch
     // ------------------------------------------------------------
     const fetchDetail = async () => {
         try {
             setLoading(true);
             setError(null);
 
-            const res = await fetch(`${api}/nurse/treatments/`, {
-                method: 'GET',
-                headers: authHeaders(getToken(), false),
-            });
-            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-
-            const data = await res.json();
-            const all = [
-                ...(data.waiting || []),
-                ...(data.in_progress || []),
-                ...(data.completed || []),
-            ];
-
-            const planItems = all.filter(
-                item => String(item.treatment_plan_id) === String(planId)
+            const token = localStorage.getItem('hospital_access');
+            const res = await fetch(
+                `${api}/doctor/my-treatment-services/${planId}/${serviceId}/`,
+                {
+                    method: 'GET',
+                    headers: authHeaders(token),
+                }
             );
 
-            if (planItems.length > 0) {
-                setPatient(planItems[0].patient);
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
             }
 
-            setDiagnosis(getPlanDiagnosis(planItems));
-            setDoctorsLabel(getDoctorsLabel(planItems));
-            setDayItems(planItems.slice().sort((a, b) => a.day_number - b.day_number));
+            const data = await res.json();
+
+            setPatient(data.patient_detail || null);
+            setService(data.service_detail || null);
+            setPlan(data.treatment_plan_detail || null);
+
+            // Kunlarni UI shakliga moslash
+            const normalizedDays = (data.days || []).map((d, index) => ({
+                id: d.id,
+                dayNumber: d.day_detail?.day_number ?? index + 1,
+                status: d.status,
+                note: d.note || '',
+                services: d.service_detail
+                    ? [
+                        {
+                            id: d.service_detail.id,
+                            name: d.service_detail.name,
+                            price: d.service_detail.price,
+                            duration: null,
+                        },
+                    ]
+                    : [],
+                file: d.result_file_url
+                    ? String(d.result_file_url).split('/').pop()
+                    : null,
+                fileUrl: d.result_file_url || null,   // ← to'liq URL/path
+                resultText: d.result_text || null,    // ← natija matni
+                comment: d.note || null,
+                raw: d,
+            }));
+
+            setDays(normalizedDays);
         } catch (err) {
-            console.error('Reja tafsilotlarini olishda xatolik:', err);
+            console.error('Detail fetch error:', err);
             setError(err.message);
         } finally {
             setLoading(false);
@@ -137,83 +135,126 @@ const NurseInpatientDetail = () => {
     };
 
     useEffect(() => {
-        fetchDetail();
+        if (planId && serviceId) fetchDetail();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [planId, reloadKey]);
-
-    const activeDay = dayItems.find((d) => d.id === activeDayId) || null;
+    }, [planId, serviceId]);
 
     // ------------------------------------------------------------
-    // Modal ochish / yopish — assistant doktor bilan bir xil oqim
+    // Modal
     // ------------------------------------------------------------
     const openDay = (day) => {
-        setFormError('');
         setActiveDayId(day.id);
         setPendingFile(null);
-        setPendingComment(day.result_text || day.note || '');
+        setPendingComment(day.resultText || day.note || '');
     };
 
     const closeDrawer = () => setActiveDayId(null);
 
     // ------------------------------------------------------------
-    // Vazifani boshlash
+    // Vazifani boshlash — PATCH status=IN_PROGRESS
     // ------------------------------------------------------------
     const handleStartDay = async () => {
         if (!activeDay) return;
 
         try {
             setSaving(true);
-            setFormError('');
+            const token = localStorage.getItem('hospital_access');
 
-            const res = await fetch(`${api}/nurse/treatments/${activeDay.id}/start/`, {
-                method: 'POST',
-                headers: authHeaders(getToken(), false),
-            });
+            const res = await fetch(
+                `${api}/doctor/treatment-day-services/${activeDay.id}/`,
+                {
+                    method: 'PATCH',
+                    headers: authHeaders(token), // JSON Content-Type
+                    body: JSON.stringify({ status: 'IN_PROGRESS' }),
+                }
+            );
 
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.detail || `HTTP error! status: ${res.status}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-            setReloadKey(k => k + 1);
+            const updated = await res.json().catch(() => null);
+
+            // Lokal yangilash
+            setDays((prev) =>
+                prev.map((d) =>
+                    d.id === activeDay.id
+                        ? {
+                            ...d,
+                            status: updated?.status || 'IN_PROGRESS',
+                        }
+                        : d
+                )
+            );
         } catch (err) {
-            console.error('Vazifani boshlashda xatolik:', err);
-            setFormError(err.message || 'Vazifani boshlashda xatolik yuz berdi');
+            console.error('Start error:', err);
+            alert('Vazifani boshlashda xatolik: ' + err.message);
         } finally {
             setSaving(false);
         }
     };
 
     // ------------------------------------------------------------
-    // Vazifani yakunlash — fayl + izoh
-    // ⚠️ TAXMIN: /nurse/treatments/{id}/complete/ endpointi FormData
-    // (note/result_text/result_file) qabul qiladi deb faraz qilindi.
-    // Backend boshqacha kutsa, shu joyni to'g'irlash kerak bo'ladi.
+    // Vazifani yakunlash — fayl + izoh + status=DONE
     // ------------------------------------------------------------
     const handleFinishDay = async () => {
         if (!activeDay) return;
 
         try {
             setSaving(true);
-            setFormError('');
+            const token = localStorage.getItem('hospital_access');
 
             const formData = new FormData();
             if (pendingComment.trim()) formData.append('note', pendingComment.trim());
             if (pendingComment.trim()) formData.append('result_text', pendingComment.trim());
             if (pendingFile) formData.append('result_file', pendingFile);
+            formData.append('status', 'DONE');
 
-            const res = await fetch(`${api}/nurse/treatments/${activeDay.id}/complete/`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${getToken()}` },
-                body: formData,
-            });
+            const res = await fetch(
+                `${api}/doctor/treatment-day-services/${activeDay.id}/`,
+                {
+                    method: 'PATCH',
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        // Content-Type ni qo'lda qo'ymang — FormData o'zi qo'yadi
+                    },
+                    body: formData,
+                }
+            );
 
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.detail || `HTTP error! status: ${res.status}`);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-            setReloadKey(k => k + 1);
+            const updated = await res.json().catch(() => null);
+
+            setDays((prev) =>
+                prev.map((d) =>
+                    d.id === activeDay.id
+                        ? {
+                            ...d,
+                            status: updated?.status || 'DONE',
+                            note: updated?.note ?? pendingComment.trim() ?? d.note,
+                            file:
+                                updated?.result_file_url
+                                    ? String(updated.result_file_url).split('/').pop()
+                                    : pendingFile?.name || d.file,
+                            fileUrl:
+                                updated?.result_file_url ||
+                                (pendingFile ? URL.createObjectURL(pendingFile) : d.fileUrl),
+                            resultText:
+                                updated?.result_text ??
+                                pendingComment.trim() ??
+                                d.resultText,
+                            comment:
+                                updated?.result_text ??
+                                pendingComment.trim() ??
+                                d.comment,
+                        }
+                        : d
+                )
+            );
+
             closeDrawer();
         } catch (err) {
-            console.error('Yakunlashda xatolik:', err);
-            setFormError(err.message || 'Kunni yakunlashda xatolik yuz berdi');
+            console.error('Finish error:', err);
+            alert('Yakunlashda xatolik: ' + err.message);
         } finally {
             setSaving(false);
         }
@@ -250,22 +291,15 @@ const NurseInpatientDetail = () => {
         );
     }
 
-    if (!patient) {
-        return (
-            <div className={s.DetailPage}>
-                <p>Reja topilmadi</p>
-            </div>
-        );
-    }
-
-    const doneCount = dayItems.filter(i => i.status === 'DONE').length;
-
     // ------------------------------------------------------------
-    // Render — assistant doktor bilan bir xil struktura
+    // Render
     // ------------------------------------------------------------
     return (
         <div className={s.DetailPage}>
-            <button className={s.BackBtn} onClick={() => navigate('/nurse-inpatients')}>
+            <button
+                className={s.BackBtn}
+                onClick={() => navigate('/assistant-doctor/tasks')}
+            >
                 <i className="bi bi-arrow-left"></i> Bemorlar ro'yxatiga qaytish
             </button>
 
@@ -277,7 +311,8 @@ const NurseInpatientDetail = () => {
                     </div>
                     <div>
                         <h1>
-                            {patient?.first_name} {patient?.last_name} {patient?.middle_name}
+                            {patient?.first_name} {patient?.last_name}{' '}
+                            {patient?.middle_name}
                         </h1>
                         <p>
                             {calcAge(patient?.date_of_birth)} yosh ·{' '}
@@ -285,9 +320,7 @@ const NurseInpatientDetail = () => {
                         </p>
                     </div>
                 </div>
-                <span className={s.StatusPill}>
-                    {doneCount}/{dayItems.length} kun bajarildi
-                </span>
+                <span className={s.StatusPill}>Davolanmoqda</span>
             </div>
 
             {/* INFO CARDS */}
@@ -302,38 +335,32 @@ const NurseInpatientDetail = () => {
                 <div className={s.InfoCard}>
                     <i className="bi bi-clipboard2-pulse"></i>
                     <div>
-                        <span>Tashxis</span>
-                        <p>{diagnosis || `№${planId}-reja`}</p>
+                        <span>Xizmat</span>
+                        <p>{service?.name || "Ko'rsatilmagan"}</p>
                     </div>
                 </div>
                 <div className={s.InfoCard}>
-                    <i className="bi bi-person-badge"></i>
+                    <i className="bi bi-cash-coin"></i>
                     <div>
-                        <span>Doktor(lar)</span>
-                        <p>{doctorsLabel}</p>
+                        <span>Narxi</span>
+                        <p>{formatSum(service?.price)}</p>
                     </div>
                 </div>
                 <div className={s.InfoCard}>
                     <i className="bi bi-calendar3"></i>
                     <div>
                         <span>Jami kunlar</span>
-                        <p>{dayItems.length} kun</p>
+                        <p>{days.length} kun</p>
                     </div>
                 </div>
             </div>
-
-            {formError && (
-                <p className={s.FormError}>
-                    <i className="bi bi-exclamation-circle-fill"></i> {formError}
-                </p>
-            )}
 
             {/* KUNLIK REJA */}
             <div className={s.DiagRequestsSection}>
                 <h2>Kunlik reja</h2>
 
                 <div className={s.PlanDaysGrid}>
-                    {dayItems.map((day) => (
+                    {days.map((day) => (
                         <button
                             key={day.id}
                             type="button"
@@ -342,15 +369,22 @@ const NurseInpatientDetail = () => {
                         >
                             <div className={s.DayCardTop}>
                                 <span className={s.DayBadge}>
-                                    {day.day_number}-kun
+                                    {day.dayNumber}-kun
                                 </span>
                                 {renderStatusPill(day.status)}
                             </div>
 
-                            <div className={s.DayServiceMini}>
-                                <i className="bi bi-clipboard2-pulse"></i>
-                                <span className="name">{day.treatment || "Ko'rsatilmagan"}</span>
-                            </div>
+                            {day.services.map((sv) => (
+                                <div key={sv.id} className={s.DayServiceMini}>
+                                    <i className="bi bi-clipboard2-pulse"></i>
+                                    <span className="name">{sv.name}</span>
+                                    {sv.price != null && (
+                                        <span className="duration">
+                                            {formatSum(sv.price)}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
 
                             <div className={s.DayCardFoot}>
                                 <span>Batafsil ko'rish</span>
@@ -367,12 +401,36 @@ const NurseInpatientDetail = () => {
                     <>
                         <div className={s.DrawerHead}>
                             <div>
-                                <h2>{activeDay.day_number}-kun</h2>
-                                <p>{activeDay.treatment || "Ko'rsatilmagan"}</p>
+                                <h2>{activeDay.dayNumber}-kun</h2>
+                                <p>
+                                    {activeDay.services
+                                        .map((sv) => sv.name)
+                                        .join(', ')}
+                                </p>
                             </div>
                         </div>
 
                         <div className={s.DrawerBody}>
+                            <p className={s.DrawerSectionTitle}>
+                                Xizmatlar
+                            </p>
+                            <div className={s.ServiceMiniList}>
+                                {activeDay.services.map((sv) => (
+                                    <div
+                                        key={sv.id}
+                                        className={s.ServiceMiniItem}
+                                    >
+                                        <i className="bi bi-clipboard2-pulse"></i>
+                                        <span className="name">
+                                            {sv.name}
+                                        </span>
+                                        <span className="meta">
+                                            {formatSum(sv.price)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+
                             <p className={s.DrawerSectionTitle}>
                                 Vazifa holati
                             </p>
@@ -390,7 +448,8 @@ const NurseInpatientDetail = () => {
                                 <>
                                     <p className={s.FormInfo}>
                                         <i className="bi bi-info-circle-fill"></i>
-                                        Natija kiritishni boshlash uchun avval vazifani boshlang.
+                                        Natija kiritishni boshlash uchun avval
+                                        vazifani boshlang.
                                     </p>
                                     <button
                                         type="button"
@@ -399,7 +458,9 @@ const NurseInpatientDetail = () => {
                                         disabled={saving}
                                     >
                                         <i className="bi bi-play-fill"></i>{' '}
-                                        {saving ? 'Yuklanmoqda...' : 'Vazifani boshlash'}
+                                        {saving
+                                            ? 'Yuklanmoqda...'
+                                            : 'Vazifani boshlash'}
                                     </button>
                                 </>
                             )}
@@ -419,7 +480,10 @@ const NurseInpatientDetail = () => {
                                                 type="file"
                                                 accept="image/*,.pdf,application/pdf"
                                                 onChange={(e) =>
-                                                    setPendingFile(e.target.files?.[0] || null)
+                                                    setPendingFile(
+                                                        e.target.files?.[0] ||
+                                                        null
+                                                    )
                                                 }
                                             />
                                         </label>
@@ -431,7 +495,9 @@ const NurseInpatientDetail = () => {
                                             rows={4}
                                             placeholder="Bajarilgan ish, kuzatuv, tavsiyalar..."
                                             value={pendingComment}
-                                            onChange={(e) => setPendingComment(e.target.value)}
+                                            onChange={(e) =>
+                                                setPendingComment(e.target.value)
+                                            }
                                         />
                                     </div>
 
@@ -442,7 +508,9 @@ const NurseInpatientDetail = () => {
                                         disabled={saving}
                                     >
                                         <i className="bi bi-check-lg"></i>{' '}
-                                        {saving ? 'Saqlanmoqda...' : 'Yakunlash'}
+                                        {saving
+                                            ? 'Saqlanmoqda...'
+                                            : 'Yakunlash'}
                                     </button>
                                 </>
                             )}
@@ -454,22 +522,24 @@ const NurseInpatientDetail = () => {
                                         <strong>Vazifa yakunlangan</strong>
                                         Natija va izoh saqlangan.
 
-                                        {(activeDay.result_text || activeDay.note) && (
+                                        {/* Natija matni */}
+                                        {(activeDay.resultText || activeDay.comment) && (
                                             <div className={s.CommentPreview}>
-                                                {activeDay.result_text || activeDay.note}
+                                                {activeDay.resultText || activeDay.comment}
                                             </div>
                                         )}
 
-                                        {activeDay.result_file_url && (
+                                        {/* Fayl preview */}
+                                        {activeDay.fileUrl && (
                                             <div className={s.FilePreviewBox}>
                                                 <button
                                                     type="button"
                                                     className={s.FileViewBtn}
                                                     onClick={() =>
-                                                        isImage(activeDay.result_file_url)
-                                                            ? openImageModal(activeDay.result_file_url)
+                                                        isImage(activeDay.fileUrl)
+                                                            ? openImageModal(activeDay.fileUrl)
                                                             : window.open(
-                                                                activeDay.result_file_url,
+                                                                activeDay.fileUrl,
                                                                 '_blank',
                                                                 'noopener,noreferrer'
                                                             )
@@ -477,12 +547,12 @@ const NurseInpatientDetail = () => {
                                                 >
                                                     <i
                                                         className={
-                                                            isImage(activeDay.result_file_url)
+                                                            isImage(activeDay.fileUrl)
                                                                 ? 'bi bi-image'
                                                                 : 'bi bi-file-earmark-pdf'
                                                         }
                                                     ></i>
-                                                    <span>Natija faylini ko'rish</span>
+                                                    <span>{"Natija faylini ko'rish"}</span>
                                                 </button>
                                             </div>
                                         )}
@@ -494,13 +564,20 @@ const NurseInpatientDetail = () => {
                 )}
             </Modal>
 
-            <Modal isOpen={modalOpen} onClose={closeImageModal} fullWidth>
+            <Modal
+                isOpen={modalOpen}
+                onClose={closeImageModal}
+                fullWidth
+            >
                 {modalImage && (
-                    <ImageZoomViewer src={modalImage} alt="Natija fayli" />
+                    <ImageZoomViewer
+                        src={modalImage}
+                        alt="Natija fayli"
+                    />
                 )}
             </Modal>
         </div>
     );
 };
 
-export default NurseInpatientDetail;
+export default AssistantDoctorPTaskDetail;

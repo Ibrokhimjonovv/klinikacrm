@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import s from "./NurseHome.module.scss"
 import { useAppContext } from '../../../context/context'
 import { api } from '../../../App';
@@ -11,6 +12,7 @@ const STATUS_MAP = {
 
 const NurseHome = () => {
   const { user } = useAppContext()
+  const navigate = useNavigate()
 
   const [listData, setListData] = useState({
     waiting: [],
@@ -22,7 +24,6 @@ const NurseHome = () => {
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [actionLoadingId, setActionLoadingId] = useState(null)
 
   const getHeaders = () => {
     const token = localStorage.getItem('hospital_access')
@@ -71,42 +72,6 @@ const NurseHome = () => {
     return () => controller.abort()
   }, [fetchAll])
 
-  const handleStart = async (id) => {
-    try {
-      setActionLoadingId(id)
-      const res = await fetch(`${api}/nurse/treatments/${id}/start/`, {
-        method: 'POST',
-        headers: getHeaders(),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.detail || `HTTP error! status: ${res.status}`)
-      await fetchAll()
-    } catch (err) {
-      console.error('Davolashni boshlashda xatolik:', err)
-      alert(err.message || 'Davolashni boshlashda xatolik yuz berdi')
-    } finally {
-      setActionLoadingId(null)
-    }
-  }
-
-  const handleComplete = async (id) => {
-    try {
-      setActionLoadingId(id)
-      const res = await fetch(`${api}/nurse/treatments/${id}/complete/`, {
-        method: 'POST',
-        headers: getHeaders(),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(data.detail || `HTTP error! status: ${res.status}`)
-      await fetchAll()
-    } catch (err) {
-      console.error('Davolashni tugatishda xatolik:', err)
-      alert(err.message || 'Davolashni tugatishda xatolik yuz berdi')
-    } finally {
-      setActionLoadingId(null)
-    }
-  }
-
   const { waiting, in_progress, completed, waiting_count, in_progress_count, completed_count } = listData
   const totalCount = waiting_count + in_progress_count + completed_count
 
@@ -142,8 +107,13 @@ const NurseHome = () => {
     ? Math.round((completed_count / totalCount) * 100)
     : 0
 
+  // ✅ TUZATILDI: eski kod barcha yozuvlarni id bo'yicha o'sish tartibida
+  // saralab (eng ESKI/tugagan yozuvlar birinchi chiqib), shulardan
+  // faqat dastlabki 4 tasini olar edi — shu sabab "waiting" (hali
+  // boshlanmagan) yozuvlar deyarli hech qachon ro'yxatga kirmasdi.
+  // Endi eng muhimi (waiting) birinchi, keyin in_progress, oxirida
+  // completed tartibida chiqadi.
   const recentTreatments = [...waiting, ...in_progress, ...completed]
-    .sort((a, b) => a.id - b.id)
     .slice(0, 4)
     .map(t => {
       const statusInfo = STATUS_MAP[t.status] || { label: t.status, key: 'pending' }
@@ -151,6 +121,7 @@ const NurseHome = () => {
 
       return {
         id: t.id,
+        patientId: patient.id,
         name: `${patient.first_name || ''} ${patient.last_name || ''}`.trim() || "Noma'lum",
         task: t.treatment || "Ko'rsatilmagan",
         avatar: patient.first_name ? patient.first_name[0].toUpperCase() : '?',
@@ -159,6 +130,14 @@ const NurseHome = () => {
         status: t.status,
       }
     })
+
+  // ✅ YANGI: endi "Boshlash"/"Tugatish" tugmalari yo'q — qatorga
+  // bosilganda hamshiraning "yotib davolanayotgan bemorlar" detail
+  // sahifasiga (/nurse-inpatients/:id) o'tadi.
+  const goToInpatientDetail = (patientId) => {
+    if (patientId == null) return
+    navigate(`/nurse-inpatients/${patientId}`)
+  }
 
   return (
     <section className={s.Dashboard}>
@@ -207,7 +186,11 @@ const NurseHome = () => {
           ) : (
             <ul>
               {recentTreatments.map((t) => (
-                <li key={t.id}>
+                <li
+                  key={t.id}
+                  className={s.ClickableRow}
+                  onClick={() => goToInpatientDetail(t.patientId)}
+                >
                   <div className={s.PatientLeft}>
                     <div className={s.Avatar}>{t.avatar}</div>
                     <div>
@@ -220,26 +203,6 @@ const NurseHome = () => {
                     <span className={`${s.Status} ${s[t.statusKey]}`}>
                       {t.statusLabel}
                     </span>
-
-                    {t.status === 'WAITING' && (
-                      <button
-                        className={s.ActionBtn}
-                        disabled={actionLoadingId === t.id}
-                        onClick={() => handleStart(t.id)}
-                      >
-                        {actionLoadingId === t.id ? '...' : 'Boshlash'}
-                      </button>
-                    )}
-
-                    {t.status === 'IN_PROGRESS' && (
-                      <button
-                        className={`${s.ActionBtn} ${s.ActionBtnDone}`}
-                        disabled={actionLoadingId === t.id}
-                        onClick={() => handleComplete(t.id)}
-                      >
-                        {actionLoadingId === t.id ? '...' : 'Tugatish'}
-                      </button>
-                    )}
                   </div>
                 </li>
               ))}

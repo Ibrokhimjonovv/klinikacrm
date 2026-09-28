@@ -5,10 +5,6 @@ import s from './AssistantDoctorPatients.module.scss';
 import { api } from '../../../App';
 import DateTimeFormatter from '../../../components/shared/DateTimeFormatter/DateTimeFormatter';
 
-// ============================================================
-// HELPERS
-// ============================================================
-
 const calcAge = (birthDate) => {
     if (!birthDate) return '?';
     const birth = new Date(birthDate);
@@ -33,26 +29,6 @@ const authHeaders = (token, json = false) => ({
     ...(json ? { 'Content-Type': 'application/json' } : {}),
 });
 
-// Backend javobi (DoctorTaskSerializer) shu yerda bitta joyda
-// moslanadi. Maydon nomlari serializerdagi nomlardan farq
-// qilsa, FAQAT shu funksiyani o'zgartirasiz.
-//
-// Taxmin qilingan struktura:
-// {
-//   id, status, priority, doctor_note,
-//   requested_at, started_at, completed_at,
-//   service: { id, name, description, duration_minutes },
-//   medical_visit: {
-//     id, complaint,
-//     patient: {
-//       id, first_name, last_name, middle_name,
-//       date_of_birth, gender, contact_number, address,
-//     },
-//   },
-//   requested_by: { id, full_name },
-//   assigned_to: { id, full_name },
-//   result: { result_text, result_file, completed_by } | null
-// }
 const normalizeTask = (t) => {
     const patient = t.medical_visit?.patient || t.patient || {};
 
@@ -72,7 +48,7 @@ const normalizeTask = (t) => {
             firstName: patient.first_name || '',
             lastName: patient.last_name || '',
             middleName: patient.middle_name || '',
-            dateOfBirth: patient.date_of_birth,
+            dateOfBirth: patient.birth_date,
             gender: patient.gender,
             contactNumber: patient.contact_number,
             address: patient.address,
@@ -82,10 +58,6 @@ const normalizeTask = (t) => {
         resultFileUrl: t.result?.result_file || null,
     };
 };
-
-// ============================================================
-// COMPONENT
-// ============================================================
 
 const AssistantDoctorTaskDetail = () => {
     const { id } = useParams();
@@ -107,10 +79,6 @@ const AssistantDoctorTaskDetail = () => {
     const [formSuccess, setFormSuccess] = useState('');
 
     const getToken = () => localStorage.getItem('hospital_access');
-
-    // ------------------------------------------------------------
-    // FETCH TASK
-    // ------------------------------------------------------------
 
     useEffect(() => {
         const fetchTask = async () => {
@@ -143,10 +111,6 @@ const AssistantDoctorTaskDetail = () => {
     const isLocked = ['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(task?.status);
     const isPending = ['REQUESTED', 'ASSIGNED'].includes(task?.status);
 
-    // ------------------------------------------------------------
-    // START TASK — PATCH /doctor/my-tasks/:id/start/
-    // ------------------------------------------------------------
-
     const handleStart = async () => {
         try {
             setStarting(true);
@@ -167,10 +131,6 @@ const AssistantDoctorTaskDetail = () => {
             setStarting(false);
         }
     };
-
-    // ------------------------------------------------------------
-    // SAVE RESULT (yakunlamasdan) — POST /doctor/my-tasks/:id/result/
-    // ------------------------------------------------------------
 
     const buildResultFormData = () => {
         const formData = new FormData();
@@ -208,9 +168,6 @@ const AssistantDoctorTaskDetail = () => {
         }
     };
 
-    // ------------------------------------------------------------
-    // COMPLETE TASK — POST /doctor/my-tasks/:id/complete/
-    // ------------------------------------------------------------
 
     const handleComplete = async () => {
         setFormError('');
@@ -245,9 +202,6 @@ const AssistantDoctorTaskDetail = () => {
         }
     };
 
-    // ------------------------------------------------------------
-    // RENDER STATES
-    // ------------------------------------------------------------
 
     if (loading) {
         return (
@@ -268,10 +222,6 @@ const AssistantDoctorTaskDetail = () => {
     if (!task) return null;
 
     const { patient } = task;
-
-    // ------------------------------------------------------------
-    // RENDER
-    // ------------------------------------------------------------
 
     return (
         <div className={s.DetailPage}>

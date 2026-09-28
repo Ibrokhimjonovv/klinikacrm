@@ -35,7 +35,7 @@ const normalizeTask = (t, index) => {
         first_name: patient.first_name || '',
         last_name: patient.last_name || '',
         middle_name: patient.middle_name || '',
-        birth_date: patient.date_of_birth || null,
+        birth_date: patient.birth_date || null,
         gender: patient.gender || '',
         phone: patient.contact_number || '—',
         service: t.service?.name || t.service_name || "Ko'rsatilmagan",
@@ -113,7 +113,7 @@ const AssistantDoctorPatients = () => {
 
             <div className={s.TopRow}>
                 <div>
-                    <h1>Sizga biriktirilgan vazifalar</h1>
+                    <h1>Sizga biriktirilgan diagnostik vazifalar</h1>
                     <p>Diagnostikaga yuborilgan bemorlar ro'yxati</p>
                 </div>
 
