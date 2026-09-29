@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import s from './AssistantDoctorTasks.module.scss';
 import { api } from '../../../App';
+import { useToast } from '../../../context/ToastContext'; // ⚠️ qo'shildi
 
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
@@ -19,6 +20,19 @@ const taskService = (task) => task?.service_detail || null
 const taskDiagnosis = (task) => task?.treatment_plan_detail?.diagnosis || null
 const taskServiceName = (task) => taskService(task)?.name || "Ko'rsatilmagan"
 
+// ⚠️ To'lov holatini har xil joydan tekshiramiz
+const isTaskPaid = (task) => {
+    if (!task) return false
+    return !!(
+        task.is_paid ||
+        task.service_detail?.is_paid ||
+        task.treatment_plan_detail?.is_paid ||
+        task.treatment_plan_detail?.patient?.is_paid ||
+        task.patient_detail?.is_paid ||
+        false
+    )
+}
+
 const STATUS_LABELS = {
     WAITING: { label: 'Kutilmoqda', className: 'watch' },
     IN_PROGRESS: { label: 'Jarayonda', className: 'active' },
@@ -28,6 +42,7 @@ const STATUS_LABELS = {
 
 const AssistantDoctorTasks = () => {
     const navigate = useNavigate()
+    const { showToast } = useToast() // ⚠️ qo'shildi
 
     const [view, setView] = useState('table')
     const [search, setSearch] = useState('')
@@ -66,6 +81,18 @@ const AssistantDoctorTasks = () => {
         const fullName = `${patient?.first_name || ''} ${patient?.last_name || ''} ${patient?.middle_name || ''}`.toLowerCase()
         return fullName.includes(search.toLowerCase())
     })
+
+    // ⚠️ Qatorga bosish: faqat to'langan bo'lsa detail sahifaga o'tadi
+    const handleRowClick = (task) => {
+        if (!isTaskPaid(task)) {
+            showToast(
+                "Bu bemor hali to'lov qilmagan. Avval kassadan to'lovni amalga oshiring.",
+                'warning'
+            )
+            return
+        }
+        navigate(`/assistant-doctor/tasks/${task.treatment_plan_id}/${task.service_id}`)
+    }
 
     if (loading) {
         return (
@@ -134,6 +161,7 @@ const AssistantDoctorTasks = () => {
                                 <th>Telefon</th>
                                 <th>Xizmat</th>
                                 <th>Holati</th>
+                                <th>To'lov</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -141,21 +169,21 @@ const AssistantDoctorTasks = () => {
                             {filtered.map(task => {
                                 const patient = taskPatient(task)
                                 const statusInfo = STATUS_LABELS[task.status] || STATUS_LABELS.WAITING
+                                const isPaid = isTaskPaid(task) // ⚠️
 
                                 return (
-                                    <tr key={task.id} onClick={() =>
-                                        navigate(
-                                            `/assistant-doctor/tasks/${task.treatment_plan_id}/${task.service_id}`
-                                        )
-                                    }>
+                                    <tr
+                                        key={task.id}
+                                        onClick={() => handleRowClick(task)}
+                                        className={!isPaid ? s.RowDisabled : ''}
+                                    >
                                         <td>
                                             <div className={s.NameCell}>
-                                                <div className={s.Avatar}>{patient?.first_name ? patient.first_name[0] : '?'}</div>
+                                                <div className={s.Avatar}>
+                                                    {patient?.first_name ? patient.first_name[0] : '?'}
+                                                </div>
                                                 <div>
                                                     <span>{patient?.first_name} {patient?.last_name}</span>
-                                                    {/* {taskDiagnosis(task) && (
-                                                        <p className={s.NameCellSub}>{taskDiagnosis(task)}</p>
-                                                    )} */}
                                                 </div>
                                             </div>
                                         </td>
@@ -167,7 +195,19 @@ const AssistantDoctorTasks = () => {
                                                 {statusInfo.label}
                                             </span>
                                         </td>
-                                        <td className={s.ArrowCell}><i className="bi bi-chevron-right"></i></td>
+                                        {/* ⚠️ To'lov ustuni */}
+                                        <td>
+                                            <span className={`${s.StatusBadge} ${isPaid ? s.paid : s.unpaid}`}>
+                                                {isPaid ? "To'langan" : "To'lanmagan"}
+                                            </span>
+                                        </td>
+                                        <td className={s.ArrowCell}>
+                                            {isPaid ? (
+                                                <i className="bi bi-chevron-right"></i>
+                                            ) : (
+                                                <i className="bi bi-lock"></i>
+                                            )}
+                                        </td>
                                     </tr>
                                 )
                             })}
@@ -181,21 +221,20 @@ const AssistantDoctorTasks = () => {
                     {filtered.map(task => {
                         const patient = taskPatient(task)
                         const statusInfo = STATUS_LABELS[task.status] || STATUS_LABELS.WAITING
+                        const isPaid = isTaskPaid(task) // ⚠️
 
                         return (
                             <div
                                 key={task.id}
-                                className={s.PatientCard}
-                                onClick={() =>
-                                    navigate(
-                                        `/assistant-doctor/tasks/${task.treatment_plan_id}/${task.service_id}`
-                                    )
-                                }
+                                className={`${s.PatientCard} ${!isPaid ? s.CardDisabled : ''}`}
+                                onClick={() => handleRowClick(task)}
                             >
                                 <div className={s.CardTop}>
-                                    <div className={s.Avatar}>{patient?.first_name ? patient.first_name[0] : '?'}</div>
-                                    <span className={`${s.StatusBadge} ${s[statusInfo.className]}`}>
-                                        {statusInfo.label}
+                                    <div className={s.Avatar}>
+                                        {patient?.first_name ? patient.first_name[0] : '?'}
+                                    </div>
+                                    <span className={`${s.StatusBadge} ${isPaid ? s.paid : s.unpaid}`}>
+                                        {isPaid ? "To'langan" : "To'lanmagan"}
                                     </span>
                                 </div>
                                 <h3>{patient?.first_name} {patient?.last_name}</h3>
@@ -203,13 +242,15 @@ const AssistantDoctorTasks = () => {
                                     {calcAge(patient?.date_of_birth)} yosh · {patient?.gender === 'erkak' ? 'Erkak' : 'Ayol'}
                                 </p>
 
-                                {/* {taskDiagnosis(task) && (
-                                    <p className={s.NameCellSub}>{taskDiagnosis(task)}</p>
-                                )} */}
-
                                 <div className={s.CardInfo}>
                                     <span><i className="bi bi-clipboard2-pulse"></i> {taskServiceName(task)}</span>
                                     <span><i className="bi bi-telephone"></i> {patient?.contact_number || '—'}</span>
+                                    <span>
+                                        <i className="bi bi-activity"></i>
+                                        <span className={`${s.StatusBadge} ${s[statusInfo.className]}`}>
+                                            {statusInfo.label}
+                                        </span>
+                                    </span>
                                 </div>
                             </div>
                         )

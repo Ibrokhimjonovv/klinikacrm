@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import s from "./AssistantDoctorPatients.module.scss"
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../../App';
+import { useToast } from '../../../context/ToastContext'; // ⚠️ qo'shildi
 
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
@@ -18,9 +19,7 @@ const STATUS_LABELS = {
     CANCELLED: 'Bekor qilingan',
 }
 
-// Backend javobi (DoctorTaskSerializer) shu yerda bitta joyda
-// moslanadi. Maydon nomlari serializerdagi nomlardan farq
-// qilsa, FAQAT shu funksiyani o'zgartirasiz.
+// Backend javobi (DoctorTaskSerializer) shu yerda bitta joyda moslanadi.
 const normalizeTask = (t, index) => {
     const patient = t.medical_visit?.patient || t.patient || {}
     const raw = String(t.status || '').toUpperCase()
@@ -29,6 +28,15 @@ const normalizeTask = (t, index) => {
     if (['IN_PROGRESS', 'PROGRESS'].includes(raw)) statusKey = 'progress'
     else if (['COMPLETED', 'DONE'].includes(raw)) statusKey = 'done'
     else if (['CANCELLED', 'NO_SHOW'].includes(raw)) statusKey = 'cancelled'
+
+    // ⚠️ To'lov holati: bir nechta joydan tekshiriladi
+    const isPaid = !!(
+        t.is_paid ||
+        t.service_detail?.is_paid ||
+        t.result?.examination_request_detail?.is_paid ||
+        t.medical_visit?.is_paid ||
+        false
+    )
 
     return {
         id: t.id || index + 1,
@@ -42,11 +50,13 @@ const normalizeTask = (t, index) => {
         statusRaw: t.status,
         statusKey,
         statusLabel: STATUS_LABELS[t.status] || t.status,
+        isPaid, // ⚠️ qo'shildi
     }
 }
 
 const AssistantDoctorPatients = () => {
     const navigate = useNavigate()
+    const { showToast } = useToast() // ⚠️ qo'shildi
     const [view, setView] = useState('table') // 'table' | 'card'
     const [search, setSearch] = useState('')
 
@@ -91,6 +101,18 @@ const AssistantDoctorPatients = () => {
         const fullName = `${p.first_name} ${p.last_name} ${p.middle_name}`.toLowerCase()
         return fullName.includes(search.toLowerCase())
     })
+
+    // ⚠️ Qatorga bosish: faqat to'langan bo'lsa detail sahifaga o'tadi
+    const handleRowClick = (p) => {
+        if (!p.isPaid) {
+            showToast(
+                "Bu bemor hali to'lov qilmagan. Avval kassadan to'lovni amalga oshiring.",
+                'warning'
+            )
+            return
+        }
+        navigate(`/waiting-patients/${p.id}`)
+    }
 
     if (loading) {
         return (
@@ -159,12 +181,17 @@ const AssistantDoctorPatients = () => {
                                 <th>Telefon</th>
                                 <th>Xizmat</th>
                                 <th>Holati</th>
+                                <th>To'lov</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {filtered.map(p => (
-                                <tr key={p.id} onClick={() => navigate(`/waiting-patients/${p.id}`)}>
+                                <tr
+                                    key={p.id}
+                                    onClick={() => handleRowClick(p)}
+                                    className={!p.isPaid ? s.RowDisabled : ''}
+                                >
                                     <td>
                                         <div className={s.NameCell}>
                                             <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
@@ -179,7 +206,18 @@ const AssistantDoctorPatients = () => {
                                             {p.statusLabel}
                                         </span>
                                     </td>
-                                    <td className={s.ArrowCell}><i className="bi bi-chevron-right"></i></td>
+                                    <td>
+                                        <span className={`${s.StatusBadge} ${p.isPaid ? s.paid : s.unpaid}`}>
+                                            {p.isPaid ? "To'langan" : "To'lanmagan"}
+                                        </span>
+                                    </td>
+                                    <td className={s.ArrowCell}>
+                                        {p.isPaid ? (
+                                            <i className="bi bi-chevron-right"></i>
+                                        ) : (
+                                            <i className="bi bi-lock"></i>
+                                        )}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -192,20 +230,28 @@ const AssistantDoctorPatients = () => {
                     {filtered.map(p => (
                         <div
                             key={p.id}
-                            className={s.PatientCard}
-                            onClick={() => navigate(`/waiting-patients/${p.id}`)}
+                            className={`${s.PatientCard} ${!p.isPaid ? s.CardDisabled : ''}`}
+                            onClick={() => handleRowClick(p)}
                         >
                             <div className={s.CardTop}>
                                 <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
-                                <span className={`${s.StatusBadge} ${s[p.statusKey]}`}>
-                                    {p.statusLabel}
+                                <span className={`${s.StatusBadge} ${p.isPaid ? s.paid : s.unpaid}`}>
+                                    {p.isPaid ? "To'langan" : "To'lanmagan"}
                                 </span>
                             </div>
                             <h3>{p.first_name} {p.last_name}</h3>
-                            <p className={s.CardAge}>{calcAge(p.birth_date)} yosh · {p.gender === 'erkak' ? 'Erkak' : 'Ayol'}</p>
+                            <p className={s.CardAge}>
+                                {calcAge(p.birth_date)} yosh · {p.gender === 'erkak' ? 'Erkak' : 'Ayol'}
+                            </p>
                             <div className={s.CardInfo}>
                                 <span><i className="bi bi-clipboard2-pulse"></i> {p.service}</span>
                                 <span><i className="bi bi-telephone"></i> {p.phone}</span>
+                                <span>
+                                    <i className="bi bi-activity"></i>
+                                    <span className={`${s.StatusBadge} ${s[p.statusKey]}`}>
+                                        {p.statusLabel}
+                                    </span>
+                                </span>
                             </div>
                         </div>
                     ))}

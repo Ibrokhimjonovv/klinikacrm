@@ -1,0 +1,496 @@
+// Faqat AssistantDoctorExcaminationDetail.jsx uchun (ishlatilgan klasslar, dizayn o'zgarmagan)
+
+$primary: #0e1b33;
+$primary-light: #16264a;
+$border: #e5e7eb;
+$text-muted: #6b7280;
+$success-bg: rgba(14, 27, 51, 0.06);
+
+.State {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: $text-muted;
+}
+
+.DetailPage {
+    background: #fff;
+    border-radius: 20px;
+}
+
+.BackBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+    margin-bottom: 16px;
+
+    &:hover {
+        color: $primary;
+    }
+}
+
+.Banner {
+    background: $primary;
+    border-radius: 14px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.BannerLeft {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    h1 {
+        color: #fff;
+        font-size: 22px;
+        font-weight: 700;
+        margin: 0 0 4px;
+    }
+
+    p {
+        color: rgba(255, 255, 255, 0.65);
+        font-size: 14px;
+        margin: 0;
+    }
+}
+
+.Avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.StatusPill {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.InfoRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+
+    @media (max-width: 900px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 560px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.InfoCard {
+    border: 1px solid $border;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    i {
+        color: $primary;
+        font-size: 16px;
+    }
+
+    span {
+        display: block;
+        font-size: 12px;
+        color: $text-muted;
+        margin-bottom: 2px;
+    }
+
+    p,
+    .datt {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+}
+
+// ---------- Vazifa tafsilotlari ----------
+
+.DiagRequestsSection {
+    margin-top: 20px;
+
+    h2 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 12px;
+        color: #1a1a1a;
+    }
+}
+
+.DiagRequestCard {
+    border: 1px solid $border;
+    border-radius: 14px;
+    padding: 16px 18px;
+    background: #fafbfc;
+}
+
+.DiagRequestTop {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.DiagRequestComplaint {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.DiagTypesBadges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.DiagTypeBadge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: $success-bg;
+    color: $primary;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.DiagRequestMeta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: $text-muted;
+
+    i {
+        margin-right: 5px;
+        color: $primary;
+    }
+}
+
+.DiagRequestNote {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: $text-muted;
+    font-style: italic;
+    border-top: 1px dashed $border;
+    padding-top: 8px;
+}
+
+.DiagStatusRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid $border;
+
+    label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+    }
+}
+
+.DiagStatusBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(148, 163, 184, 0.15);
+    color: #475569;
+
+    &.requested {
+        background: rgba(59, 130, 246, 0.12);
+        color: #2563eb;
+    }
+
+    &.assigned {
+        background: rgba(168, 85, 247, 0.12);
+        color: #9333ea;
+    }
+
+    &.in_progress {
+        background: rgba(234, 179, 8, 0.15);
+        color: #b45309;
+    }
+
+    &.completed {
+        background: rgba(34, 197, 94, 0.12);
+        color: #16a34a;
+    }
+
+    &.no_show,
+    &.cancelled {
+        background: rgba(239, 68, 68, 0.12);
+        color: #dc2626;
+    }
+}
+
+// ---------- Boshlash / Natija formasi ----------
+
+.PlanForm {
+    border: 1px solid $border;
+    border-radius: 14px;
+    padding: 20px;
+    margin-bottom: 20px;
+    margin-top: 15px !important;
+}
+
+.PlanFormHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    h2 {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 4px;
+        color: #1a1a1a;
+    }
+}
+
+.PlanFormSub {
+    font-size: 13px;
+    color: $text-muted;
+    margin: 0;
+
+    span {
+        color: $primary;
+        font-weight: 600;
+    }
+}
+
+.FormInfo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    background: rgba(59, 130, 246, 0.10);
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 500;
+
+    i {
+        font-size: 15px;
+    }
+}
+
+.Field {
+    margin-bottom: 16px;
+
+    label {
+        display: block;
+        font-size: 13px;
+        color: #374151;
+        margin-bottom: 6px;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        border: 1px solid $border;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+        transition: border-color 0.15s;
+
+        &:focus {
+            outline: none;
+            border-color: $primary;
+        }
+
+        &::placeholder {
+            color: #9ca3af;
+        }
+
+        &:disabled {
+            background: #f9fafb;
+        }
+    }
+}
+
+.FieldHint {
+    display: block;
+    font-size: 12px;
+    color: $text-muted;
+    margin-top: 6px;
+}
+
+.FileInputLabel {
+    flex: 1;
+    position: relative;
+    border: 1px dashed #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color: #6b7280;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+
+    &:hover {
+        border-color: #0e1b33;
+        color: #0e1b33;
+    }
+
+    input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        i {
+            flex-shrink: 0;
+        }
+    }
+}
+
+.FormError {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #b91c1c;
+    font-size: 13px;
+    margin: -4px 0 14px;
+}
+
+.FormSuccess {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #047857;
+    background: #d1fae5;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin: -4px 0 14px;
+}
+
+.SubmitPlanBtn {
+    width: 100%;
+    background: $primary;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+
+    &:hover:not(:disabled) {
+        background: $primary-light;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: default;
+    }
+}
+
+.ModeSwitch {
+    display: flex;
+    gap: 8px;
+    margin: 4px 0 16px;
+    background: #f4f5f7;
+    padding: 4px;
+    border-radius: 10px;
+
+    button {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: none;
+        border: none;
+        border-radius: 8px;
+        padding: 9px 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: $text-muted;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        font-family: inherit;
+
+        &:hover:not(:disabled) {
+            color: $primary;
+        }
+
+        &:disabled {
+            cursor: default;
+        }
+    }
+}
+
+.ModeActive {
+    background: #fff !important;
+    color: $primary !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.SentBadge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: rgba(34, 197, 94, 0.12);
+    color: #16a34a;
+    font-weight: 600;
+    font-size: 14px;
+
+    i {
+        font-size: 16px;
+    }
+}

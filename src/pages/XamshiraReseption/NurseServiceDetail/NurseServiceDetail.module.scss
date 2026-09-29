@@ -1,0 +1,352 @@
+// Faqat NurseServiceDetail.jsx (xizmatning ichki sahifasi) uchun
+
+.HomeContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.TopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    h1 {
+        font-size: 26px;
+        color: #1b3050;
+    }
+
+    p {
+        color: #1b3050;
+        margin-top: 4px;
+    }
+}
+
+.BackBtn {
+    background: none;
+    border: none;
+    color: #4a7bb5;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.PriceLine span {
+    font-weight: 600;
+    color: #4a7bb5;
+}
+
+.AddPatientBtn {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px #4a7bb5;
+
+    &:hover {
+        opacity: 0.92;
+    }
+}
+
+.SearchBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 280px;
+
+    i {
+        position: absolute;
+        left: 12px;
+        color: #888;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px 12px 10px 36px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #1b3050;
+        background: #fff;
+        outline: none;
+
+        &:focus {
+            border-color: #4a7bb5;
+        }
+    }
+}
+
+.ListCard {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    ul {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 0;
+        margin: 0;
+    }
+}
+
+.ListHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    .ListHeadLeft {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        color: #1b3050;
+    }
+
+    h3 {
+        font-size: 16px;
+    }
+}
+
+.CountBadge {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a7bb5;
+    background-color: #eaf0f7;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
+.Empty {
+    color: #999;
+    text-align: center;
+    padding: 30px 0;
+    font-size: 14px;
+}
+
+.PatientRow {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+        background-color: #f9fbfa;
+    }
+}
+
+.PatientRowSelected {
+    background-color: #eaf0f7;
+    border-color: #4a7bb5;
+
+    &:hover {
+        background-color: #eaf0f7;
+    }
+}
+
+.PatientLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+
+    p {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1b3050;
+    }
+
+    span {
+        font-size: 12px;
+        color: #888;
+    }
+}
+
+.Avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.PatientInfo {
+    flex: 1;
+    min-width: 0;
+
+    p {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1b3050;
+    }
+
+    span {
+        display: block;
+        font-size: 12px;
+        color: #888;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+.PatientRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.Time {
+    font-size: 12px;
+    color: #999;
+    min-width: 40px;
+}
+
+.DoctorBadge {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background-color: #e9f7ef;
+    color: #17643c;
+
+    // Shifokor hali biriktirilmagan (Kutilmoqda)
+    &.waiting {
+        background-color: #f0f0f0;
+        color: #888;
+    }
+}
+
+// Oxirgi qo'shilgan bemor bloki
+.NewPatientBox {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+    border: 1px dashed #4a7bb5;
+    border-radius: 12px;
+    background-color: #f4f8fc;
+}
+
+.NewPatientTitle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4a7bb5;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding-left: 4px;
+}
+
+.CircleIcon {
+    color: #bbb;
+    font-size: 18px;
+}
+
+.CheckIcon {
+    color: #4a7bb5;
+    font-size: 18px;
+}
+
+.AssignBtn {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 13px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+
+    &:hover {
+        opacity: 0.92;
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+.FormError,
+.FormSuccess {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.FormError {
+    background-color: #fdecea;
+    color: #c0392b;
+}
+
+.FormSuccess {
+    background-color: #e9f7ef;
+    color: #17643c;
+}
+
+@media (max-width: 600px) {
+    .TopRow {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .AddPatientBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .SearchBox {
+        min-width: 0;
+        width: 100%;
+    }
+}

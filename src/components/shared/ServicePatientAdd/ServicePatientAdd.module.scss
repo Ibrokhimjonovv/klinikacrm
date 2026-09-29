@@ -1,0 +1,274 @@
+// Faqat ServicePatientAdd.jsx uchun
+
+.Section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+}
+
+.StepHeader {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    h1 {
+        font-size: 22px;
+        color: #1b3050;
+    }
+}
+
+.StepIndicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.StepItem {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    span {
+        font-size: 13px;
+        color: #888;
+    }
+
+    .activeLabel {
+        color: #1b3050;
+        font-weight: 600;
+    }
+}
+
+.StepCircle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #eee;
+    color: #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+
+    &.active {
+        background: linear-gradient(135deg, #4a7bb5, #1b3050);
+        color: #fff;
+    }
+
+    &.done {
+        background-color: #e9f7ef;
+        color: #17643c;
+    }
+}
+
+.StepLine {
+    flex: 1;
+    height: 2px;
+    background-color: #eee;
+    min-width: 24px;
+
+    &.done {
+        background-color: #4a7bb5;
+    }
+}
+
+// ---------- Forma ----------
+
+.Form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.Row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.Input {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    p {
+        font-size: 13px;
+        font-weight: 500;
+        color: #1b3050;
+    }
+
+    input,
+    select {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #1b3050;
+        background: #fff;
+        outline: none;
+
+        &:focus {
+            border-color: #4a7bb5;
+        }
+
+        &:disabled {
+            background-color: #f9fbfa;
+        }
+    }
+}
+
+.ErrorText {
+    font-size: 12px;
+    color: #c0392b;
+}
+
+.ServerError {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: #fdecea;
+    color: #c0392b;
+    font-size: 14px;
+}
+
+.SubmitBtn {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &:hover {
+        opacity: 0.92;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+// ---------- 2-qadam ----------
+
+.CredentialsStep {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+
+    h2 {
+        font-size: 20px;
+        color: #1b3050;
+    }
+}
+
+.SuccessIcon {
+    font-size: 54px;
+    color: #17643c;
+    line-height: 1;
+}
+
+.CredentialsSub {
+    color: #888;
+    font-size: 14px;
+    max-width: 380px;
+}
+
+.CredBox {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.CredRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px;
+    background-color: #eaf0f7;
+    border-radius: 10px;
+    text-align: left;
+
+    span {
+        font-size: 12px;
+        color: #888;
+    }
+
+    p {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1b3050;
+        word-break: break-all;
+    }
+
+    button {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        width: 36px;
+        height: 36px;
+        color: #4a7bb5;
+        cursor: pointer;
+        flex-shrink: 0;
+
+        &:hover {
+            border-color: #4a7bb5;
+        }
+    }
+}
+
+.FinishButtons {
+    width: 100%;
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+
+    button {
+        flex: 1;
+    }
+}
+
+.PrintBtn {
+    background: #fff;
+    color: #1b3050;
+    border: 1px solid #4a7bb5;
+    border-radius: 10px;
+    padding: 13px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    &:hover {
+        background-color: #eaf0f7;
+    }
+}
+
+@media (max-width: 700px) {
+    .Row {
+        grid-template-columns: 1fr;
+    }
+
+    .FinishButtons {
+        flex-direction: column;
+    }
+}

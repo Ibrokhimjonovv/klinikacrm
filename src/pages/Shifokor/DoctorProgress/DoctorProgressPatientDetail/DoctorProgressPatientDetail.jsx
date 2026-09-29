@@ -113,7 +113,7 @@ const DoctorProgressPatientDetail = () => {
         setModalImage(null)
     }
 
-    // ✅ YANGI: "Natijani ko'rish" bosilganda avval ochiladigan
+    // ✅ "Natijani ko'rish" bosilganda avval ochiladigan
     // modal — ichida doktor izohi (result_text) va "Faylni ko'rish"
     // tugmasi bo'ladi.
     const [resultModal, setResultModal] = useState(null)
@@ -388,12 +388,23 @@ const DoctorProgressPatientDetail = () => {
     if (error) return <div className={s.State}><p>Xatolik: {error}</p></div>
     if (!patient) return null
 
+    // ✅ TUZATILDI: item.time ham qo'shildi
     const renderItemMeta = (item) => {
-        const hasMeta = item.text || item.service_detail?.price || item.service_detail?.duration_minutes
+        const hasMeta =
+            item.text ||
+            item.time ||
+            item.service_detail?.price ||
+            item.service_detail?.duration_minutes
         if (!hasMeta) return null
 
         return (
             <div className={s.ItemMetaRow}>
+                {item.time && (
+                    <span className={s.ItemMetaTag}>
+                        <i className="bi bi-clock"></i>
+                        {item.time}
+                    </span>
+                )}
                 {item.text && (
                     <span className={s.ItemMetaTag}>
                         <i className="bi bi-chat-square-text"></i>
@@ -416,7 +427,7 @@ const DoctorProgressPatientDetail = () => {
         )
     }
 
-    // ✅ YANGI: DONE bo'lgan xizmatning natijasi bor-yo'qligini
+    // ✅ DONE bo'lgan xizmatning natijasi bor-yo'qligini
     // tekshiradi va bosilganda o'ng tarafdan izoh + fayl modalini
     // ochadigan tugmani chiqaradi.
     const renderServiceResultTrigger = (matchedService) => {
@@ -670,6 +681,9 @@ const DoctorProgressPatientDetail = () => {
         )
     }
 
+    // ✅ TUZATILDI: dayNoteText olib tashlandi
+    // (chunki u day.items dagi birinchi xizmatning izohi edi,
+    // dorilarga aloqasi yo'q edi)
     const renderDayMedicines = (plan, day) => {
         if (!day.medicines || day.medicines.length === 0) return null
 
@@ -678,22 +692,11 @@ const DoctorProgressPatientDetail = () => {
             (m) => m.medicine ?? m.medicine_detail?.id
         )
 
-        const dayNoteText = day.items?.find(it => it.text)?.text
-
         return (
             <div className={`${s.DayServicesBox} ${s.DayServicesBoxMed}`}>
                 <p className={s.DayServicesTitle}>
                     <i className="bi bi-capsule"></i> Dorilar
                 </p>
-
-                {dayNoteText && (
-                    <div className={s.ItemMetaRow}>
-                        <span className={s.ItemMetaTag}>
-                            <i className="bi bi-chat-square-text"></i>
-                            {dayNoteText}
-                        </span>
-                    </div>
-                )}
 
                 <ul className={s.CheckList}>
                     {medsWithOccurrence.map(({ entry: med, occurrenceIndex, occurrenceTotal }) => (
@@ -845,7 +848,8 @@ const DoctorProgressPatientDetail = () => {
                                             (it) => it.service ?? it.service_detail?.id
                                         )
 
-                                        const dayTime = day.items?.find(it => it.time)?.time
+                                        // ⚠️ dayTime OLIB TASHLANDI — endi har bir item
+                                        // o'z vaqtini renderItemMeta orqali ko'rsatadi
 
                                         return (
                                             <div key={day.id} className={s.PlanDayCard}>
@@ -857,12 +861,6 @@ const DoctorProgressPatientDetail = () => {
                                                             <p className={s.DayServicesTitle}>
                                                                 <i className="bi bi-list-check"></i> Xizmatlar
                                                             </p>
-                                                            {dayTime && (
-                                                                <span className={s.ItemMetaTag}>
-                                                                    <i className="bi bi-clock"></i>
-                                                                    {dayTime}
-                                                                </span>
-                                                            )}
                                                         </div>
                                                         <ul className={s.CheckList}>
                                                             {itemsWithOccurrence.map(({ entry: item, occurrenceIndex, occurrenceTotal }) => (

@@ -48,8 +48,15 @@ import AssistantDoctorTasks from './pages/AssistantDoctor/AssistantDoctorTasks/A
 import AssistantDoctorPTaskDetail from './pages/AssistantDoctor/AssistantDoctorTasksDetail/AssistantDoctorTaskDetail'
 import CashierHome from './pages/Cashier/CashierHome/CashierHome'
 import CashierVisitPayments from './pages/Cashier/CashierVisitPayment/CashierVisitPayments'
+import NurseServices from './pages/XamshiraReseption/NurseServices/NurseServices'
+import NurseServiceDetail from './pages/XamshiraReseption/NurseServiceDetail/NurseServiceDetail'
+import AssistantDoctorExcaminationPatients from './pages/AssistantDoctor/AssistantDoctorExcaminationPatients/AssistantDoctorExcaminationPatients'
+import AssistantDoctorExcaminationDetail from './pages/AssistantDoctor/AssistantDoctorExcaminationDetail/AssistantDoctorExcaminationDetail'
+import CashierTreatmentPayment from './pages/Cashier/CashierTreatmentPayment/CashierTreatmentPayment'
+import CashierServicesPayments from './pages/Cashier/CashierServicesPayments/CashierServicesPayments'
+import CashierDoctorServicesPayments from './pages/Cashier/CashierDoctorServicesPayments/CashierDoctorServicesPayment'
 
-export const api = 'http://192.168.1.2:8000/api/v1'
+export const api = 'http://10.244.157.222:8000/api/v1'
 // export const api = 'https://bkapi.aoc.uz/api/v1'
 // export const api = 'https://6397-87-192-225-30.ngrok-free.app/api/v1'
 
@@ -89,6 +96,8 @@ function App() {
               <Route path="/nurse-patients/:patientId/visits/:visitId" element={<VisitDetail />} />
               <Route path="/reception-nurse-profile" element={<ResNurseProfile />} />
               <Route path="/nurse-paid-patients" element={<NursePaidPatients />} />
+              <Route path="nurse/services" element={<NurseServices />} />
+              <Route path="nurse/services/:serviceId" element={<NurseServiceDetail />} />
             </>
           )}
           {
@@ -139,6 +148,9 @@ function App() {
                   element={<AssistantDoctorPTaskDetail />}
                 />
                 <Route path="/doctor-profile" element={<AssistantDoctorProfile />} />
+
+                <Route path="/assistant-doctor/examination-patients" element={<AssistantDoctorExcaminationPatients />} />
+                <Route path="/assistant-doctor/examination-patients/:id" element={<AssistantDoctorExcaminationDetail />} />
               </>
             )
           }
@@ -146,7 +158,10 @@ function App() {
             role === "Cashier" && (
               <>
                 <Route path="/" element={<CashierHome />} />
-                <Route path="/cashier/visits" element={<CashierVisitPayments />} />
+                <Route path="/cashier/payments/visits-payments" element={<CashierVisitPayments />} />
+                <Route path="/cashier/payments/treatments-payments" element={<CashierTreatmentPayment />} />
+                <Route path="/cashier/payments/services-payments" element={<CashierServicesPayments />} />
+                <Route path="/cashier/payments/doctor-services-payments" element={<CashierDoctorServicesPayments />} />
               </>
             )
           }

@@ -1,0 +1,154 @@
+// Faqat NurseServices.jsx (xizmatlar ro'yxati) uchun
+
+.HomeContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.TopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    h1 {
+        font-size: 26px;
+        color: #1b3050;
+    }
+
+    p {
+        color: #1b3050;
+        margin-top: 4px;
+    }
+}
+
+.SearchBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 280px;
+
+    i {
+        position: absolute;
+        left: 12px;
+        color: #888;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px 12px 10px 36px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #1b3050;
+        background: #fff;
+        outline: none;
+
+        &:focus {
+            border-color: #4a7bb5;
+        }
+    }
+}
+
+.Empty {
+    color: #999;
+    text-align: center;
+    padding: 30px 0;
+    font-size: 14px;
+}
+
+// 1 qatorda 3 tadan
+.ServicesGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.ServiceCard {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        border-color: #4a7bb5;
+        box-shadow: 0 6px 18px rgba(74, 123, 181, 0.18);
+        transform: translateY(-2px);
+    }
+
+    h3 {
+        font-size: 16px;
+        color: #1b3050;
+    }
+}
+
+.ServiceIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background-color: #eaf0f7;
+    color: #4a7bb5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    i {
+        font-size: 20px;
+    }
+}
+
+.ServiceDesc {
+    font-size: 13px;
+    color: #888;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ServiceFooter {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 8px;
+    color: #888;
+}
+
+.ServicePrice {
+    font-weight: 600;
+    font-size: 15px;
+    color: #1b3050;
+}
+
+@media (max-width: 900px) {
+    .ServicesGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .ServicesGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .TopRow {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .SearchBox {
+        min-width: 0;
+        width: 100%;
+    }
+}

@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import s from './CashierVisitPayments.module.scss';
+import s from './CashierDoctorServicesPayments.module.scss';
 import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
-import { printReceipt } from './VisitReceipt';
+// import { printServiceReceipt } from './ServiceReceipt';
 
-// ⚠️ To'langanlar API manzili (o'zingizdagiga moslang)
-const UNPAID_PATH = '/visits/unpaid/';
-const PAID_PATH = '/visits/paid/';
+// ⚠️ Xizmatlar uchun API manzillari (o'zingizdagiga moslang)
+const UNPAID_PATH = '/examination-requests/unpaid/';
+const PAID_PATH = '/examination-requests/paid/';
 
 const authHeaders = (token) => ({
     Authorization: `Bearer ${token}`,
@@ -24,9 +24,10 @@ const formatDateTime = (iso) => {
     });
 };
 
-// Backend javobini bir xil shaklga keltiramiz (maydon nomlari farq qilsa shu yerni tuzating)
+// Backend javobini bir xil shaklga keltiramiz
 const normalize = (v) => {
     const p = typeof v.patient === 'object' && v.patient ? v.patient : {};
+
     const name =
         [p.first_name, p.last_name, p.middle_name].filter(Boolean).join(' ') ||
         v.patient_name ||
@@ -36,42 +37,51 @@ const normalize = (v) => {
     // Chek uchun: otasining ismisiz
     const receiptName = [p.first_name, p.last_name].filter(Boolean).join(' ') || name;
 
-    const doctors = (v.doctors || [])
-        .map((d) =>
-            typeof d === 'object'
-                ? d.full_name || [d.first_name, d.last_name].filter(Boolean).join(' ')
-                : d
+    // Xizmat nomi (bir nechta xizmat bo'lishi mumkin)
+    const services = (v.services || v.service_items || [])
+        .map((item) =>
+            typeof item === 'object'
+                ? item.name || item.service_name || item.title
+                : item
         )
         .filter(Boolean);
 
+    // Agar bitta xizmat bo'lsa, uni ham olamiz
+    const serviceName =
+        v.service_name ||
+        v.service_title ||
+        (typeof v.service === 'object' && v.service ? v.service.name : v.service) ||
+        (services.length ? services.join(', ') : '—');
+
     return {
-        id: v.id ?? v.visit_id,
+        id: v.id ?? v.service_id,
         name,
         receiptName,
         initial: name[0] || '?',
         phone: p.contact_number || v.contact_number || '',
         birthDate: p.birth_date || p.date_of_birth || p.birthday || '',
-        doctors,
-        price: Number(v.price) || 0,
+        services,
+        serviceName,
+        price: Number(v.price || v.amount) || 0,
         isPaid: !!v.is_paid,
         paidAt: v.paid_at,
-        createdAt: v.created_at || v.date || v.visit_date,
+        createdAt: v.created_at || v.date || v.service_date,
     };
 };
 
-const CashierVisitPayments = () => {
+const CashierDoctorServicesPayments = () => {
     const [tab, setTab] = useState('unpaid'); // unpaid | paid
     const [search, setSearch] = useState('');
 
-    const [visits, setVisits] = useState([]);       // to'lanmaganlar
-    const [paidList, setPaidList] = useState(null); // to'langanlar (null = hali yuklanmagan)
+    const [services, setServices] = useState([]);       // to'lanmaganlar
+    const [paidList, setPaidList] = useState(null);      // to'langanlar (null = hali yuklanmagan)
     const [loading, setLoading] = useState(true);
     const [paidLoading, setPaidLoading] = useState(false);
     const [error, setError] = useState(null);
     const [paidError, setPaidError] = useState(null);
 
-    const [selected, setSelected] = useState(null);   // to'lov oynasi
-    const [paidVisit, setPaidVisit] = useState(null); // to'lov qabul qilingandan keyingi holat
+    const [selected, setSelected] = useState(null);      // to'lov oynasi
+    const [paidService, setPaidService] = useState(null); // to'lov qabul qilingandan keyingi holat
     const [paying, setPaying] = useState(false);
     const [formError, setFormError] = useState('');
 
@@ -90,13 +100,13 @@ const CashierVisitPayments = () => {
         return list.map(normalize);
     };
 
-    const fetchVisits = async (silent = false) => {
+    const fetchServices = async (silent = false) => {
         try {
             if (!silent) setLoading(true);
             setError(null);
-            setVisits(await fetchList(UNPAID_PATH));
+            setServices(await fetchList(UNPAID_PATH));
         } catch (err) {
-            console.error("Ko'riklarni olishda xatolik:", err);
+            console.error("Xizmatlarni olishda xatolik:", err);
             setError(err.message);
         } finally {
             if (!silent) setLoading(false);
@@ -110,7 +120,7 @@ const CashierVisitPayments = () => {
             const list = await fetchList(PAID_PATH);
             setPaidList(list.map((v) => ({ ...v, isPaid: true })));
         } catch (err) {
-            console.error("To'langan ko'riklarni olishda xatolik:", err);
+            console.error("To'langan xizmatlarni olishda xatolik:", err);
             setPaidError(err.message);
         } finally {
             setPaidLoading(false);
@@ -118,7 +128,7 @@ const CashierVisitPayments = () => {
     };
 
     useEffect(() => {
-        fetchVisits();
+        fetchServices();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -133,7 +143,7 @@ const CashierVisitPayments = () => {
     // ------------------------------------------------------------
     const closeDrawer = () => {
         setSelected(null);
-        setPaidVisit(null);
+        setPaidService(null);
         setFormError('');
     };
 
@@ -146,21 +156,21 @@ const CashierVisitPayments = () => {
             setPaying(true);
             setFormError('');
 
-            const res = await fetch(`${api}/medical-visits/${selected.id}/pay/`, {
+            const res = await fetch(`${api}/examination-requests/${selected.id}/pay/`, {
                 method: 'POST',
                 headers: authHeaders(getToken()),
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(data.error || `HTTP error! status: ${res.status}`);
 
-            setPaidVisit({
+            setPaidService({
                 ...selected,
                 price: Number(data.amount) || selected.price,
                 isPaid: true,
                 paidAt: data.paid_at,
             });
 
-            await fetchVisits(true);
+            await fetchServices(true);
         } catch (err) {
             console.error("To'lovda xatolik:", err);
             setFormError(err.message || "To'lovni qabul qilib bo'lmadi");
@@ -172,8 +182,11 @@ const CashierVisitPayments = () => {
     // ------------------------------------------------------------
     // Filtr + statistika
     // ------------------------------------------------------------
-    // Narxi belgilanmagan ko'riklar to'lanmaganlar ro'yxatiga kirmaydi
-    const unpaid = useMemo(() => visits.filter((v) => !v.isPaid && v.price > 0), [visits]);
+    // Narxi belgilanmagan xizmatlar to'lanmaganlar ro'yxatiga kirmaydi
+    const unpaid = useMemo(
+        () => services.filter((v) => !v.isPaid && v.price > 0),
+        [services]
+    );
 
     const current = tab === 'unpaid' ? unpaid : paidList || [];
     const filtered = current.filter((v) =>
@@ -183,10 +196,20 @@ const CashierVisitPayments = () => {
     const paidTotal = paidList ? paidList.reduce((a, v) => a + v.price, 0) : null;
 
     if (loading) {
-        return <div className={s.PatientsPage}><p className={s.Muted}>Ma'lumotlar yuklanmoqda...</p></div>;
+        return (
+            <div className={s.PatientsPage}>
+                <p className={s.Muted}>Ma'lumotlar yuklanmoqda...</p>
+            </div>
+        );
     }
     if (error) {
-        return <div className={s.PatientsPage}><p className={s.FormError}>Ma'lumotlarni yuklashda xatolik: {error}</p></div>;
+        return (
+            <div className={s.PatientsPage}>
+                <p className={s.FormError}>
+                    Ma'lumotlarni yuklashda xatolik: {error}
+                </p>
+            </div>
+        );
     }
 
     const showPaidStatus = tab === 'paid' && (paidLoading || paidError);
@@ -195,8 +218,8 @@ const CashierVisitPayments = () => {
         <div className={s.PatientsPage}>
             <div className={s.TopRow}>
                 <div>
-                    <h1>Ko'rik to'lovlari</h1>
-                    <p>Bemorlarning ko'rik uchun to'lovlari</p>
+                    <h1>Xizmat to'lovlari</h1>
+                    <p>Bemorlarning xizmatlar uchun to'lovlari</p>
                 </div>
             </div>
 
@@ -225,7 +248,7 @@ const CashierVisitPayments = () => {
                         <i className="bi bi-person-lines-fill"></i>
                     </div>
                     <div>
-                        <span>Kutayotgan ko'riklar</span>
+                        <span>Kutayotgan xizmatlar</span>
                         <p>{unpaid.length} ta</p>
                     </div>
                 </div>
@@ -264,13 +287,15 @@ const CashierVisitPayments = () => {
             {tab === 'paid' && !paidLoading && paidError && (
                 <p className={s.FormError}>
                     <i className="bi bi-exclamation-circle-fill"></i>
-                    To'langan ko'riklarni yuklashda xatolik: {paidError}
+                    To'langan xizmatlarni yuklashda xatolik: {paidError}
                 </p>
             )}
 
             {!showPaidStatus && filtered.length === 0 && (
                 <p className={s.Empty}>
-                    {tab === 'unpaid' ? "To'lov kutayotgan ko'rik yo'q" : "To'langan ko'rik topilmadi"}
+                    {tab === 'unpaid'
+                        ? "To'lov kutayotgan xizmat yo'q"
+                        : "To'langan xizmat topilmadi"}
                 </p>
             )}
 
@@ -281,7 +306,7 @@ const CashierVisitPayments = () => {
                         <thead>
                             <tr>
                                 <th>F.I.O</th>
-                                <th>Shifokor</th>
+                                <th>Xizmat</th>
                                 <th>Narxi</th>
                                 <th>{tab === 'paid' ? "To'langan vaqt" : 'Sana'}</th>
                                 <th>Holati</th>
@@ -295,7 +320,7 @@ const CashierVisitPayments = () => {
                                     onClick={() => {
                                         if (!v.isPaid) {
                                             setSelected(v);
-                                            setPaidVisit(null);
+                                            setPaidService(null);
                                             setFormError('');
                                         }
                                     }}
@@ -306,15 +331,22 @@ const CashierVisitPayments = () => {
                                             <div className={s.Avatar}>{v.initial}</div>
                                             <div>
                                                 <span>{v.name}</span>
-                                                {v.phone && <p className={s.NameCellSub}>{v.phone}</p>}
+                                                {v.phone && (
+                                                    <p className={s.NameCellSub}>{v.phone}</p>
+                                                )}
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{v.doctors.length ? v.doctors.join(', ') : '—'}</td>
-                                    <td className={v.isPaid ? '' : s.DebtCell}>{formatSum(v.price)}</td>
+                                    <td>{v.serviceName}</td>
+                                    <td className={v.isPaid ? '' : s.DebtCell}>
+                                        {formatSum(v.price)}
+                                    </td>
                                     <td>{formatDateTime(v.isPaid ? v.paidAt : v.createdAt)}</td>
                                     <td>
-                                        <span className={`${s.StatusBadge} ${v.isPaid ? s.paid : s.unpaid}`}>
+                                        <span
+                                            className={`${s.StatusBadge} ${v.isPaid ? s.paid : s.unpaid
+                                                }`}
+                                        >
                                             {v.isPaid ? "To'langan" : "To'lanmagan"}
                                         </span>
                                     </td>
@@ -326,7 +358,7 @@ const CashierVisitPayments = () => {
                                                 className={s.LinkBtn}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    printReceipt(v);
+                                                    printServiceReceipt(v);
                                                 }}
                                             >
                                                 <i className="bi bi-printer"></i>
@@ -354,23 +386,29 @@ const CashierVisitPayments = () => {
                             </div>
                         </div>
 
-                        {paidVisit ? (
+                        {paidService ? (
                             /* TO'LOV QABUL QILINDI -> chek tugmasi */
                             <div className={s.DrawerBody}>
                                 <div className={s.AllPaidBox}>
                                     <i className="bi bi-check-circle-fill"></i>
-                                    <p>To'lov qabul qilindi · {formatSum(paidVisit.price)}</p>
+                                    <p>
+                                        To'lov qabul qilindi · {formatSum(paidService.price)}
+                                    </p>
                                 </div>
 
-                                <button
+                                {/* <button
                                     type="button"
                                     className={s.PayBtn}
-                                    onClick={() => printReceipt(paidVisit)}
+                                    onClick={() => printServiceReceipt(paidService)}
                                 >
                                     <i className="bi bi-printer"></i>
                                     Chekni chop etish
+                                </button> */}
+                                <button
+                                    type="button"
+                                    className={s.PayBtn}>
+                                    Chekni chop etish
                                 </button>
-
                                 <button
                                     type="button"
                                     className={`${s.LinkBtn} ${s.CloseBtn}`}
@@ -382,23 +420,26 @@ const CashierVisitPayments = () => {
                         ) : (
                             <div className={s.DrawerBody}>
                                 <div className={s.AmountBox}>
-                                    <span className={s.AmountLabel}>To'lanadigan summa</span>
+                                    <span className={s.AmountLabel}>
+                                        To'lanadigan summa
+                                    </span>
                                     <strong className={s.AmountValue}>
                                         {formatSum(selected.price)}
                                     </strong>
                                 </div>
 
-                                <p className={s.DrawerSectionTitle}>Shifokor(lar)</p>
-                                <p className={s.InfoText}>
-                                    {selected.doctors.length ? selected.doctors.join(', ') : '—'}
-                                </p>
+                                <p className={s.DrawerSectionTitle}>Xizmat(lar)</p>
+                                <p className={s.InfoText}>{selected.serviceName}</p>
 
-                                <p className={s.DrawerSectionTitle}>Ko'rik sanasi</p>
-                                <p className={s.InfoText}>{formatDateTime(selected.createdAt)}</p>
+                                <p className={s.DrawerSectionTitle}>Xizmat sanasi</p>
+                                <p className={s.InfoText}>
+                                    {formatDateTime(selected.createdAt)}
+                                </p>
 
                                 {formError && (
                                     <p className={s.FormError}>
-                                        <i className="bi bi-exclamation-circle-fill"></i> {formError}
+                                        <i className="bi bi-exclamation-circle-fill"></i>{' '}
+                                        {formError}
                                     </p>
                                 )}
 
@@ -411,7 +452,9 @@ const CashierVisitPayments = () => {
                                     <i className="bi bi-wallet2"></i>
                                     {paying
                                         ? 'Qabul qilinmoqda...'
-                                        : `To'lovni qabul qilish · ${formatSum(selected.price)}`}
+                                        : `To'lovni qabul qilish · ${formatSum(
+                                            selected.price
+                                        )}`}
                                 </button>
                             </div>
                         )}
@@ -422,4 +465,4 @@ const CashierVisitPayments = () => {
     );
 };
 
-export default CashierVisitPayments;
+export default CashierDoctorServicesPayments;

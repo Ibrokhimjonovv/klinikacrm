@@ -50,36 +50,28 @@ const menuLinks = {
     cashier: {
         main: [
             { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
-            { to: '/cashier/visits', icon: 'bi-house-door', text: 'Ko\'rik to\'lovlari' },
         ],
-        // sections: [
-        //     {
-        //         title: 'XIZMATLAR',
-        //         links: [
-        //             { to: '/services', icon: 'bi-sliders2', text: 'Servislar' },
-        //         ],
-        //     },
-        //     {
-        //         title: 'XONALAR',
-        //         links: [
-        //             { to: '/admin-rooms', icon: 'bi-hospital', text: 'Xonalar' },
-        //         ],
-        //     },
-        //     {
-        //         title: 'XODIMLAR',
-        //         links: [
-        //             { to: '/admin-doctors', icon: 'bi-people', text: 'Barcha xodimlar' },
-        //             // { to: '/admin-nurses', icon: 'bi-people', text: 'Hamshiralar' },
-        //             // { to: '/admin-res-nurses', icon: 'bi-people', text: 'Qabul Hamshiralari' },
-        //         ],
-        //     },
-        //     {
-        //         title: 'Dori-darmonlar',
-        //         links: [
-        //             { to: '/admin-medicines', icon: 'bi-capsule', text: 'Dorilar' },
-        //         ],
-        //     },
-        // ],
+        sections: [
+            {
+                title: 'UMUMIY TO\'LOVLAR',
+                links: [
+                    { to: '/cashier/payments/treatments-payments', icon: 'bi-cash-coin', text: 'Davolanish to\'lovlari' },
+                ],
+            },
+            {
+                title: "DOKTOR TO'LOVLARI",
+                links: [
+                    { to: '/cashier/payments/visits-payments', icon: 'bi-cash-coin', text: 'Doktor ko\'rik to\'lovlari' },
+                ],
+            },
+            {
+                title: "XIZMAT TO'LOVLARI",
+                links: [
+                    { to: '/cashier/payments/services-payments', icon: 'bi-cash-coin', text: 'Tashqi bemor to\'lovlari' },
+                    { to: '/cashier/payments/doctor-services-payments', icon: 'bi-cash-coin', text: 'Biriktirilgan bemor to\'lovlari' },
+                ]
+            }
+        ],
         patientsTitle: null,
         patients: [
         ],
@@ -125,6 +117,7 @@ const menuLinks = {
         patients: [
             { to: '/waiting-patients', icon: 'bi-activity', text: 'Diagnostik bemorlar' },
             { to: '/assistant-doctor/tasks', icon: 'bi-people', text: 'Biriktirilgan bemorlar' },
+            { to: '/assistant-doctor/examination-patients', icon: 'bi-building-exclamation', text: 'Ko\'rikdagi bemorlar' },
         ],
         roomsTitle: null,
         rooms: [
@@ -140,6 +133,9 @@ const menuLinks = {
         patientsTitle: 'BEMORLAR',
         patients: [
             { to: '/nurse-patients', icon: 'bi-people', text: 'Bemorlar ro\'yxati' },
+        ],
+        services: [
+            { to: '/nurse/services', icon: 'bi-clock', text: 'Xizmatlar' },
         ],
         roomsTitle: null,
         rooms: [
@@ -448,6 +444,29 @@ const Header = () => {
                         <p className={s.asosiy}>DAVOLANISH</p>
                         <ul className={s.AsideLinks}>
                             {links.medicines.map((link, index) => (
+                                <li key={index}>
+                                    <Link
+                                        to={link.to}
+                                        className={isActive(link.to) ? s.ActiveLink : ''}
+                                    >
+                                        <span className={s.icon}><i className={`bi ${link.icon}`}></i></span>
+                                        <span className={s.text}>{link.text}</span>
+
+                                        {link.countKey && (
+                                            <p>{patientCounts[link.countKey] ?? 0}</p>
+                                        )}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </>
+                )}
+
+                {links && links.services?.length > 0 && (
+                    <>
+                        <p className={s.asosiy}>XIZMATLAR</p>
+                        <ul className={s.AsideLinks}>
+                            {links.services.map((link, index) => (
                                 <li key={index}>
                                     <Link
                                         to={link.to}
