@@ -18,13 +18,8 @@ const calcAge = (birthDate) => {
     return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
 };
 
-// const STATUS_OPTIONS = ['Faol', 'Kuzatuvda', 'Tugallangan'];
-
-// const VISIT_STATUS_LABELS = {
-//     WAITING: 'Kutmoqda',
-//     IN_PROGRESS: 'Jarayonda',
-//     DONE: 'Tugallangan',
-// };
+const formatSum = (n) =>
+    Math.round(Number(n) || 0).toLocaleString('uz-UZ') + " so'm";
 
 const NursePatientDetail = () => {
     const { id } = useParams();
@@ -39,12 +34,7 @@ const NursePatientDetail = () => {
     const [visitsLoading, setVisitsLoading] = useState(true);
     const [visitsError, setVisitsError] = useState('');
 
-    // const [status, setStatus] = useState('Faol');
-    // const [statusOpen, setStatusOpen] = useState(false);
-    // const [statusSaving, setStatusSaving] = useState(false);
-
     const [showEditModal, setShowEditModal] = useState(false);
-    // Eskisini o'chiring: const [selectedVisitId, setSelectedVisitId] = useState(null);
     const [showEditVisitModal, setShowEditVisitModal] = useState(false);
     const [selectedVisit, setSelectedVisit] = useState(null);
 
@@ -53,7 +43,6 @@ const NursePatientDetail = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleting, setDeleting] = useState(false);
 
-    // Tashxisni o'chirish uchun
     const [visitToDelete, setVisitToDelete] = useState(null);
     const [deletingVisit, setDeletingVisit] = useState(false);
 
@@ -65,12 +54,11 @@ const NursePatientDetail = () => {
         ? visits.reduce((a, b) => (Number(b.id) > Number(a.id) ? b : a))
         : null;
 
+    // Faqat WAITING holatdagi shikoyatlar ko'rinadi
+    const waitingVisits = visits.filter((v) => v.status === 'WAITING');
+
     const handlePrint = async (visit = null) => {
-        // Logotip brauzer xotirasida tayyor bo'lguncha kutamiz — aks holda
-        // (bu chek birinchi marta chiqarilayotgani uchun) print() logotip
-        // hali yuklanmasdan turib chaqirilib qolishi mumkin edi.
         await logoReady;
-        // chek DOM'ga chiqib bo'lgandan keyingina print ochilishi uchun
         flushSync(() => setPrintTarget({ visit }));
         window.print();
     };
@@ -106,12 +94,10 @@ const NursePatientDetail = () => {
                 gender: data.gender || '',
                 contact_number: data.contact_number || '',
                 address: data.address || '',
-                // status: data.status || 'Faol',
                 create_date: data.create_date || '',
             };
 
             setPatient(formattedPatient);
-            // setStatus(formattedPatient.status);
             setLoading(false);
         } catch (err) {
             console.error('Bemorni yuklashda xatolik:', err);
@@ -120,7 +106,6 @@ const NursePatientDetail = () => {
         }
     };
 
-    // Tashxisni olish — javob { data: {...}, doctors: [...] } shaklida keladi
     const fetchVisits = async () => {
         try {
             setVisitsLoading(true);
@@ -145,8 +130,6 @@ const NursePatientDetail = () => {
             }
 
             const json = await response.json();
-
-            // data doim massiv, doctors endi to'liq obyektlar — alohida qidirish shart emas
             const rawVisits = Array.isArray(json.data) ? json.data : [];
 
             const enriched = rawVisits.map(v => ({
@@ -172,34 +155,6 @@ const NursePatientDetail = () => {
         }
     }, [id]);
 
-    // const handleStatusChange = async (newStatus) => {
-    //     setStatusOpen(false);
-    //     if (newStatus === status) return;
-
-    //     setStatusSaving(true);
-    //     try {
-    //         const token = localStorage.getItem('hospital_access');
-    //         const formData = new FormData();
-    //         formData.append('status', newStatus);
-
-    //         const response = await fetch(`${api}/patientUpdate/${id}/`, {
-    //             method: 'PATCH',
-    //             headers: { 'Authorization': `Bearer ${token}` },
-    //             body: formData,
-    //         });
-
-    //         if (!response.ok) throw new Error('Statusni yangilashda xatolik');
-
-    //         setStatus(newStatus);
-    //         setPatient(prev => ({ ...prev, status: newStatus }));
-    //     } catch (err) {
-    //         console.error('Status yangilashda xatolik:', err);
-    //         alert('Statusni yangilashda xatolik yuz berdi');
-    //     } finally {
-    //         setStatusSaving(false);
-    //     }
-    // };
-
     const handleDelete = async () => {
         setDeleting(true);
         try {
@@ -214,7 +169,6 @@ const NursePatientDetail = () => {
 
             if (!response.ok) throw new Error("Bemorni o'chirishda xatolik yuz berdi");
 
-            // MUHIM: darhol Context'dagi ro'yxatdan va sondan olib tashlanadi
             removePatientLocally(Number(id));
 
             setShowDeleteModal(false);
@@ -229,7 +183,6 @@ const NursePatientDetail = () => {
         }
     };
 
-    // Tashxisni o'chirish
     const handleDeleteVisit = async () => {
         if (!visitToDelete) return;
 
@@ -268,7 +221,6 @@ const NursePatientDetail = () => {
         fetchVisits();
     };
 
-    // Tashxis ustiga bosilganda batafsil sahifaga o'tish
     const openVisitDetail = (visitId) => {
         navigate(`/nurse-patients/${id}/visits/${visitId}`);
     };
@@ -283,9 +235,6 @@ const NursePatientDetail = () => {
         setShowAddVisitModal(false);
         fetchVisits();
     };
-
-    // const statusClass = status === 'Faol' ? s.active :
-    //     status === 'Kuzatuvda' ? s.watch : s.done;
 
     if (loading) {
         return (
@@ -325,9 +274,6 @@ const NursePatientDetail = () => {
                 </div>
 
                 <div className={s.ActionButtons}>
-                    {/* <button className={s.PrintBtn} onClick={() => handlePrint()}>
-                        <i className="bi bi-printer"></i> Chop etish
-                    </button> */}
                     <button className={s.EditBtn} onClick={openEditPatientOnly}>
                         <i className="bi bi-pencil"></i> Tahrirlash
                     </button>
@@ -357,35 +303,10 @@ const NursePatientDetail = () => {
                     </div>
                 </div>
 
-                <div class={s.StatusPill}>
-                    <span class={s.StatusDot}></span>
+                <div className={s.StatusPill}>
+                    <span className={s.StatusDot}></span>
                     Bemor
                 </div>
-
-                {/* <div className={s.StatusWrap}>
-                    <button
-                        className={`${s.StatusBadge} ${statusClass}`}
-                        onClick={() => setStatusOpen(!statusOpen)}
-                        disabled={statusSaving}
-                    >
-                        {statusSaving ? 'Saqlanmoqda...' : status}
-                        <i className="bi bi-chevron-down"></i>
-                    </button>
-
-                    {statusOpen && (
-                        <div className={s.StatusDropdown}>
-                            {STATUS_OPTIONS.map(opt => (
-                                <button
-                                    key={opt}
-                                    className={opt === status ? s.StatusOptionActive : ''}
-                                    onClick={() => handleStatusChange(opt)}
-                                >
-                                    {opt}
-                                </button>
-                            ))}
-                        </div>
-                    )}
-                </div> */}
             </div>
 
             <div className={s.InfoGrid}>
@@ -419,10 +340,10 @@ const NursePatientDetail = () => {
                 </div>
             </div>
 
-            {/* TASHXISLAR TARIXI */}
+            {/* SHIKOYATLAR — faqat WAITING */}
             <div className={s.VisitsCard}>
                 <div className={s.VisitsHead}>
-                    <h3><i className="bi bi-file-medical"></i> Shikoyatlar daftarchasi <span>{visits.length} ta</span></h3>
+                    <h3><i className="bi bi-file-medical"></i> Shikoyatlar daftarchasi <span>{waitingVisits.length} ta</span></h3>
                     <button className={s.AddVisitBtn} onClick={() => setShowAddVisitModal(true)}>
                         <i className="bi bi-plus-lg"></i> Yangi shikoyat
                     </button>
@@ -434,11 +355,11 @@ const NursePatientDetail = () => {
                     </div>
                 ) : visitsError ? (
                     <p className={s.VisitsError}>{visitsError}</p>
-                ) : visits.length === 0 ? (
-                    <p className={s.Empty}>Hali tashxis kiritilmagan</p>
+                ) : waitingVisits.length === 0 ? (
+                    <p className={s.Empty}>Kutilayotgan shikoyat yo'q</p>
                 ) : (
                     <ul className={s.VisitsList}>
-                        {visits.map((v, i) => (
+                        {waitingVisits.map((v, i) => (
                             <li key={v.id || i} onClick={() => openVisitDetail(v.id)} className={s.VisitClickable}>
                                 <div className={s.VisitLeft}>
                                     <div className={s.VisitInfo}>
@@ -446,6 +367,28 @@ const NursePatientDetail = () => {
                                         <span className={s.VisitMeta}>
                                             {v.doctorNames && <>Shifokor: {v.doctorNames}</>}
                                         </span>
+
+                                        {/* Narx va to'lov holati */}
+                                        <div className={s.VisitPayRow}>
+                                            <span className={s.VisitPrice}>
+                                                <i className="bi bi-receipt"></i> {formatSum(v.price)}
+                                            </span>
+                                            {v.is_paid ? (
+                                                <span className={s.PaidTag}>
+                                                    <i className="bi bi-check-circle-fill"></i> To'langan
+                                                    {v.paid_at && (
+                                                        <>
+                                                            {' · '}
+                                                            <DateTimeFormatter format="datetime" date={v.paid_at} />
+                                                        </>
+                                                    )}
+                                                </span>
+                                            ) : (
+                                                <span className={s.UnpaidTag}>
+                                                    <i className="bi bi-lock-fill"></i> To'lanmagan
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className={s.VisitActions}>
@@ -462,7 +405,7 @@ const NursePatientDetail = () => {
                                     <button
                                         className={s.VisitEditBtn}
                                         onClick={(e) => {
-                                            e.stopPropagation(); // li'ning navigate qilishini to'xtatadi
+                                            e.stopPropagation();
                                             openEditWithVisit(v);
                                         }}
                                     >
@@ -509,7 +452,7 @@ const NursePatientDetail = () => {
                         { label: 'Telefon', value: patient.contact_number },
                         { label: 'Manzil', value: patient.address },
                     ]}
-                    onSuccess={handleAddVisitSuccess}   // ← handleSuccess emas!
+                    onSuccess={handleAddVisitSuccess}
                 />
             </Modal>
 

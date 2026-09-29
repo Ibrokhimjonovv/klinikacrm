@@ -46,6 +46,8 @@ import AdminResNurses from './pages/Admin/AdminResNurses/AdminResNurses'
 import AdminMedicines from './pages/Admin/AdminMedicines/AdminMedicines'
 import AssistantDoctorTasks from './pages/AssistantDoctor/AssistantDoctorTasks/AssistantDoctorTasks'
 import AssistantDoctorPTaskDetail from './pages/AssistantDoctor/AssistantDoctorTasksDetail/AssistantDoctorTaskDetail'
+import CashierHome from './pages/Cashier/CashierHome/CashierHome'
+import CashierVisitPayments from './pages/Cashier/CashierVisitPayment/CashierVisitPayments'
 
 export const api = 'http://192.168.1.2:8000/api/v1'
 // export const api = 'https://bkapi.aoc.uz/api/v1'
@@ -114,7 +116,6 @@ function App() {
               {/* <Route path="/reception-nurse-profile" element={<NurseProfile />} /> */}
             </>
           )}
-
           {role === 'Admin' && (
             <>
               <Route path="/" element={<AdminHome />} />
@@ -126,7 +127,6 @@ function App() {
               <Route path="/admin-medicines" element={<AdminMedicines />} />
             </>
           )}
-
           {
             role === "AssistantDoctor" && (
               <>
@@ -142,10 +142,16 @@ function App() {
               </>
             )
           }
-
+          {
+            role === "Cashier" && (
+              <>
+                <Route path="/" element={<CashierHome />} />
+                <Route path="/cashier/visits" element={<CashierVisitPayments />} />
+              </>
+            )
+          }
 
           <Route path="*" element={<NotFound />} />
-
         </Route>
         <Route path="/sign-in" element={<Login />} />
       </Routes>

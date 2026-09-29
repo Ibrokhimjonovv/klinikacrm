@@ -47,6 +47,48 @@ const menuLinks = {
         profile: [
         ]
     },
+    cashier: {
+        main: [
+            { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
+            { to: '/cashier/visits', icon: 'bi-house-door', text: 'Ko\'rik to\'lovlari' },
+        ],
+        // sections: [
+        //     {
+        //         title: 'XIZMATLAR',
+        //         links: [
+        //             { to: '/services', icon: 'bi-sliders2', text: 'Servislar' },
+        //         ],
+        //     },
+        //     {
+        //         title: 'XONALAR',
+        //         links: [
+        //             { to: '/admin-rooms', icon: 'bi-hospital', text: 'Xonalar' },
+        //         ],
+        //     },
+        //     {
+        //         title: 'XODIMLAR',
+        //         links: [
+        //             { to: '/admin-doctors', icon: 'bi-people', text: 'Barcha xodimlar' },
+        //             // { to: '/admin-nurses', icon: 'bi-people', text: 'Hamshiralar' },
+        //             // { to: '/admin-res-nurses', icon: 'bi-people', text: 'Qabul Hamshiralari' },
+        //         ],
+        //     },
+        //     {
+        //         title: 'Dori-darmonlar',
+        //         links: [
+        //             { to: '/admin-medicines', icon: 'bi-capsule', text: 'Dorilar' },
+        //         ],
+        //     },
+        // ],
+        patientsTitle: null,
+        patients: [
+        ],
+        roomsTitle: null,
+        rooms: [
+        ],
+        profile: [
+        ]
+    },
     doctor: {
         main: [
             { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
@@ -191,7 +233,10 @@ const Header = () => {
         links = menuLinks.nurse
     } else if (specialty === 'Admin') {
         links = menuLinks.admin
-    } else if (specialty === "AssistantDoctor") {
+    } else if (specialty === 'Cashier') {
+        links = menuLinks.cashier
+    }
+    else if (specialty === "AssistantDoctor") {
         links = menuLinks.assistantDoctor
     }
 
@@ -221,6 +266,7 @@ const Header = () => {
         else if (user?.role === "Patient") return "Bemor"
         else if (user?.role === "Nurse") return "Hamshira"
         else if (user?.role === "Admin") return "Admin"
+        else if (user?.role === "Cashier") return "Cashier"
         else if (user?.role === "AssistantDoctor") return "Doktor"
         else return "Aniqlanmadi"
     }
@@ -232,6 +278,7 @@ const Header = () => {
         else if (user?.role === "Nurse") return (`${user?.doctor?.first_name} ${user?.doctor?.last_name}`)
         else if (user?.role === "AssistantDoctor") return (`${user?.doctor?.first_name} ${user?.doctor?.last_name}`)
         else if (user?.role === "Admin") return (`Sayt admini!`)
+        else if (user?.role === "Cashier") return (`${user?.doctor?.first_name} ${user?.doctor?.last_name}`)
         else return "Aniqlanmadi"
     }
 

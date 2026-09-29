@@ -52,7 +52,6 @@ const getFileUrl = (path) => {
     }
 }
 
-// Helper: URL rasm ekanligini tekshirish
 const isImageFile = (url) => {
     if (!url) return false
     return /\.(jpg|jpeg|png|gif|bmp|webp|svg)(\?.*)?$/i.test(url)
@@ -64,16 +63,12 @@ const authHeaders = (token) => ({
 
 const formatSum = (n) => Math.round(n).toLocaleString('uz-UZ') + " so'm"
 
-// ✅ item'da endi: matn, VAQT, dori, xizmat va miqdor bor.
-// "service" — backend TreatmentPlanItem uchun MAJBURIY maydon
-// (serializer.create() da service bo'lmasa ValidationError beradi),
-// shuning uchun uni har doim item bilan birga yuboramiz.
 const makeEmptyItem = (nextId) => ({
     id: nextId(),
     text: '',
-    time: '',            // ✅ yangi — muolaja/dori vaqti
-    servicePriceId: '',  // tanlangan DORI id'si
-    serviceId: '',        // tanlangan XIZMAT id'si (backend "service" maydoniga boradi)
+    time: '',
+    servicePriceId: '',
+    serviceId: '',
     quantity: 1,
 })
 
@@ -121,9 +116,6 @@ const SERVICE_SELECT_STYLES = {
     }),
 }
 
-// ✅ Dori select'i uchun — miqdor input'i unga yopishib turishi
-// uchun o'ng tomondagi burchaklarni to'g'irlaymiz (faqat dori
-// tanlangan holatda ishlatiladi)
 const MEDICINE_SELECT_ATTACHED_STYLES = {
     ...SERVICE_SELECT_STYLES,
     control: (base, state) => ({
@@ -168,18 +160,15 @@ const DoctorWaitingPatientTreatmentDetail = () => {
     const [medicines, setMedicines] = useState([])
     const [medicinesLoading, setMedicinesLoading] = useState(true)
 
-    // ✅ Xizmatlar (servicelar) ro'yxati — dori tanlovi yonida
     const [services, setServices] = useState([])
     const [servicesLoading, setServicesLoading] = useState(true)
 
-    // ---- Davolanish turi (Qatnab / Yotib) va xona-yotoq tanlash ----
     const [careType, setCareType] = useState('OUTPATIENT')
     const [rooms, setRooms] = useState([])
     const [roomsLoading, setRoomsLoading] = useState(false)
     const [selectedRoomId, setSelectedRoomId] = useState('')
     const [selectedBedId, setSelectedBedId] = useState('')
 
-    // ---- Rasm modal (zoom bilan) ----
     const [modalOpen, setModalOpen] = useState(false)
     const [modalImage, setModalImage] = useState(null)
 
@@ -254,8 +243,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         }
     }
 
-    // ✅ Xizmatlarni yuklash — /services/ endpointi (diagnostika
-    // sahifasida ishlatilgan endpoint bilan bir xil)
     const fetchServices = async () => {
         try {
             setServicesLoading(true)
@@ -324,7 +311,16 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         if (patient?.complaints?.length > 0) fetchDiagnosticRequests()
     }, [patient])
 
-    const fetchPatient = async () => {
+    // ✅ YANGI: oynaga qaytilganda to'lov holatini yangilaydi
+    useEffect(() => {
+        const onFocus = () => fetchPatient(true)
+        window.addEventListener('focus', onFocus)
+        return () => window.removeEventListener('focus', onFocus)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id])
+
+    // ✅ YANGI: silent rejim
+    const fetchPatient = async (silent = false) => {
         try {
             const token = localStorage.getItem('hospital_access')
             const res = await fetch(`${api}/dpatientInfo/${id}/`, {
@@ -336,9 +332,9 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             setPatient(data)
         } catch (err) {
             console.error('API xatosi:', err)
-            setError(err.message)
+            if (!silent) setError(err.message)
         } finally {
-            setLoading(false)
+            if (!silent) setLoading(false)
         }
     }
 
@@ -360,6 +356,9 @@ const DoctorWaitingPatientTreatmentDetail = () => {
     }
 
     const handleSelectComplaint = (complaint) => {
+        // ✅ YANGI: ko'rik to'lovi qilinmagan bo'lsa ochilmaydi
+        if (!complaint.is_paid) return
+
         if (selectedComplaintId === complaint.id) {
             setSelectedComplaintId(null)
             return
@@ -368,7 +367,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         resetPlanState()
     }
 
-    // ---- Tashxis media handlerlari ----
     const makeEmptyMedia = () => ({ id: nextId(), file: null, media_text: '' })
     const addPlanMedia = () => setPlanMedia(prev => [...prev, makeEmptyMedia()])
     const removePlanMedia = (mediaId) => setPlanMedia(prev => prev.filter(m => m.id !== mediaId))
@@ -377,24 +375,19 @@ const DoctorWaitingPatientTreatmentDetail = () => {
     const updatePlanMediaFile = (mediaId, file) =>
         setPlanMedia(prev => prev.map(m => m.id === mediaId ? { ...m, file } : m))
 
-    // ---- "Bir xil" rejimi ----
     const addSameItem = () => setSameItems(prev => [...prev, makeEmptyItem(nextId)])
     const removeSameItem = (itemId) => setSameItems(prev => prev.filter(it => it.id !== itemId))
     const updateSameItemText = (itemId, text) =>
         setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, text } : it))
-    // ✅ Vaqt tanlash
     const updateSameItemTime = (itemId, time) =>
         setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, time } : it))
-    // Dori tanlash
     const updateSameItemMedicine = (itemId, servicePriceId) =>
         setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, servicePriceId } : it))
-    // ✅ Xizmat tanlash
     const updateSameItemService = (itemId, serviceId) =>
         setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, serviceId } : it))
     const updateSameItemQuantity = (itemId, quantity) =>
         setSameItems(prev => prev.map(it => it.id === itemId ? { ...it, quantity: Math.max(1, Number(quantity) || 1) } : it))
 
-    // ---- "Alohida" rejimi ----
     const addDay = () => setPlanDays(prev => [...prev, { id: nextId(), items: [makeEmptyItem(nextId)], note: '' }])
     const removeDay = (dayId) => setPlanDays(prev => prev.filter(d => d.id !== dayId))
     const addItem = (dayId) => setPlanDays(prev => prev.map(d =>
@@ -408,19 +401,16 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, text } : it) }
             : d
     ))
-    // ✅ Vaqt tanlash
     const updateItemTime = (dayId, itemId, time) => setPlanDays(prev => prev.map(d =>
         d.id === dayId
             ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, time } : it) }
             : d
     ))
-    // Dori tanlash
     const updateItemMedicine = (dayId, itemId, servicePriceId) => setPlanDays(prev => prev.map(d =>
         d.id === dayId
             ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, servicePriceId } : it) }
             : d
     ))
-    // ✅ Xizmat tanlash
     const updateItemService = (dayId, itemId, serviceId) => setPlanDays(prev => prev.map(d =>
         d.id === dayId
             ? { ...d, items: d.items.map(it => it.id === itemId ? { ...it, serviceId } : it) }
@@ -435,7 +425,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
 
     const isItemFilled = (item) => !!item.text.trim()
 
-    // ---- JONLI NARX HISOBLASH ----
     const priceSummary = useMemo(() => {
         let itemsTotal = 0
         const breakdown = []
@@ -456,7 +445,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                     })
                 }
 
-                // ✅ Xizmat narxi ham umumiy summaga qo'shiladi
                 const service = services.find(sv => sv.id === Number(it.serviceId))
                 if (service) {
                     const lineTotal = service.price * multiplier
@@ -473,7 +461,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             })
         }
 
-        // ---- Davolanish necha kun davom etishini aniqlash ----
         let treatmentDays = 0
         if (planMode === 'same') {
             treatmentDays = Number(sameDayCount) || 0
@@ -483,7 +470,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             planDays.forEach(day => collectFromItems(day.items, 1))
         }
 
-        // ---- Yotib davolanish: xona narxi × kunlar soni ----
         const bedPricePerDay = careType === 'INPATIENT' && selectedRoomForCare
             ? Number(selectedRoomForCare.price_per_day) || 0
             : 0
@@ -506,7 +492,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             const medicine = medicines.find(m => m.id === Number(item.servicePriceId))
             if (medicine) sum += medicine.price * (item.quantity || 1)
 
-            // ✅ xizmat narxi ham kunlik narxga qo'shiladi
             const service = services.find(sv => sv.id === Number(item.serviceId))
             if (service) sum += service.price
 
@@ -514,8 +499,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         }, 0)
     }
 
-
-    // ✅ Item'ni backend formatiga o'giramiz: text, time, service.
     const mapItemForPayload = (it) => ({
         text: it.text,
         time: it.time || null,
@@ -530,6 +513,11 @@ const DoctorWaitingPatientTreatmentDetail = () => {
 
         if (!selectedComplaint) {
             setPlanError("Avval shikoyatni tanlang")
+            return
+        }
+        // ✅ YANGI: to'lov himoyasi
+        if (!selectedComplaint.is_paid) {
+            setPlanError("Doktor ko'rigi to'lovi hali qilinmagan")
             return
         }
         if (!planDiagnosis.trim()) {
@@ -646,7 +634,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                 }
             }
 
-            // ---- Yotib davolanish tanlangan bo'lsa, bemorni yotoqqa biriktiramiz ----
             if (careType === 'INPATIENT' && selectedBedId) {
                 try {
                     const assignRes = await fetch(`${api}/room-assignments/`, {
@@ -690,12 +677,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         }
     }
 
-    // ------------------------------------------------------------
-    // KO'RINADIGAN SHIKOYATLAR
-    // Faqat WAITING yoki IN_PROGRESS bo'lgan va
-    // hech bo'lmaganda bitta diagnostikasi mavjud shikoyatlar
-    // ------------------------------------------------------------
-
     const visibleComplaints = useMemo(() => {
         const active = (patient?.complaints || []).filter(
             (c) => c.status === 'WAITING' || c.status === 'IN_PROGRESS'
@@ -706,7 +687,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                 (request) => Number(request.medical_visit) === Number(complaint.id)
             )
 
-            // Hech bo'lmaganda bitta diagnostika yuborilgan bo'lsa ko'rinadi
             return requests.length > 0
         })
     }, [patient, diagnosticRequests])
@@ -714,10 +694,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
     if (loading) return <div className={s.State}><p>Yuklanmoqda...</p></div>
     if (error) return <div className={s.State}><p>Xatolik: {error}</p></div>
     if (!patient) return null
-
-    // ------------------------------------------------------------
-    // BITTA DIAGNOSTIKA SO'ROVI KARTASI
-    // ------------------------------------------------------------
 
     const renderRequestCard = (request) => {
         const fileUrl = getFileUrl(request.result?.result_file)
@@ -761,7 +737,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                     </span>
                 </div>
 
-                {/* Natija kartasi */}
                 {request.result && (
                     <div className={s.DiagResultBox}>
                         <div className={s.DiagResultHeader}>
@@ -809,13 +784,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         )
     }
 
-    // ------------------------------------------------------------
-    // Ustunlar sarlavhasi — har bir ItemRow'dagi ustun nima
-    // ekanligini ko'rsatadi (jadval "th" qatoriga o'xshab).
-    // Kenglik/flex qiymatlari renderItemRow bilan bir xil bo'lishi
-    // kerak, aks holda ustunlar bir-biriga to'g'ri kelmaydi.
-    // ------------------------------------------------------------
-
     const renderItemsHeader = () => (
         <div className={s.ItemsHeaderRow}>
             <span className={s.ItemsHeaderCell}>№</span>
@@ -825,12 +793,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             <span className={s.ItemsHeaderCell}>Xizmat turi</span>
         </div>
     )
-
-    // ------------------------------------------------------------
-    // Har bir band qatorida: tartib raqami, matn, VAQT,
-    // DORI tanlovi (+ tanlangach unga yopishgan miqdor),
-    // va XIZMAT tanlovi (backend uchun majburiy).
-    // ------------------------------------------------------------
 
     const renderItemRow = (item, orderNumber, onTextChange, onTimeChange, onMedicineChange, onServiceSelectChange, onQuantityChange, onRemove, canRemove) => {
         const medicine = medicines.find(m => m.id === Number(item.servicePriceId))
@@ -849,7 +811,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                     disabled={planSaving}
                 />
 
-                {/* ---- Vaqt tanlovi ---- */}
                 <input
                     type="time"
                     className={s.ItemTimeInput}
@@ -858,7 +819,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                     disabled={planSaving}
                 />
 
-                {/* ---- Dori tanlovi + unga yopishgan miqdor ---- */}
                 <div className={s.MedicineGroup}>
                     <Select
                         className={s.ServiceSelect}
@@ -901,7 +861,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                     )}
                 </div>
 
-                {/* ---- Xizmat tanlovi (majburiy) ---- */}
                 <Select
                     className={s.ServiceSelect}
                     isDisabled={planSaving || servicesLoading}
@@ -940,10 +899,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         )
     }
 
-    // ------------------------------------------------------------
-    // DAVOLASH REJASI FORMASI (shikoyat ichida ochiladi)
-    // ------------------------------------------------------------
-
     const renderPlanForm = () => (
         <form className={s.ComplaintForm} onSubmit={handleSubmitPlan}>
             <div className={s.PlanFormHead}>
@@ -964,7 +919,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                 />
             </div>
 
-            {/* ---- Davolanish turi ---- */}
             <div className={s.Field}>
                 <label>Davolanish turi *</label>
                 <div className={s.ModeSwitch}>
@@ -982,7 +936,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                 </div>
             </div>
 
-            {/* ---- Yotib davolanish tanlansa — xona va yotoq tanlash ---- */}
             {careType === 'INPATIENT' && (
                 <div className={s.RoomSection}>
                     <label className={s.ItemsLabel}>Xona tanlang *</label>
@@ -1206,7 +1159,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                 </>
             )}
 
-            {/* ---- JONLI NARX XULOSASI ---- */}
             <div className={s.PriceSummaryBox}>
                 <div className={s.PriceSummaryHead}>
                     <i className="bi bi-receipt"></i>
@@ -1309,7 +1261,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                 </div>
             </div>
 
-            {/* SHIKOYATLAR — diagnostikasi yuborilganlar */}
             {visibleComplaints.length > 0 && (
                 <div className={s.ComplaintsSection}>
                     <h2>Shikoyatlar</h2>
@@ -1321,14 +1272,10 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                                 (request) => Number(request.medical_visit) === Number(c.id)
                             )
 
-                            // ✅ Hamma yuborilgan diagnostikalar ko'rinadi
                             const visibleRequests = complaintRequests
 
                             const hasVisibleDiagnostics = visibleRequests.length > 0
                             const isSelected = selectedComplaintId === c.id
-                            // Boshqa bir shikoyat tanlangan bo'lsa, bu kartani
-                            // xiralashtiramiz — shifokor davolash rejasi
-                            // formasidan chalg'imasligi uchun.
                             const isDimmed = selectedComplaintId !== null && !isSelected
 
                             return (
@@ -1336,11 +1283,12 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                                     key={c.id}
                                     className={`${s.ComplaintGroup} ${isSelected ? s.ComplaintGroupSelected : ''} ${isDimmed ? s.ComplaintGroupBlurred : ''}`}
                                 >
-                                    {/* SHIKOYAT */}
+                                    {/* ✅ YANGI: to'lanmagan bo'lsa qulflangan */}
                                     <button
                                         type="button"
-                                        className={s.ComplaintCard}
+                                        className={`${s.ComplaintCard} ${!c.is_paid ? s.ComplaintCardLocked : ''}`}
                                         onClick={() => handleSelectComplaint(c)}
+                                        aria-disabled={!c.is_paid}
                                     >
                                         <div className={s.ComplaintTop}>
                                             <span className={`${s.StatusTag} ${s[c.status?.toLowerCase()]}`}>
@@ -1359,16 +1307,43 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                                                         Diagnostikalar ({visibleRequests.length})
                                                     </span>
                                                 )}
+                                                {c.is_paid && (
+                                                    <span className={s.PaidTag}>
+                                                        <i className="bi bi-check-circle-fill"></i> Ko'rik to'langan
+                                                    </span>
+                                                )}
                                             </div>
 
-                                            <span className={isSelected ? s.SelectedTag : s.PlanHintTag}>
-                                                <i className={`bi ${isSelected ? 'bi-check-circle-fill' : 'bi-plus-circle'}`}></i>
-                                                {isSelected ? 'Tanlandi' : "Reja qo'shish"}
-                                            </span>
+                                            {!c.is_paid ? (
+                                                <span className={s.UnpaidTag}>
+                                                    <i className="bi bi-lock-fill"></i> To'lov kutilmoqda
+                                                </span>
+                                            ) : (
+                                                <span className={isSelected ? s.SelectedTag : s.PlanHintTag}>
+                                                    <i className={`bi ${isSelected ? 'bi-check-circle-fill' : 'bi-plus-circle'}`}></i>
+                                                    {isSelected ? 'Tanlandi' : "Reja qo'shish"}
+                                                </span>
+                                            )}
                                         </div>
                                     </button>
 
-                                    {/* SHU SHIKOYATNING DIAGNOSTIKALARI */}
+                                    {/* ✅ YANGI: to'lov xabari */}
+                                    {!c.is_paid && (
+                                        <div className={s.PayLockBox}>
+                                            <i className="bi bi-wallet2"></i>
+                                            <div>
+                                                <strong>Ko'rik to'lovi qilinmagan</strong>
+                                                <p>
+                                                    Bemor kassaga {Number(c.price || 0).toLocaleString('uz-UZ')} so'm
+                                                    to'lagach, reja qo'shish ochiladi.
+                                                </p>
+                                            </div>
+                                            <button type="button" onClick={() => fetchPatient(true)}>
+                                                <i className="bi bi-arrow-repeat"></i> Yangilash
+                                            </button>
+                                        </div>
+                                    )}
+
                                     {requestsLoading && !hasVisibleDiagnostics ? (
                                         <div className={s.LoadingText}>
                                             <i className="bi bi-arrow-repeat"></i>
@@ -1389,8 +1364,7 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                                         )
                                     )}
 
-                                    {/* DAVOLASH REJASI FORMASI — tanlangan shikoyat ichida */}
-                                    {isSelected && renderPlanForm()}
+                                    {isSelected && c.is_paid && renderPlanForm()}
                                 </div>
                             )
                         })}
@@ -1398,7 +1372,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                 </div>
             )}
 
-            {/* RASM MODAL — zoom bilan */}
             <Modal
                 isOpen={modalOpen}
                 onClose={closeImageModal}

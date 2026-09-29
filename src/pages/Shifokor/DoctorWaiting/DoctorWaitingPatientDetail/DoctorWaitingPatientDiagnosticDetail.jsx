@@ -60,7 +60,6 @@ const getFileUrl = (path) => {
     }
 };
 
-// Helper: check if a URL points to an image (by extension)
 const isImageFile = (url) => {
     if (!url) return false;
     return /\.(jpg|jpeg|png|gif|bmp|webp|svg)(\?.*)?$/i.test(url);
@@ -74,31 +73,25 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // Patient
     const [patient, setPatient] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Complaint selection
     const [selectedComplaintId, setSelectedComplaintId] = useState(null);
 
-    // Services
     const [services, setServices] = useState([]);
     const [serviceEmployees, setServiceEmployees] = useState([]);
     const [servicesLoading, setServicesLoading] = useState(false);
 
-    // Diagnostic form
     const [selectedServices, setSelectedServices] = useState([]);
     const [diagNote, setDiagNote] = useState('');
     const [diagSaving, setDiagSaving] = useState(false);
     const [diagError, setDiagError] = useState('');
     const [diagSuccess, setDiagSuccess] = useState(false);
 
-    // Real examination requests
     const [diagnosticRequests, setDiagnosticRequests] = useState([]);
     const [requestsLoading, setRequestsLoading] = useState(false);
 
-    // Modal state for image preview
     const [modalOpen, setModalOpen] = useState(false);
     const [modalImage, setModalImage] = useState(null);
 
@@ -113,13 +106,22 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
         }
     }, [patient]);
 
+    // ✅ YANGI: kassir to'lovni olgach, oynaga qaytilganda avtomatik yangilanadi
+    useEffect(() => {
+        const onFocus = () => fetchPatient(true);
+        window.addEventListener('focus', onFocus);
+        return () => window.removeEventListener('focus', onFocus);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [id]);
+
     // ------------------------------------------------------------
     // FETCH PATIENT
     // ------------------------------------------------------------
 
-    const fetchPatient = async () => {
+    // ✅ YANGI: silent rejim — yuklanish ekranini ko'rsatmasdan yangilaydi
+    const fetchPatient = async (silent = false) => {
         try {
-            setLoading(true);
+            if (!silent) setLoading(true);
             setError(null);
 
             const token = localStorage.getItem('hospital_access');
@@ -136,9 +138,9 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
             setPatient(await res.json());
         } catch (err) {
             console.error('Patient API error:', err);
-            setError(err.message);
+            if (!silent) setError(err.message);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
@@ -230,10 +232,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
 
     const alreadySentForComplaint = existingRequestsForComplaint.length > 0;
 
-    // ------------------------------------------------------------
-    // ✅ FAQAT FAOL DIAGNOSTIKASI BOR SHIKOYATLAR
-    // ------------------------------------------------------------
-
     const visibleComplaints = useMemo(() => {
         const waitingComplaints = (patient?.complaints || []).filter(
             (complaint) => complaint.status === 'WAITING'
@@ -244,10 +242,8 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                 (request) => Number(request.medical_visit) === Number(complaint.id)
             );
 
-            // Agar diagnostika umuman yuborilmagan bo'lsa — shikoyat ko'rinadi (yuborish mumkin)
             if (requests.length === 0) return true;
 
-            // Agar yuborilgan bo'lsa — faqat bittasi ham faol bo'lsa ko'rinadi
             return requests.some((request) => request.status !== 'COMPLETED');
         });
     }, [patient, diagnosticRequests]);
@@ -260,6 +256,9 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
     };
 
     const handleSelectComplaint = (complaint) => {
+        // ✅ YANGI: ko'rik to'lovi qilinmagan bo'lsa ochilmaydi
+        if (!complaint.is_paid) return;
+
         if (selectedComplaintId === complaint.id) {
             setSelectedComplaintId(null);
             resetDiagState();
@@ -278,7 +277,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
         return serviceEmployees
             .filter((item) => Number(item.service) === Number(serviceId) && item.is_active)
             .reduce((unique, item) => {
-                // employee_detail.id = DoctorProfile ID
                 const doctorId = Number(item.employee_detail?.id);
                 const userId = Number(item.employee_detail?.user_id || item.employee);
 
@@ -298,10 +296,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
             }, []);
     };
 
-    // ------------------------------------------------------------
-    // TOGGLE SERVICE
-    // ------------------------------------------------------------
-
     const toggleService = (serviceId) => {
         setSelectedServices((prev) =>
             prev.includes(serviceId) ? prev.filter((sid) => sid !== serviceId) : [...prev, serviceId]
@@ -320,6 +314,12 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
 
         if (!selectedComplaint) {
             setDiagError('Avval shikoyatni tanlang');
+            return;
+        }
+
+        // ✅ YANGI: to'lov himoyasi
+        if (!selectedComplaint.is_paid) {
+            setDiagError("Doktor ko'rigi to'lovi hali qilinmagan");
             return;
         }
 
@@ -353,11 +353,9 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
         try {
             const token = localStorage.getItem('hospital_access');
 
-            // Har bir service uchun alohida ExaminationRequest
             for (const serviceId of selectedServices) {
                 const doctor = getDoctorsForService(serviceId)[0];
 
-                // assigned_to = DoctorProfile ID (user_id emas)
                 const payload = {
                     medical_visit: Number(medicalVisitId),
                     service: Number(serviceId),
@@ -412,10 +410,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
             setDiagError('Diagnostika so‘rovini o‘chirib bo‘lmadi');
         }
     };
-
-    // ------------------------------------------------------------
-    // OPEN IMAGE MODAL
-    // ------------------------------------------------------------
 
     const openImageModal = (url) => {
         setModalImage(url);
@@ -482,7 +476,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                     </span>
                 </div>
 
-                {/* ✅ Natija */}
                 {request.result && (
                     <div className={s.DiagResultBox}>
                         <div className={s.DiagResultHeader}>
@@ -531,7 +524,7 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
     };
 
     // ------------------------------------------------------------
-    // DIAGNOSTIKAGA YUBORISH FORMASI (shikoyat ichida ochiladi)
+    // DIAGNOSTIKAGA YUBORISH FORMASI
     // ------------------------------------------------------------
 
     const renderDiagnosticForm = () => {
@@ -704,13 +697,11 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
 
     return (
         <div className={s.DetailPage}>
-            {/* BACK */}
             <button className={s.BackBtn} onClick={() => navigate(-1)}>
                 <i className="bi bi-arrow-left"></i>
                 Bemorlar ro'yxatiga qaytish
             </button>
 
-            {/* PATIENT BANNER */}
             <div className={s.Banner}>
                 <div className={s.BannerLeft}>
                     <div className={s.Avatar}>{patient.first_name?.charAt(0) || '?'}</div>
@@ -734,7 +725,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                 </span>
             </div>
 
-            {/* PATIENT INFO */}
             <div className={s.InfoRow}>
                 <div className={s.InfoCard}>
                     <i className="bi bi-telephone"></i>
@@ -769,8 +759,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                 </div>
             </div>
 
-            {/* COMPLAINTS */}
-            {/* COMPLAINTS */}
             {visibleComplaints.length > 0 ? (
                 <div className={s.ComplaintsSection}>
                     <h2>Shikoyatlar</h2>
@@ -792,10 +780,12 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
 
                             return (
                                 <div key={complaint.id} className={`${s.ComplaintGroup}`}>
+                                    {/* ✅ YANGI: to'lanmagan bo'lsa qulflangan ko'rinish */}
                                     <button
                                         type="button"
-                                        className={s.ComplaintCard}
+                                        className={`${s.ComplaintCard} ${!complaint.is_paid ? s.ComplaintCardLocked : ''}`}
                                         onClick={() => handleSelectComplaint(complaint)}
+                                        aria-disabled={!complaint.is_paid}
                                     >
                                         <div className={s.ComplaintTop}>
                                             <span
@@ -820,8 +810,35 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                                                     Diagnostikaga yuborilgan ({complaintRequests.length})
                                                 </span>
                                             )}
+
+                                            {complaint.is_paid ? (
+                                                <span className={s.PaidTag}>
+                                                    <i className="bi bi-check-circle-fill"></i> Ko'rik to'langan
+                                                </span>
+                                            ) : (
+                                                <span className={s.UnpaidTag}>
+                                                    <i className="bi bi-lock-fill"></i> To'lov kutilmoqda
+                                                </span>
+                                            )}
                                         </div>
                                     </button>
+
+                                    {/* ✅ YANGI: to'lov xabari */}
+                                    {!complaint.is_paid && (
+                                        <div className={s.PayLockBox}>
+                                            <i className="bi bi-wallet2"></i>
+                                            <div>
+                                                <strong>Ko'rik to'lovi qilinmagan</strong>
+                                                <p>
+                                                    Bemor kassaga {Number(complaint.price || 0).toLocaleString('uz-UZ')} so'm
+                                                    to'lagach, diagnostikaga yuborish ochiladi.
+                                                </p>
+                                            </div>
+                                            <button type="button" onClick={() => fetchPatient(true)}>
+                                                <i className="bi bi-arrow-repeat"></i> Yangilash
+                                            </button>
+                                        </div>
+                                    )}
 
                                     {requestsLoading && !hasDiagnostics ? (
                                         <div className={s.LoadingText}>
@@ -843,7 +860,7 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                                         )
                                     )}
 
-                                    {isSelected && !hasDiagnostics && renderDiagnosticForm()}
+                                    {isSelected && complaint.is_paid && !hasDiagnostics && renderDiagnosticForm()}
                                 </div>
                             );
                         })}
@@ -869,7 +886,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                 )
             )}
 
-            {/* IMAGE MODAL (fullWidth + zoom) */}
             <Modal
                 isOpen={modalOpen}
                 onClose={closeImageModal}

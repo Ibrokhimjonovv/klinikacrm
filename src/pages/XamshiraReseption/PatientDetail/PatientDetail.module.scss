@@ -809,3 +809,84 @@
         grid-template-columns: 1fr;
     }
 }
+
+
+.VisitPayRow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+}
+
+.VisitPrice {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.PaidTag,
+.UnpaidTag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+}
+
+.PaidTag { background: #d1fae5; color: #047857; }
+.UnpaidTag { background: #fee2e2; color: #b91c1c; }
+
+.VisitPayBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: #16a34a;
+    color: #fff;
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+
+    &:hover { background: #15803d; }
+}
+
+.PayIcon {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.PayAmount {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 8px 0 14px;
+}
+
+.ConfirmPayBtn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: #16a34a;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+
+    &:hover:not(:disabled) { background: #15803d; }
+    &:disabled { opacity: 0.6; cursor: default; }
+}
