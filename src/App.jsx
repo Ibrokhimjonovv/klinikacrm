@@ -57,8 +57,6 @@ import CashierServicesPayments from './pages/Cashier/CashierServicesPayments/Cas
 import CashierDoctorServicesPayments from './pages/Cashier/CashierDoctorServicesPayments/CashierDoctorServicesPayment'
 
 export const api = 'http://10.244.157.222:8000/api/v1'
-// export const api = 'https://bkapi.aoc.uz/api/v1'
-// export const api = 'https://6397-87-192-225-30.ngrok-free.app/api/v1'
 
 function App() {
   const { user } = useAppContext()

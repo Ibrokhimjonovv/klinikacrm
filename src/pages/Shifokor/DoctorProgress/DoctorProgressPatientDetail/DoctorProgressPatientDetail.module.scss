@@ -3,6 +3,19 @@ $primary-light: #16264a;
 $border: #e5e7eb;
 $text-muted: #6b7280;
 
+// Xizmat (ko'k) va dori (yashil) ranglari
+$svc-main: #3b5fe0;
+$svc-dark: #2a4bc9;
+$svc-bg: #f5f8ff;
+$svc-bg-done: #e4ecff;
+$svc-border: #dbe6ff;
+
+$med-main: #16a34a;
+$med-dark: #15803d;
+$med-bg: #f3fdf6;
+$med-bg-done: #dcf7e6;
+$med-border: #d3f3de;
+
 .State {
     display: flex;
     align-items: center;
@@ -233,7 +246,7 @@ $text-muted: #6b7280;
 
 .PlanDaysGrid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
 
     @media (max-width: 1000px) {
@@ -421,17 +434,13 @@ $text-muted: #6b7280;
     align-items: center;
     justify-content: center;
     gap: 8px;
-
     padding: 10px 18px;
     border: none;
     border-radius: 10px;
-
     background: #16a34a;
     color: #fff;
-
     font-size: 14px;
     font-weight: 600;
-
     cursor: pointer;
     transition: all 0.2s ease;
 
@@ -459,13 +468,10 @@ $text-muted: #6b7280;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-
     padding: 10px 16px;
     border-radius: 10px;
-
     background: #ecfdf3;
     color: #15803d;
-
     font-size: 14px;
     font-weight: 600;
 
@@ -474,11 +480,8 @@ $text-muted: #6b7280;
     }
 }
 
-
-
 .EndConfirmBox {
     text-align: center;
-    padding: 8px;
     padding: 30px 20px;
 }
 
@@ -585,6 +588,9 @@ $text-muted: #6b7280;
     }
 }
 
+// ------------------------------------------------------------
+// Umumiy karta (xizmat va dori uchun asos)
+// ------------------------------------------------------------
 .MediaCard {
     display: flex;
     flex-direction: column;
@@ -598,9 +604,101 @@ $text-muted: #6b7280;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 }
 
+.MediaCard.MediaCardMed {
+    background: $med-bg;
+    border-color: $med-border;
+    border-left: 3px solid $med-main;
+
+    .MediaCardIcon {
+        background: #d3f3de;
+        color: $med-dark;
+    }
+
+    .MediaCardLabel {
+        color: $med-dark;
+    }
+
+    &.MediaCardDone {
+        background: $med-bg-done;
+        border-color: #b4ebc8;
+        border-left: 3px solid $med-main;
+
+        .MediaCardIcon {
+            background: #bdeccf;
+            color: $med-dark;
+        }
+
+        .MediaCardLabel {
+            color: $med-dark;
+        }
+    }
+}
+
 .MediaCardDone {
     border-color: #a7f3d0;
     background: #f0fdf9;
+}
+
+// ✅ XIZMAT kartasi — ko'k
+.MediaCardSvc {
+    background: $svc-bg;
+    border-color: $svc-border;
+    border-left: 3px solid $svc-main;
+
+    .MediaCardIcon {
+        background: #dbe6ff;
+        color: $svc-dark;
+    }
+
+    .MediaCardLabel {
+        color: $svc-dark;
+    }
+
+    &.MediaCardDone {
+        background: $svc-bg-done;
+        border-color: #bfd1ff;
+        border-left-color: $svc-main;
+
+        .MediaCardIcon {
+            background: #c7d7ff;
+            color: $svc-dark;
+        }
+
+        .MediaCardLabel {
+            color: $svc-dark;
+        }
+    }
+}
+
+// ✅ DORI kartasi — yashil
+.MediaCardMed {
+    background: $med-bg;
+    border-color: $med-border;
+    border-left: 3px solid $med-main;
+
+    .MediaCardIcon {
+        background: #d3f3de;
+        color: $med-dark;
+    }
+
+    .MediaCardLabel {
+        color: $med-dark;
+    }
+
+    &.MediaCardDone {
+        background: $med-bg-done;
+        border-color: #b4ebc8;
+        border-left-color: $med-main;
+
+        .MediaCardIcon {
+            background: #bdeccf;
+            color: $med-dark;
+        }
+
+        .MediaCardLabel {
+            color: $med-dark;
+        }
+    }
 }
 
 .MediaCardTop {
@@ -652,10 +750,6 @@ $text-muted: #6b7280;
     line-height: 1.4;
 }
 
-// ------------------------------------------------------------
-// ✅ YANGI: har bir band ostidagi xizmat / vaqt / narx / davomiylik
-// belgilari (API'dan kelayotgan service_detail va time uchun).
-// ------------------------------------------------------------
 .ItemMetaRow {
     display: flex;
     flex-wrap: wrap;
@@ -778,6 +872,23 @@ $text-muted: #6b7280;
     }
 }
 
+// Rangli kartalar ichida checkbox va chiziq ham mos rangda
+.MediaCardSvc .MediaCheckRow {
+    border-top-color: $svc-border;
+
+    input[type="checkbox"] {
+        accent-color: $svc-main;
+    }
+}
+
+.MediaCardMed .MediaCheckRow {
+    border-top-color: $med-border;
+
+    input[type="checkbox"] {
+        accent-color: $med-main;
+    }
+}
+
 .MediaCheckRowDisabled {
     opacity: 0.5;
     cursor: not-allowed;
@@ -790,6 +901,22 @@ $text-muted: #6b7280;
 .MediaCheckRowChecked {
     color: #047857;
     font-weight: 600;
+}
+
+.MediaCardSvc .MediaCheckRowChecked {
+    color: $svc-dark;
+
+    i {
+        color: $svc-dark;
+    }
+}
+
+.MediaCardMed .MediaCheckRowChecked {
+    color: $med-dark;
+
+    i {
+        color: $med-dark;
+    }
 }
 
 .MediaPreviewModal {
@@ -812,7 +939,7 @@ $text-muted: #6b7280;
     border-radius: 14px;
     padding: 14px;
     background: #fff;
-    transition: .2s;
+    transition: 0.2s;
 }
 
 .TextTaskCardDone {
@@ -851,10 +978,6 @@ $text-muted: #6b7280;
     }
 }
 
-// ------------------------------------------------------------
-// ✅ YANGI: kunlik dorilar bloki (TreatmentPlanDay.medicines,
-// item'lardan alohida keladigan massiv).
-// ------------------------------------------------------------
 .DayMedicinesBox {
     margin-top: 10px;
     padding-top: 10px;
@@ -1004,12 +1127,13 @@ $text-muted: #6b7280;
     transition: opacity 0.2s;
 }
 
+// ------------------------------------------------------------
+// Fallback ko'rinish (steps yo'q bo'lganda): Xizmatlar / Dorilar bloklari
+// ------------------------------------------------------------
 .DayServicesBox {
     margin-bottom: 12px;
     padding: 12px 12px 14px;
     border-radius: 12px;
-
-    // ✅ Default: Xizmatlar bloki — ko'k (moviy) ottenka
     background: #eef4ff;
     border: 1px solid #dbe6ff;
     border-left: 3px solid #3b5fe0;
@@ -1044,7 +1168,6 @@ $text-muted: #6b7280;
     }
 }
 
-// ✅ Dorilar bloki — yashil ottenka bilan farqlanadi
 .DayServicesBoxMed {
     background: #eefcf3;
     border: 1px solid #d3f3de;
@@ -1055,6 +1178,47 @@ $text-muted: #6b7280;
 
         i {
             color: #15803d;
+        }
+    }
+}
+
+// ------------------------------------------------------------
+// ✅ YANGI: steps ketma-ketligi uchun neytral konteyner
+// (ichidagi kartalar o'zi ko'k / yashil rang oladi)
+// ------------------------------------------------------------
+.DayStepsBox {
+    margin-bottom: 12px;
+    padding: 12px 12px 14px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 3px solid $primary;
+
+    .DayServicesTitleRow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 8px;
+
+        p.DayServicesTitle {
+            margin-bottom: 0;
+        }
+    }
+
+    p.DayServicesTitle {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        color: $primary;
+        margin: 0 0 8px;
+
+        i {
+            color: $primary;
         }
     }
 }
@@ -1102,16 +1266,6 @@ $text-muted: #6b7280;
         color: #17643c;
         font-weight: 600;
     }
-}
-
-.ServiceResultText {
-    margin: 0;
-    font-size: 13px;
-    color: #374151;
-    background: #fff;
-    border: 1px solid $border;
-    border-radius: 8px;
-    padding: 8px 10px;
 }
 
 .ServiceResultText {
@@ -1215,5 +1369,52 @@ $text-muted: #6b7280;
         font-size: 13px;
         max-width: 220px;
         line-height: 1.5;
+    }
+}
+
+// ------------------------------------------------------------
+// Step bloki
+// ------------------------------------------------------------
+.StepBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border-left: 3px solid #cbd5e1;
+    border-radius: 8px;
+    background: rgba(148, 163, 184, 0.06);
+}
+
+.StepBadge {
+    align-self: flex-start;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    background: #e2e8f0;
+    padding: 2px 10px;
+    border-radius: 999px;
+}
+
+.StepHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.StepTime {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    color: $primary;
+    background: #fff;
+    border: 1px solid $border;
+    padding: 2px 10px;
+    border-radius: 999px;
+
+    i {
+        font-size: 12px;
     }
 }

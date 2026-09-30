@@ -70,13 +70,57 @@ const isImageUrl = (url) => {
     return /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(clean)
 }
 
-// ✅ Bir kun ichidagi item uchun mos keluvchi day.services yozuvini
-// topadi. Natija matni (result_text) va fayli (result_file_url)
-// shu yerda saqlanadi, item'ning o'zida emas.
+// Kun ichidagi day.services yozuvini xizmat ID bo'yicha topadi.
+// (day.services har bir item uchun emas, xizmat turi uchun bitta yozuv)
 const findMatchedService = (day, item) => {
+    const itemServiceId = item.service ?? item.service_detail?.id
+    if (itemServiceId == null) return null
+
     return (day.services || []).find(
-        (sv) => sv.service === item.service || sv.service_detail?.id === item.service_detail?.id
+        (sv) => (sv.service ?? sv.service_detail?.id) === itemServiceId
+    ) || null
+}
+
+// ✅ day.steps ni step_number bo'yicha tartiblaydi va har bir stepdagi
+// xizmat/dori uchun "necha marta" (occurrence) ma'lumotini hisoblaydi.
+const buildStepsWithOccurrence = (day) => {
+    const steps = [...(day.steps || [])].sort(
+        (a, b) => (a.step_number ?? 0) - (b.step_number ?? 0)
     )
+
+    const svcTotals = {}
+    const medTotals = {}
+    steps.forEach((st) => {
+        if (st.service) {
+            const k = st.service.service ?? st.service.service_detail?.id
+            svcTotals[k] = (svcTotals[k] || 0) + 1
+        }
+        if (st.medicine) {
+            const k = st.medicine.medicine ?? st.medicine.medicine_detail?.id
+            medTotals[k] = (medTotals[k] || 0) + 1
+        }
+    })
+
+    const svcRunning = {}
+    const medRunning = {}
+
+    return steps.map((st) => {
+        let svcOcc = null
+        let medOcc = null
+
+        if (st.service) {
+            const k = st.service.service ?? st.service.service_detail?.id
+            svcRunning[k] = (svcRunning[k] || 0) + 1
+            svcOcc = { index: svcRunning[k], total: svcTotals[k] }
+        }
+        if (st.medicine) {
+            const k = st.medicine.medicine ?? st.medicine.medicine_detail?.id
+            medRunning[k] = (medRunning[k] || 0) + 1
+            medOcc = { index: medRunning[k], total: medTotals[k] }
+        }
+
+        return { step: st, svcOcc, medOcc }
+    })
 }
 
 const DoctorProgressPatientDetail = () => {
@@ -100,7 +144,6 @@ const DoctorProgressPatientDetail = () => {
 
     const [mediaGallery, setMediaGallery] = useState(null)
 
-    // ✅ Natija faylini (rasm) katta qilib ko'rsatadigan modal
     const [modalOpen, setModalOpen] = useState(false)
     const [modalImage, setModalImage] = useState(null)
 
@@ -113,9 +156,6 @@ const DoctorProgressPatientDetail = () => {
         setModalImage(null)
     }
 
-    // ✅ "Natijani ko'rish" bosilganda avval ochiladigan
-    // modal — ichida doktor izohi (result_text) va "Faylni ko'rish"
-    // tugmasi bo'ladi.
     const [resultModal, setResultModal] = useState(null)
 
     const openResultModal = (matchedService) => {
@@ -388,27 +428,28 @@ const DoctorProgressPatientDetail = () => {
     if (error) return <div className={s.State}><p>Xatolik: {error}</p></div>
     if (!patient) return null
 
-    // ✅ TUZATILDI: item.time ham qo'shildi
-    const renderItemMeta = (item) => {
+    const renderItemMeta = (item, hideTime = false) => {
+        const showTime = !hideTime && item.time
+        const serviceName = item.service_detail?.name
         const hasMeta =
-            item.text ||
-            item.time ||
+            showTime ||
+            serviceName ||
             item.service_detail?.price ||
             item.service_detail?.duration_minutes
         if (!hasMeta) return null
 
         return (
             <div className={s.ItemMetaRow}>
-                {item.time && (
+                {showTime && (
                     <span className={s.ItemMetaTag}>
                         <i className="bi bi-clock"></i>
                         {item.time}
                     </span>
                 )}
-                {item.text && (
+                {serviceName && (
                     <span className={s.ItemMetaTag}>
-                        <i className="bi bi-chat-square-text"></i>
-                        {item.text}
+                        <i className="bi bi-heart-pulse"></i>
+                        {serviceName}
                     </span>
                 )}
                 {item.service_detail?.price != null && (
@@ -427,12 +468,11 @@ const DoctorProgressPatientDetail = () => {
         )
     }
 
-    // ✅ DONE bo'lgan xizmatning natijasi bor-yo'qligini
-    // tekshiradi va bosilganda o'ng tarafdan izoh + fayl modalini
-    // ochadigan tugmani chiqaradi.
-    const renderServiceResultTrigger = (matchedService) => {
-        const isDone = matchedService?.status === 'DONE'
-        if (!isDone) return null
+    // Item o'zi bajarilgan VA day.services yozuvi DONE bo'lsagina tugma chiqadi
+    const renderServiceResultTrigger = (matchedService, item) => {
+        const itemDone = item.checked && item.status === 'DONE'
+        const serviceDone = matchedService?.status === 'DONE'
+        if (!itemDone || !serviceDone) return null
 
         return (
             <button
@@ -446,10 +486,7 @@ const DoctorProgressPatientDetail = () => {
         )
     }
 
-    // ✅ Har ikkala holatda ham (dif=true yoki false) mos keluvchi
-    // day.services yozuvini topib, DONE bo'lsa natijani ko'rish
-    // tugmasini chiqaradi.
-    const renderItemDisplay = (plan, day, item, occurrenceIndex, occurrenceTotal) => {
+    const renderItemDisplay = (plan, day, item, occurrenceIndex, occurrenceTotal, hideTime = false) => {
         const checkedName = checkedByName(item)
         const showOccurrence = occurrenceTotal > 1
 
@@ -464,7 +501,7 @@ const DoctorProgressPatientDetail = () => {
             const hasFile = !!item.medical_media || !!item.file
 
             return (
-                <div className={`${s.MediaCard} ${hasFile ? s.MediaCardDone : ''}`}>
+                <div className={`${s.MediaCard} ${s.MediaCardSvc} ${hasFile ? s.MediaCardDone : ''}`}>
                     <div className={s.MediaCardTop}>
                         <div className={s.MediaCardIcon}>
                             <i className={`bi ${hasFile ? 'bi-check-circle-fill' : 'bi-image'}`}></i>
@@ -474,8 +511,8 @@ const DoctorProgressPatientDetail = () => {
                                 {occurrenceBadge}
                                 {hasFile ? 'Fayl yuklandi' : 'Media kutilmoqda'}
                             </p>
-                            <p className={s.MediaCardDesc}>{item.service_detail?.name || 'Xizmat'}</p>
-                            {renderItemMeta(item)}
+                            <p className={s.MediaCardDesc}>{item.text || item.service_detail?.name || 'Xizmat'}</p>
+                            {renderItemMeta(item, hideTime)}
                         </div>
                     </div>
 
@@ -521,7 +558,7 @@ const DoctorProgressPatientDetail = () => {
                         )}
                     </div>
 
-                    {renderServiceResultTrigger(matchedService)}
+                    {renderServiceResultTrigger(matchedService, item)}
 
                     <label
                         className={`${s.MediaCheckRow} ${!hasFile ? s.MediaCheckRowDisabled : ''} ${item.checked ? s.MediaCheckRowChecked : ''}`}
@@ -549,7 +586,7 @@ const DoctorProgressPatientDetail = () => {
         }
 
         return (
-            <div className={`${s.MediaCard} ${item.checked ? s.MediaCardDone : ''}`}>
+            <div className={`${s.MediaCard} ${s.MediaCardSvc} ${item.checked ? s.MediaCardDone : ''}`}>
                 <div className={s.MediaCardTop}>
                     <div className={s.MediaCardIcon}>
                         <i
@@ -569,14 +606,14 @@ const DoctorProgressPatientDetail = () => {
                         </p>
 
                         <p className={s.MediaCardDesc}>
-                            {item.service_detail?.name || 'Xizmat'}
+                            {item.text || item.service_detail?.name || 'Xizmat'}
                         </p>
 
-                        {renderItemMeta(item)}
+                        {renderItemMeta(item, hideTime)}
                     </div>
                 </div>
 
-                {renderServiceResultTrigger(matchedService)}
+                {renderServiceResultTrigger(matchedService, item)}
 
                 <label
                     className={`${s.MediaCheckRow} ${item.checked
@@ -625,7 +662,7 @@ const DoctorProgressPatientDetail = () => {
         )
 
         return (
-            <div className={`${s.MediaCard} ${med.checked ? s.MediaCardDone : ''}`}>
+            <div className={`${s.MediaCard} ${s.MediaCardMed} ${med.checked ? s.MediaCardDone : ''}`}>
                 <div className={s.MediaCardTop}>
                     <div className={s.MediaCardIcon}>
                         <i className={`bi ${med.checked ? 'bi-check-circle-fill' : 'bi-capsule'}`}></i>
@@ -681,29 +718,117 @@ const DoctorProgressPatientDetail = () => {
         )
     }
 
-    // ✅ TUZATILDI: dayNoteText olib tashlandi
-    // (chunki u day.items dagi birinchi xizmatning izohi edi,
-    // dorilarga aloqasi yo'q edi)
-    const renderDayMedicines = (plan, day) => {
-        if (!day.medicines || day.medicines.length === 0) return null
+    // ✅ YANGI: kun ichidagi xizmat va dorilarni day.steps ketma-ketligida chiqaradi.
+    // Har bir stepda: avval xizmat, keyin dori.
+    // Checkbox holati doim yangi bo'lishi uchun day.items / day.medicines
+    // dan jonli yozuv olinadi (step ichidagi nusxa eskirib qolishi mumkin).
+    const renderDaySteps = (plan, day) => {
+        const stepsWithOcc = buildStepsWithOccurrence(day)
 
-        const medsWithOccurrence = withOccurrenceInfo(
-            day.medicines,
-            (m) => m.medicine ?? m.medicine_detail?.id
-        )
+        // Steps kelmasa — eski ko'rinish (fallback)
+        if (stepsWithOcc.length === 0) {
+            const itemsWithOccurrence = withOccurrenceInfo(
+                day.items,
+                (it) => it.service ?? it.service_detail?.id
+            )
+            const medsWithOccurrence = withOccurrenceInfo(
+                day.medicines,
+                (m) => m.medicine ?? m.medicine_detail?.id
+            )
+
+            return (
+                <>
+                    {day.items?.length > 0 && (
+                        <div className={s.DayServicesBox}>
+                            <div className={s.DayServicesTitleRow}>
+                                <p className={s.DayServicesTitle}>
+                                    <i className="bi bi-list-check"></i> Xizmatlar
+                                </p>
+                            </div>
+                            <ul className={s.CheckList}>
+                                {itemsWithOccurrence.map(({ entry: item, occurrenceIndex, occurrenceTotal }) => (
+                                    <li key={item.id}>
+                                        {renderItemDisplay(plan, day, item, occurrenceIndex, occurrenceTotal)}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {day.medicines?.length > 0 && (
+                        <div className={`${s.DayServicesBox} ${s.DayServicesBoxMed}`}>
+                            <p className={s.DayServicesTitle}>
+                                <i className="bi bi-capsule"></i> Dorilar
+                            </p>
+                            <ul className={s.CheckList}>
+                                {medsWithOccurrence.map(({ entry: med, occurrenceIndex, occurrenceTotal }) => (
+                                    <li key={med.id}>
+                                        {renderMedicineDisplay(plan, day, med, occurrenceIndex, occurrenceTotal)}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+                </>
+            )
+        }
+
+        const itemsById = new Map((day.items || []).map((it) => [it.id, it]))
+        const medsById = new Map((day.medicines || []).map((m) => [m.id, m]))
 
         return (
-            <div className={`${s.DayServicesBox} ${s.DayServicesBoxMed}`}>
-                <p className={s.DayServicesTitle}>
-                    <i className="bi bi-capsule"></i> Dorilar
-                </p>
+            <div className={s.DayStepsBox}>
+                <div className={s.DayServicesTitleRow}>
+                    <p className={s.DayServicesTitle}>
+                        <i className="bi bi-list-ol"></i> Davolash ketma-ketligi
+                    </p>
+                </div>
 
                 <ul className={s.CheckList}>
-                    {medsWithOccurrence.map(({ entry: med, occurrenceIndex, occurrenceTotal }) => (
-                        <li key={med.id}>
-                            {renderMedicineDisplay(plan, day, med, occurrenceIndex, occurrenceTotal)}
-                        </li>
-                    ))}
+                    {stepsWithOcc.map(({ step, svcOcc, medOcc }, idx) => {
+                        const liveItem = step.service
+                            ? (itemsById.get(step.service.id) || step.service)
+                            : null
+                        const liveMed = step.medicine
+                            ? (medsById.get(step.medicine.id) || step.medicine)
+                            : null
+
+                        return (
+                            <li key={step.step_number ?? idx}>
+                                <div className={s.StepBlock}>
+                                    <div className={s.StepHead}>
+                                        <span className={s.StepBadge}>
+                                            {step.step_number ?? idx + 1}-qadam
+                                        </span>
+
+                                        {liveItem?.time && (
+                                            <span className={s.StepTime}>
+                                                <i className="bi bi-clock"></i>
+                                                {liveItem.time}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {liveItem && renderItemDisplay(
+                                        plan,
+                                        day,
+                                        liveItem,
+                                        svcOcc?.index ?? 1,
+                                        svcOcc?.total ?? 1,
+                                        true
+                                    )}
+
+                                    {liveMed && renderMedicineDisplay(
+                                        plan,
+                                        day,
+                                        liveMed,
+                                        medOcc?.index ?? 1,
+                                        medOcc?.total ?? 1
+                                    )}
+                                </div>
+                            </li>
+                        )
+                    })}
                 </ul>
             </div>
         )
@@ -842,42 +967,16 @@ const DoctorProgressPatientDetail = () => {
                                 </div>
 
                                 <div className={s.PlanDaysGrid}>
-                                    {plan.days?.map((day, dayIndex) => {
-                                        const itemsWithOccurrence = withOccurrenceInfo(
-                                            day.items,
-                                            (it) => it.service ?? it.service_detail?.id
-                                        )
+                                    {plan.days?.map((day, dayIndex) => (
+                                        <div key={day.id} className={s.PlanDayCard}>
+                                            <span className={s.DayBadge}>{day.day_number || dayIndex + 1}-kun</span>
 
-                                        // ⚠️ dayTime OLIB TASHLANDI — endi har bir item
-                                        // o'z vaqtini renderItemMeta orqali ko'rsatadi
+                                            {/* ✅ Xizmat + dori endi steps ketma-ketligida */}
+                                            {renderDaySteps(plan, day)}
 
-                                        return (
-                                            <div key={day.id} className={s.PlanDayCard}>
-                                                <span className={s.DayBadge}>{day.day_number || dayIndex + 1}-kun</span>
-
-                                                {day.items?.length > 0 && (
-                                                    <div className={s.DayServicesBox}>
-                                                        <div className={s.DayServicesTitleRow}>
-                                                            <p className={s.DayServicesTitle}>
-                                                                <i className="bi bi-list-check"></i> Xizmatlar
-                                                            </p>
-                                                        </div>
-                                                        <ul className={s.CheckList}>
-                                                            {itemsWithOccurrence.map(({ entry: item, occurrenceIndex, occurrenceTotal }) => (
-                                                                <li key={item.id}>
-                                                                    {renderItemDisplay(plan, day, item, occurrenceIndex, occurrenceTotal)}
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                )}
-
-                                                {renderDayMedicines(plan, day)}
-
-                                                {day.note && <p className={s.PlanDayNote}>{day.note}</p>}
-                                            </div>
-                                        )
-                                    })}
+                                            {day.note && <p className={s.PlanDayNote}>{day.note}</p>}
+                                        </div>
+                                    ))}
                                 </div>
 
                                 <div className={s.PlanActions}>
@@ -999,6 +1098,7 @@ const DoctorProgressPatientDetail = () => {
                     </div>
                 )}
             </Modal>
+
             <Modal isOpen={!!resultModal} onClose={closeResultModal} side="right">
                 {resultModal && (
                     <div className={s.ResultModalBox}>
@@ -1041,7 +1141,6 @@ const DoctorProgressPatientDetail = () => {
                 )}
             </Modal>
 
-            {/* ✅ Rasmni katta qilib ko'rsatuvchi modal */}
             <Modal isOpen={modalOpen} onClose={closeImageModal} fullWidth>
                 {modalImage && (
                     <ImageZoomViewer src={modalImage} alt="Natija fayli" />
