@@ -298,7 +298,7 @@ const AssistantDoctorPTaskDetail = () => {
         <div className={s.DetailPage}>
             <button
                 className={s.BackBtn}
-                onClick={() => navigate('/assistant-doctor/tasks')}
+                onClick={() => navigate(-1)}
             >
                 <i className="bi bi-arrow-left"></i> Bemorlar ro'yxatiga qaytish
             </button>

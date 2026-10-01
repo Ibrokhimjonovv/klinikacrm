@@ -92,7 +92,7 @@ const PatientTreatmentsComplated = () => {
                             <div
                                 key={plan.id}
                                 className={s.PlanCard}
-                                onClick={() => navigate(`/me/treatments-complated-list/${plan.id}`)}
+                                onClick={() => navigate(`/me/treatments/completed/${plan.id}`)}
                             >
                                 <div className={s.PlanCardLeft}>
                                     <div className={s.PlanIcon}>

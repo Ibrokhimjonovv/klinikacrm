@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import s from './CashierTreatmentPayment.module.scss';
 import { api } from '../../../App'; // yo'lni loyihangizga moslang
 import Modal from '../../../components/Modal/Modal';
-// import { printPlanReceipt } from './PlanReceipt';
+import { printPlanReceipt } from '../../../components/shared/CashierReceipt/PlanReceipt';
+
 
 // ============================================================
 // Yordamchi funksiyalar
@@ -213,17 +214,17 @@ const CashierTreatmentPayment = () => {
       const statusData = statusRes.ok ? await statusRes.json() : null;
 
       const p = plan.patient || {};
-      // printPlanReceipt({
-      //   id: plan.plan_id,
-      //   name: [p.first_name, p.last_name].filter(Boolean).join(' ') || fullName(p),
-      //   birthDate: p.birth_date || p.date_of_birth || p.birthday || '',
-      //   careType: CARE_TYPE[plan.care_type] || plan.care_type,
-      //   diagnosis: plan.diagnosis,
-      //   total: daysData?.total ?? plan.total,
-      //   paid: daysData?.paid ?? plan.paid,
-      //   remaining: daysData?.remaining ?? plan.remaining,
-      //   payments: statusData?.payments || [],
-      // });
+      printPlanReceipt({
+        id: plan.plan_id,
+        name: [p.first_name, p.last_name].filter(Boolean).join(' ') || fullName(p),
+        birthDate: p.birth_date || p.date_of_birth || p.birthday || '',
+        careType: CARE_TYPE[plan.care_type] || plan.care_type,
+        diagnosis: plan.diagnosis,
+        total: daysData?.total ?? plan.total,
+        paid: daysData?.paid ?? plan.paid,
+        remaining: daysData?.remaining ?? plan.remaining,
+        payments: statusData?.payments || [],
+      });
     } catch (err) {
       console.error('Chek chiqarishda xatolik:', err);
     } finally {

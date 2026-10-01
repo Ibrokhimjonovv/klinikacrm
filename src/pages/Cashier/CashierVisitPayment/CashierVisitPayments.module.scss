@@ -455,3 +455,40 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     font-size: 13px;
     margin: 16px 0 0;
 }
+
+// ---------- To'lov usuli ----------
+.MethodRow {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.MethodBtn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 8px;
+    border: 1px solid $border;
+    background: #fff;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: $primary;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+
+    i { font-size: 18px; color: $muted; }
+
+    &:hover { border-color: $primary; }
+}
+
+.MethodBtnActive {
+    border-color: $primary;
+    background: $primary;
+    color: #fff;
+
+    i { color: #fff; }
+}

@@ -222,7 +222,7 @@ const NursePatientDetail = () => {
     };
 
     const openVisitDetail = (visitId) => {
-        navigate(`/nurse-patients/${id}/visits/${visitId}`);
+        navigate(`/nurse/patients/${id}/visits/${visitId}`);
     };
 
     const handleEditSuccess = () => {
@@ -270,7 +270,7 @@ const NursePatientDetail = () => {
         <div className={s.DetailPage}>
             <div className={s.TopBar}>
                 <div className={s.BackBtn}>
-                    <Link to="/nurse-patients" className={s.NotActive}>Bemorlar ro'yxati</Link> / <span>{patient.first_name} {patient.last_name}</span>
+                    <Link to="/nurse/patients/patients" className={s.NotActive}>Bemorlar ro'yxati</Link> / <span>{patient.first_name} {patient.last_name}</span>
                 </div>
 
                 <div className={s.ActionButtons}>

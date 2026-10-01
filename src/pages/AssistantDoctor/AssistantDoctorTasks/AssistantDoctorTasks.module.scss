@@ -70,6 +70,51 @@ $primary: #0e1b33;
     }
 }
 
+.SearchRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.FilterTabs {
+    display: flex;
+    background: #f4f4f4;
+    border-radius: 8px;
+    padding: 4px;
+    gap: 2px;
+
+    button {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: none;
+        background: transparent;
+        padding: 7px 14px;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #888;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .FilterActive {
+        background: #fff;
+        color: #0e1b33;
+        font-weight: 600;
+    }
+}
+
+.FilterCount {
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(14, 27, 51, 0.08);
+    color: #0e1b33;
+    padding: 1px 7px;
+    border-radius: 20px;
+}
+
 .Empty {
     color: #999;
     text-align: center;
@@ -170,6 +215,16 @@ $primary: #0e1b33;
         background-color: #fee2e2;
         color: #b91c1c;
     }
+
+    &.paid {
+        background-color: #e9f7ef;
+        color: #17643c;
+    }
+
+    &.unpaid {
+        background-color: #fee2e2;
+        color: #b91c1c;
+    }
 }
 
 .ArrowCell {
@@ -234,5 +289,23 @@ $primary: #0e1b33;
         i {
             color: $primary;
         }
+    }
+}
+
+.RowDisabled {
+    cursor: not-allowed !important;
+
+    td {
+        opacity: 0.65;
+    }
+}
+
+.CardDisabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+
+    &:hover {
+        box-shadow: none;
+        transform: none;
     }
 }

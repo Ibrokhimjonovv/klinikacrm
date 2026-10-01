@@ -63,6 +63,8 @@ const AssistantDoctorPatients = () => {
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [payFilter, setPayFilter] = useState('ALL') // ALL | PAID | UNPAID
+    const [statusFilter, setStatusFilter] = useState('ALL') // ALL | pending | progress | done | cancelled
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -97,9 +99,20 @@ const AssistantDoctorPatients = () => {
         fetchTasks()
     }, [])
 
+    const paidCount = tasks.filter(p => p.isPaid).length
+    const unpaidCount = tasks.length - paidCount
+
+    const countByStatus = (key) => tasks.filter(p => p.statusKey === key).length
+
     const filtered = tasks.filter(p => {
         const fullName = `${p.first_name} ${p.last_name} ${p.middle_name}`.toLowerCase()
-        return fullName.includes(search.toLowerCase())
+        const matchName = fullName.includes(search.toLowerCase())
+        const matchPay =
+            payFilter === 'ALL' ||
+            (payFilter === 'PAID' && p.isPaid) ||
+            (payFilter === 'UNPAID' && !p.isPaid)
+        const matchStatus = statusFilter === 'ALL' || p.statusKey === statusFilter
+        return matchName && matchPay && matchStatus
     })
 
     // ⚠️ Qatorga bosish: faqat to'langan bo'lsa detail sahifaga o'tadi
@@ -111,7 +124,7 @@ const AssistantDoctorPatients = () => {
             )
             return
         }
-        navigate(`/waiting-patients/${p.id}`)
+        navigate(`/doctor/patients/waiting/${p.id}`)
     }
 
     if (loading) {
@@ -164,6 +177,38 @@ const AssistantDoctorPatients = () => {
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
+                </div>
+                <div className={s.FilterTabs}>
+                    {[
+                        { key: 'ALL', label: 'Barchasi', count: tasks.length },
+                        { key: 'PAID', label: "To'langan", count: paidCount },
+                        { key: 'UNPAID', label: "To'lanmagan", count: unpaidCount },
+                    ].map((f) => (
+                        <button
+                            key={f.key}
+                            className={payFilter === f.key ? s.FilterActive : ''}
+                            onClick={() => setPayFilter(f.key)}
+                        >
+                            {f.label} <span className={s.FilterCount}>{f.count}</span>
+                        </button>
+                    ))}
+                </div>
+                <div className={s.FilterTabs}>
+                    {[
+                        { key: 'ALL', label: 'Barcha holat', count: tasks.length },
+                        { key: 'pending', label: 'Kutilmoqda', count: countByStatus('pending') },
+                        { key: 'progress', label: 'Jarayonda', count: countByStatus('progress') },
+                        { key: 'done', label: 'Yakunlangan', count: countByStatus('done') },
+                        { key: 'cancelled', label: 'Bekor', count: countByStatus('cancelled') },
+                    ].map((f) => (
+                        <button
+                            key={f.key}
+                            className={statusFilter === f.key ? s.FilterActive : ''}
+                            onClick={() => setStatusFilter(f.key)}
+                        >
+                            {f.label} <span className={s.FilterCount}>{f.count}</span>
+                        </button>
+                    ))}
                 </div>
             </div>
 

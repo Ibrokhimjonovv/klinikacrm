@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import s from './CashierVisitPayments.module.scss';
 import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
-import { printReceipt } from './VisitReceipt';
+import { printReceipt } from '../../../components/shared/CashierReceipt/VisitReceipt';
 
 // ⚠️ To'langanlar API manzili (o'zingizdagiga moslang)
 const UNPAID_PATH = '/visits/unpaid/';
@@ -22,6 +22,32 @@ const formatDateTime = (iso) => {
         day: '2-digit', month: '2-digit', year: 'numeric',
         hour: '2-digit', minute: '2-digit',
     });
+};
+
+const PAYMENT_METHODS = [
+    { value: 'CASH', label: 'Naqd', icon: 'bi-cash-stack' },
+    { value: 'CARD', label: 'Karta', icon: 'bi-credit-card' },
+    { value: 'TRANSFER', label: "O'tkazma", icon: 'bi-bank' },
+];
+
+// To'lov usuli backendda yo'q, shuning uchun brauzerda saqlaymiz
+const METHODS_KEY = 'visit_payment_methods';
+const loadMethods = () => {
+    try {
+        return JSON.parse(localStorage.getItem(METHODS_KEY)) || {};
+    } catch {
+        return {};
+    }
+};
+const saveMethod = (id, method) => {
+    try {
+        localStorage.setItem(
+            METHODS_KEY,
+            JSON.stringify({ ...loadMethods(), [id]: method })
+        );
+    } catch {
+        // e'tiborsiz
+    }
 };
 
 // Backend javobini bir xil shaklga keltiramiz (maydon nomlari farq qilsa shu yerni tuzating)
@@ -74,6 +100,7 @@ const CashierVisitPayments = () => {
     const [paidVisit, setPaidVisit] = useState(null); // to'lov qabul qilingandan keyingi holat
     const [paying, setPaying] = useState(false);
     const [formError, setFormError] = useState('');
+    const [method, setMethod] = useState('CASH');
 
     const getToken = () => localStorage.getItem('hospital_access');
 
@@ -135,6 +162,7 @@ const CashierVisitPayments = () => {
         setSelected(null);
         setPaidVisit(null);
         setFormError('');
+        setMethod('CASH');
     };
 
     // ------------------------------------------------------------
@@ -153,11 +181,15 @@ const CashierVisitPayments = () => {
             const data = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(data.error || `HTTP error! status: ${res.status}`);
 
+            const paidAt = data.paid_at || new Date().toISOString(); // API bermasa, bugungi sana
+            saveMethod(selected.id, method);
+
             setPaidVisit({
                 ...selected,
                 price: Number(data.amount) || selected.price,
                 isPaid: true,
-                paidAt: data.paid_at,
+                paidAt,
+                method,
             });
 
             await fetchVisits(true);
@@ -326,7 +358,7 @@ const CashierVisitPayments = () => {
                                                 className={s.LinkBtn}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    printReceipt(v);
+                                                    printReceipt({ ...v, method: loadMethods()[v.id] });
                                                 }}
                                             >
                                                 <i className="bi bi-printer"></i>
@@ -394,7 +426,24 @@ const CashierVisitPayments = () => {
                                 </p>
 
                                 <p className={s.DrawerSectionTitle}>Ko'rik sanasi</p>
-                                <p className={s.InfoText}>{formatDateTime(selected.createdAt)}</p>
+                                <p className={s.InfoText}>
+                                    {formatDateTime(selected.createdAt || new Date().toISOString())}
+                                </p>
+
+                                <p className={s.DrawerSectionTitle}>To'lov usuli</p>
+                                <div className={s.MethodRow}>
+                                    {PAYMENT_METHODS.map((m) => (
+                                        <button
+                                            key={m.value}
+                                            type="button"
+                                            className={`${s.MethodBtn} ${method === m.value ? s.MethodBtnActive : ''}`}
+                                            onClick={() => setMethod(m.value)}
+                                        >
+                                            <i className={`bi ${m.icon}`}></i>
+                                            {m.label}
+                                        </button>
+                                    ))}
+                                </div>
 
                                 {formError && (
                                     <p className={s.FormError}>

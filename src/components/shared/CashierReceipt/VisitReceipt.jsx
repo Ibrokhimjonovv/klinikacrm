@@ -1,7 +1,6 @@
 import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { QRCodeSVG } from 'qrcode.react';
-import logo from '../../../assets/logo.png';
 
 const pad = (n) => String(n).padStart(2, '0');
 
@@ -41,24 +40,30 @@ p{margin:0}
   line-height:1.3;
 }
 .rc-sec{break-inside:avoid;page-break-inside:avoid}
-.rc-logo{display:block;width:100%;height:auto;filter:grayscale(1) contrast(1.3);margin:0 0 .4em}
+.rc-title{text-align:center;margin:0 0 .4em;background:#000;color:#fff;padding:1.5em .4em;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rc-title-big{font-size:2.2em;font-weight:900;line-height:1.05;letter-spacing:.02em;text-transform:uppercase}
+.rc-title-small{font-size:1.05em;font-weight:800;line-height:1.2;text-transform:uppercase;white-space:nowrap}
 .rc-id{text-align:center;font-weight:800;font-size:1.1em;margin:.2em 0 .4em}
 .rc-row{display:flex;justify-content:space-between;gap:.4em;margin:.15em 0}
 .rc-row span:last-child{text-align:right;white-space:nowrap}
 .rc-patient{margin:.15em 0 .3em;font-weight:800;font-size:1.1em;word-break:break-word}
 .rc-sub{margin:.2em 0 0;font-size:.9em}
 .rc-hr{border-top:.3mm dashed #000;margin:.5em 0}
-.rc-qr{display:flex;justify-content:center;margin:15em 0 .2em}
-.rc-qr svg{width:30%;height:auto}
-.rc-site{text-align:center;margin:.15em 0}
+.rc-qr{display:flex;justify-content:center;margin:2em 0 .2em}
+.rc-qr svg{width:45%;height:auto}
+.rc-site{text-align:center;margin:.15em 0;font-size:1.1em;font-weight:800}
 .rc-thanks{text-align:center;margin:.3em 0 0;font-weight:800}
 `;
 
-const ReceiptContent = ({ visit, cashier, logoSrc }) => (
+const ReceiptContent = ({ visit, cashier }) => (
     <div className="rc">
         <div className="rc-sec">
-            <img src={logoSrc} alt="American Orthopedic Center" className="rc-logo" />
+            <div className="rc-title">
+                <div className="rc-title-big">American</div>
+                <div className="rc-title-small">Orthopedic Center</div>
+            </div>
             <p className="rc-id">— ID: {visit.id} —</p>
+
 
             <div className="rc-row">
                 <span>Vaqt:</span>
@@ -116,9 +121,9 @@ const ReceiptContent = ({ visit, cashier, logoSrc }) => (
 
         <div className="rc-sec">
             <div className="rc-qr">
-                <QRCodeSVG value="https://aoc-center.uz" size={300} />
+                <QRCodeSVG value="https://aoc.uz" size={300} />
             </div>
-            <p className="rc-site">aoc-center.uz</p>
+            <p className="rc-site">aoc.uz</p>
             <p className="rc-thanks">Tashrifingiz uchun rahmat!</p>
         </div>
     </div>
@@ -131,10 +136,8 @@ export const printReceipt = (visit, cashier = 'Kassa') => {
     if (!visit) return;
 
     document.getElementById('rc-print-frame')?.remove();
-
-    const logoSrc = new URL(logo, window.location.href).href;
     const body = renderToStaticMarkup(
-        <ReceiptContent visit={visit} cashier={cashier} logoSrc={logoSrc} />
+        <ReceiptContent visit={visit} cashier={cashier} />
     );
 
     // MUHIM: iframe ichida kontent balandligi bo'yicha sahifa o'lchamini

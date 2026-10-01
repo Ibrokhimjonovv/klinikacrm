@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import s from './CashierDoctorServicesPayments.module.scss';
 import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
-// import { printServiceReceipt } from './ServiceReceipt';
+import { printServiceReceipt } from '../../../components/shared/CashierReceipt/ServiceReceipt';
 
 // ⚠️ Xizmatlar uchun API manzillari (o'zingizdagiga moslang)
 const UNPAID_PATH = '/examination-requests/unpaid/';
@@ -22,6 +22,32 @@ const formatDateTime = (iso) => {
         day: '2-digit', month: '2-digit', year: 'numeric',
         hour: '2-digit', minute: '2-digit',
     });
+};
+
+const PAYMENT_METHODS = [
+    { value: 'CASH', label: 'Naqd', icon: 'bi-cash-stack' },
+    { value: 'CARD', label: 'Karta', icon: 'bi-credit-card' },
+    { value: 'TRANSFER', label: "O'tkazma", icon: 'bi-bank' },
+];
+
+// To'lov usuli backendda yo'q, shuning uchun brauzerda saqlaymiz
+const METHODS_KEY = 'exam_payment_methods';
+const loadMethods = () => {
+    try {
+        return JSON.parse(localStorage.getItem(METHODS_KEY)) || {};
+    } catch {
+        return {};
+    }
+};
+const saveMethod = (id, method) => {
+    try {
+        localStorage.setItem(
+            METHODS_KEY,
+            JSON.stringify({ ...loadMethods(), [id]: method })
+        );
+    } catch {
+        // e'tiborsiz
+    }
 };
 
 // Backend javobini bir xil shaklga keltiramiz
@@ -84,6 +110,7 @@ const CashierDoctorServicesPayments = () => {
     const [paidService, setPaidService] = useState(null); // to'lov qabul qilingandan keyingi holat
     const [paying, setPaying] = useState(false);
     const [formError, setFormError] = useState('');
+    const [method, setMethod] = useState('CASH');
 
     const getToken = () => localStorage.getItem('hospital_access');
 
@@ -145,6 +172,7 @@ const CashierDoctorServicesPayments = () => {
         setSelected(null);
         setPaidService(null);
         setFormError('');
+        setMethod('CASH');
     };
 
     // ------------------------------------------------------------
@@ -163,11 +191,15 @@ const CashierDoctorServicesPayments = () => {
             const data = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(data.error || `HTTP error! status: ${res.status}`);
 
+            const paidAt = data.paid_at || new Date().toISOString(); // API bermasa, bugungi sana
+            saveMethod(selected.id, method);
+
             setPaidService({
                 ...selected,
                 price: Number(data.amount) || selected.price,
                 isPaid: true,
-                paidAt: data.paid_at,
+                paidAt,
+                method,
             });
 
             await fetchServices(true);
@@ -358,7 +390,7 @@ const CashierDoctorServicesPayments = () => {
                                                 className={s.LinkBtn}
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    printServiceReceipt(v);
+                                                    printServiceReceipt({ ...v, method: loadMethods()[v.id] });
                                                 }}
                                             >
                                                 <i className="bi bi-printer"></i>
@@ -406,7 +438,10 @@ const CashierDoctorServicesPayments = () => {
                                 </button> */}
                                 <button
                                     type="button"
-                                    className={s.PayBtn}>
+                                    className={s.PayBtn}
+                                    onClick={() => printServiceReceipt(paidService)}
+                                >
+                                    <i className="bi bi-printer"></i>
                                     Chekni chop etish
                                 </button>
                                 <button
@@ -433,8 +468,23 @@ const CashierDoctorServicesPayments = () => {
 
                                 <p className={s.DrawerSectionTitle}>Xizmat sanasi</p>
                                 <p className={s.InfoText}>
-                                    {formatDateTime(selected.createdAt)}
+                                    {formatDateTime(selected.createdAt || new Date().toISOString())}
                                 </p>
+
+                                <p className={s.DrawerSectionTitle}>To'lov usuli</p>
+                                <div className={s.MethodRow}>
+                                    {PAYMENT_METHODS.map((m) => (
+                                        <button
+                                            key={m.value}
+                                            type="button"
+                                            className={`${s.MethodBtn} ${method === m.value ? s.MethodBtnActive : ''}`}
+                                            onClick={() => setMethod(m.value)}
+                                        >
+                                            <i className={`bi ${m.icon}`}></i>
+                                            {m.label}
+                                        </button>
+                                    ))}
+                                </div>
 
                                 {formError && (
                                     <p className={s.FormError}>

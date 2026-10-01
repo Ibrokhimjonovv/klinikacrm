@@ -155,7 +155,7 @@ const DoctorWaitingPatients = () => {
                         </thead>
                         <tbody>
                             {filtered.map(p => (
-                                <tr key={p.id} onClick={() => navigate(`/doctor-waiting-patients/${p.id}/${flow}`)}>
+                                <tr key={p.id} onClick={() => navigate(`/doctor/patients/waitings/${p.id}/${flow}`)}>
                                     <td>
                                         <div className={s.NameCell}>
                                             <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
@@ -190,7 +190,7 @@ const DoctorWaitingPatients = () => {
                         <div
                             key={p.id}
                             className={s.PatientCard}
-                            onClick={() => navigate(`/doctor-waiting-patients/${p.id}`)}
+                            onClick={() => navigate(`/doctor/patients/waitings/${p.id}/${flow}`)}
                         >
                             <div className={s.CardTop}>
                                 <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>

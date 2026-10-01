@@ -6,7 +6,7 @@ import { api } from '../../../App'; // yo'lni loyihangizga moslang
 // ⚠️ Moslang
 const SERVICES_PATH = '/services/';
 // Xizmatning ichki sahifasi marshruti (App'dagi <Route path=".../:serviceId" /> bilan bir xil bo'lsin)
-const serviceRoute = (id) => `/nurse/services/${id}`;
+const serviceRoute = (id) => `/nurse/service/${id}`;
 
 const authHeaders = (token) => ({
   Authorization: `Bearer ${token}`,

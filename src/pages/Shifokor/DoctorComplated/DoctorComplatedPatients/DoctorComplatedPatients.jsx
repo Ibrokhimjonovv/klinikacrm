@@ -146,7 +146,7 @@ const DoctorComplatedPatients = () => {
                             {filtered.map(p => {
                                 const statusInfo = getStatusInfo(p.progress)
                                 return (
-                                    <tr key={p.id} onClick={() => navigate(`/doctor-complated-patients/${p.id}`)}>
+                                    <tr key={p.id} onClick={() => navigate(`/doctor/patients/completed/${p.id}`)}>
                                         <td>
                                             <div className={s.NameCell}>
                                                 <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
@@ -177,7 +177,7 @@ const DoctorComplatedPatients = () => {
                             <div
                                 key={p.id}
                                 className={s.PatientCard}
-                                onClick={() => navigate(`/doctor-complated-patients/${p.id}`)}
+                                onClick={() => navigate(`/doctor/patients/completed/${p.id}`)}
                             >
                                 <div className={s.CardTop}>
                                     <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>

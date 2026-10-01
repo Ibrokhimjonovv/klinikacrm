@@ -90,7 +90,7 @@ const VisitDetail = () => {
     return (
         <div className={s.DetailPage}>
             <div className={s.BackBtn}>
-                <Link to="/nurse-patients" className={s.NotActive}>Bemorlar ro'yxati</Link> / <Link to={`/nurse-patients/${visit.patient.id}`} className={s.NotActive}>{visit.patient.first_name} {visit.patient.last_name}</Link> / <span>Shikoyat</span>
+                <Link to="/nurse/patients/patients" className={s.NotActive}>Bemorlar ro'yxati</Link> / <Link to={`/nurse/patients/patient/${visit.patient.id}`} className={s.NotActive}>{visit.patient.first_name} {visit.patient.last_name}</Link> / <span>Shikoyat</span>
             </div>
 
             <div className={s.HeaderCard}>

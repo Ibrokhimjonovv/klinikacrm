@@ -243,8 +243,8 @@ const PatientTreatmentsComplatedDetail = () => {
     return (
         <div className={s.DetailPage}>
 
-            <button className={s.BackBtn} onClick={() => navigate('/')}>
-                <i className="bi bi-arrow-left"></i> Bosh sahifaga qaytish
+            <button className={s.BackBtn} onClick={() => navigate(-1)}>
+                <i className="bi bi-arrow-left"></i> Ro'yxatga qaytish
             </button>
 
             <div className={s.Banner}>

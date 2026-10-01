@@ -207,7 +207,7 @@ const NurseInpatients = () => {
                         </thead>
                         <tbody>
                             {filtered.map(p => (
-                                <tr key={p.planId} onClick={() => navigate(`/nurse-inpatients/${p.planId}`)}>
+                                <tr key={p.planId} onClick={() => navigate(`/nurse/inpatient/${p.planId}`)}>
                                     <td>
                                         <div className={s.NameCell}>
                                             <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>
@@ -241,7 +241,7 @@ const NurseInpatients = () => {
                         <div
                             key={p.planId}
                             className={s.PatientCard}
-                            onClick={() => navigate(`/nurse-inpatients/${p.planId}`)}
+                            onClick={() => navigate(`/nurse/inpatient/${p.planId}`)}
                         >
                             <div className={s.CardTop}>
                                 <div className={s.Avatar}>{p.first_name ? p.first_name[0] : '?'}</div>

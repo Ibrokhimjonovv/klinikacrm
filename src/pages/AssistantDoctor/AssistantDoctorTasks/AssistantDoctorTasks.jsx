@@ -21,17 +21,38 @@ const taskDiagnosis = (task) => task?.treatment_plan_detail?.diagnosis || null
 const taskServiceName = (task) => taskService(task)?.name || "Ko'rsatilmagan"
 
 // ⚠️ To'lov holatini har xil joydan tekshiramiz
-const isTaskPaid = (task) => {
-    if (!task) return false
-    return !!(
-        task.is_paid ||
-        task.service_detail?.is_paid ||
-        task.treatment_plan_detail?.is_paid ||
-        task.treatment_plan_detail?.patient?.is_paid ||
-        task.patient_detail?.is_paid ||
-        false
+const todayStr = () => {
+    const d = new Date()
+    const pad = (n) => String(n).padStart(2, '0')
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
+// Bugungi kun; bo'lmasa, birinchi bajarilmagan kun
+const currentDay = (task) => {
+    const days = task?.days || []
+    return (
+        days.find((d) => d.date === todayStr()) ||
+        days.find((d) => d.display_status !== 'DONE' && d.display_status !== 'CANCELLED') ||
+        null
     )
 }
+
+// To'lov: shu kunning to'lovi bo'yicha (qisman to'langan rejalar uchun to'g'ri)
+const isTaskPaid = (task) => {
+    if (!task) return false
+    const day = currentDay(task)
+    if (day) return day.payment?.status === 'PAID'
+    return task.payment_summary?.status === 'PAID'
+}
+
+// Holat: API da task.status yo'q, kunning display_status idan olamiz
+const taskStatus = (task) => {
+    const st = currentDay(task)?.display_status
+    return st === 'DONE' || st === 'IN_PROGRESS' || st === 'CANCELLED' ? st : 'WAITING'
+}
+
+// API javobida task.id yo'q, shuning uchun kalit yasaymiz
+const taskKey = (task) => `${task.treatment_plan_id}-${task.service_id}`
 
 const STATUS_LABELS = {
     WAITING: { label: 'Kutilmoqda', className: 'watch' },
@@ -50,6 +71,8 @@ const AssistantDoctorTasks = () => {
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [payFilter, setPayFilter] = useState('ALL')       // ALL | PAID | UNPAID
+    const [statusFilter, setStatusFilter] = useState('ALL') // ALL | WAITING | IN_PROGRESS | DONE | CANCELLED
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -76,10 +99,24 @@ const AssistantDoctorTasks = () => {
         fetchTasks()
     }, [])
 
+    const paidCount = tasks.filter(t => isTaskPaid(t)).length
+    const unpaidCount = tasks.length - paidCount
+    const countByStatus = (key) => tasks.filter(t => taskStatus(t) === key).length
+
     const filtered = tasks.filter(task => {
         const patient = taskPatient(task)
         const fullName = `${patient?.first_name || ''} ${patient?.last_name || ''} ${patient?.middle_name || ''}`.toLowerCase()
-        return fullName.includes(search.toLowerCase())
+        const matchName = fullName.includes(search.toLowerCase())
+
+        const paid = isTaskPaid(task)
+        const matchPay =
+            payFilter === 'ALL' ||
+            (payFilter === 'PAID' && paid) ||
+            (payFilter === 'UNPAID' && !paid)
+
+        const matchStatus = statusFilter === 'ALL' || taskStatus(task) === statusFilter
+
+        return matchName && matchPay && matchStatus
     })
 
     // ⚠️ Qatorga bosish: faqat to'langan bo'lsa detail sahifaga o'tadi
@@ -91,7 +128,7 @@ const AssistantDoctorTasks = () => {
             )
             return
         }
-        navigate(`/assistant-doctor/tasks/${task.treatment_plan_id}/${task.service_id}`)
+        navigate(`/doctor/patients/task/${task.treatment_plan_id}/${task.service_id}`)
     }
 
     if (loading) {
@@ -145,6 +182,39 @@ const AssistantDoctorTasks = () => {
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
+                <div className={s.FilterTabs}>
+                    {[
+                        { key: 'ALL', label: 'Barchasi', count: tasks.length },
+                        { key: 'PAID', label: "To'langan", count: paidCount },
+                        { key: 'UNPAID', label: "To'lanmagan", count: unpaidCount },
+                    ].map((f) => (
+                        <button
+                            key={f.key}
+                            className={payFilter === f.key ? s.FilterActive : ''}
+                            onClick={() => setPayFilter(f.key)}
+                        >
+                            {f.label} <span className={s.FilterCount}>{f.count}</span>
+                        </button>
+                    ))}
+                </div>
+
+                <div className={s.FilterTabs}>
+                    {[
+                        { key: 'ALL', label: 'Barcha holat', count: tasks.length },
+                        { key: 'WAITING', label: 'Kutilmoqda', count: countByStatus('WAITING') },
+                        { key: 'IN_PROGRESS', label: 'Jarayonda', count: countByStatus('IN_PROGRESS') },
+                        { key: 'DONE', label: 'Bajarildi', count: countByStatus('DONE') },
+                        { key: 'CANCELLED', label: 'Bekor', count: countByStatus('CANCELLED') },
+                    ].map((f) => (
+                        <button
+                            key={f.key}
+                            className={statusFilter === f.key ? s.FilterActive : ''}
+                            onClick={() => setStatusFilter(f.key)}
+                        >
+                            {f.label} <span className={s.FilterCount}>{f.count}</span>
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {filtered.length === 0 && (
@@ -168,12 +238,12 @@ const AssistantDoctorTasks = () => {
                         <tbody>
                             {filtered.map(task => {
                                 const patient = taskPatient(task)
-                                const statusInfo = STATUS_LABELS[task.status] || STATUS_LABELS.WAITING
+                                const statusInfo = STATUS_LABELS[taskStatus(task)] || STATUS_LABELS.WAITING
                                 const isPaid = isTaskPaid(task) // ⚠️
 
                                 return (
                                     <tr
-                                        key={task.id}
+                                        key={taskKey(task)}
                                         onClick={() => handleRowClick(task)}
                                         className={!isPaid ? s.RowDisabled : ''}
                                     >
@@ -220,12 +290,12 @@ const AssistantDoctorTasks = () => {
                 <div className={s.CardsGrid}>
                     {filtered.map(task => {
                         const patient = taskPatient(task)
-                        const statusInfo = STATUS_LABELS[task.status] || STATUS_LABELS.WAITING
+                        const statusInfo = STATUS_LABELS[taskStatus(task)] || STATUS_LABELS.WAITING
                         const isPaid = isTaskPaid(task) // ⚠️
 
                         return (
                             <div
-                                key={task.id}
+                                key={taskKey(task)}
                                 className={`${s.PatientCard} ${!isPaid ? s.CardDisabled : ''}`}
                                 onClick={() => handleRowClick(task)}
                             >
@@ -239,7 +309,8 @@ const AssistantDoctorTasks = () => {
                                 </div>
                                 <h3>{patient?.first_name} {patient?.last_name}</h3>
                                 <p className={s.CardAge}>
-                                    {calcAge(patient?.date_of_birth)} yosh · {patient?.gender === 'erkak' ? 'Erkak' : 'Ayol'}
+                                    {calcAge(patient?.date_of_birth)} yosh
+                                    {patient?.gender ? ` · ${patient.gender === 'erkak' ? 'Erkak' : 'Ayol'}` : ''}
                                 </p>
 
                                 <div className={s.CardInfo}>

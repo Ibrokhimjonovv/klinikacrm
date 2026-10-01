@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import NotFound from './pages/NotFound/NotFound'
 import Login from './pages/Login/Login'
 import Header from './components/Header/Header'
@@ -55,6 +55,7 @@ import AssistantDoctorExcaminationDetail from './pages/AssistantDoctor/Assistant
 import CashierTreatmentPayment from './pages/Cashier/CashierTreatmentPayment/CashierTreatmentPayment'
 import CashierServicesPayments from './pages/Cashier/CashierServicesPayments/CashierServicesPayments'
 import CashierDoctorServicesPayments from './pages/Cashier/CashierDoctorServicesPayments/CashierDoctorServicesPayment'
+import NurseRooms from './pages/XamshiraReseption/NurseRooms/NurseRooms'
 
 export const api = 'http://10.244.157.222:8000/api/v1'
 
@@ -68,102 +69,109 @@ function App() {
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
           {role === 'Doctor' && (
             <>
-              <Route path="/" element={<DoctorHome />} />
-              {/* <Route path="/doctor-patients" element={<DoctorPatients />} /> */}
-              {/* <Route path="/doctor-patients/:id" element={<DoctorPatientDetail />} /> */}
-              <Route path="/doctor-waiting-patients" element={<DoctorWaitingPatients />} />
-              <Route path="/doctor-waiting-patients/:id/treatment" element={<DoctorWaitingPatientTreatmentDetail />} />
-              <Route path="/doctor-waiting-patients/:id/diagnostics" element={<DoctorWaitingPatientDiagnosticsDetail />} />
+              <Route path="/" element={<Navigate to="doctor" replace />} />
+              <Route path="/doctor" element={<DoctorHome />} />
 
-              <Route path="/doctor-progress-patients" element={<DoctorProgressPatients />} />
-              <Route path="/doctor-progress-patients/:id" element={<DoctorProgressPatientDetail />} />
+              <Route path="/doctor/patients/waitings" element={<DoctorWaitingPatients />} />
+              <Route path="/doctor/patients/waitings/:id/treatments" element={<DoctorWaitingPatientTreatmentDetail />} />
+              <Route path="/doctor/patients/waitings/:id/diagnostics" element={<DoctorWaitingPatientDiagnosticsDetail />} />
 
-              <Route path="/doctor-complated-patients" element={<DoctorComplatedPatients />} />
-              <Route path="/doctor-complated-patients/:id" element={<DoctorComplatedPatientDetail />} />
+              <Route path="/doctor/patients/progresses" element={<DoctorProgressPatients />} />
+              <Route path="/doctor/patients/progress/:id" element={<DoctorProgressPatientDetail />} />
+
+              <Route path="/doctor/patients/completeds" element={<DoctorComplatedPatients />} />
+              <Route path="/doctor/patients/completed/:id" element={<DoctorComplatedPatientDetail />} />
 
 
-              <Route path="/doctor-profile" element={<DoctorProfile />} />
-              <Route path="/doctor-rooms" element={<DoctorRooms />} />
+              <Route path="/doctor/profile" element={<DoctorProfile />} />
+
+              <Route path="/doctor/rooms/all-rooms" element={<DoctorRooms />} />
             </>
           )}
           {role === 'ResNurse' && (
             <>
-              <Route path="/" element={<ResNurseHome />} />
-              <Route path="/nurse-patients" element={<NursePatients />} />
-              <Route path="/nurse-patients/:id" element={<NursePatientDetail />} />
-              <Route path="/nurse-patients/:patientId/visits/:visitId" element={<VisitDetail />} />
-              <Route path="/reception-nurse-profile" element={<ResNurseProfile />} />
-              <Route path="/nurse-paid-patients" element={<NursePaidPatients />} />
+              <Route path="/" element={<Navigate to="/nurse/" replace />} />
+              <Route path="/nurse" element={<ResNurseHome />} />
+              <Route path="/nurse/patients/patients" element={<NursePatients />} />
+              <Route path="/nurse/patients/patient/:id" element={<NursePatientDetail />} />
+              <Route path="/nurse/patients/:patientId/visits/:visitId" element={<VisitDetail />} />
+              <Route path="/nurse/profile" element={<ResNurseProfile />} />
+              {/* <Route path="/nurse-paid-patients" element={<NursePaidPatients />} /> */}
               <Route path="nurse/services" element={<NurseServices />} />
-              <Route path="nurse/services/:serviceId" element={<NurseServiceDetail />} />
+              <Route path="nurse/service/:serviceId" element={<NurseServiceDetail />} />
+              <Route path="nurse/rooms/all-rooms" element={<NurseRooms />} />
             </>
           )}
           {
             role == "Patient" && (
               <>
-                <Route path="/" element={<PatientHome />} />
+                <Route path="/" element={<Navigate to="/me" replace />} />
+                <Route path="/me" element={<PatientHome />} />
 
-                <Route path="/me/treatments-progress-list" element={<PatientTreatmentsProgress />} />
-                <Route path="/me/treatments-progress-list/:id" element={<PatientTreatmentsProgressDetail />} />
+                <Route path="/me/treatments/progresses" element={<PatientTreatmentsProgress />} />
+                <Route path="/me/treatments/progress/:id" element={<PatientTreatmentsProgressDetail />} />
 
-                <Route path="/me/treatments-complated-list" element={<PatientTreatmentsComplated />} />
-                <Route path="/me/treatments-complated-list/:id" element={<PatientTreatmentsComplatedDetail />} />
+                <Route path="/me/treatments/completeds" element={<PatientTreatmentsComplated />} />
+                <Route path="/me/treatments/completed/:id" element={<PatientTreatmentsComplatedDetail />} />
 
-                <Route path="/patient-profile" element={<PatientProfile />} />
+                <Route path="/me/profile" element={<PatientProfile />} />
               </>
             )
           }
           {role === 'Nurse' && (
             <>
-              <Route path="/" element={<NurseHome />} />
-              <Route path="/nurse-patients" element={<NurseProgressPatients />} />
-              <Route path="/nurse-profile" element={<NurseProfile />} />
-              <Route path="nurse-inpatients" element={<NurseInpatients />} />
-              <Route path="/nurse-inpatients/:planId" element={<NurseInpatientDetail />} />
+              <Route path="/" element={<Navigate to="nurse" replace />} />
+              <Route path="/nurse" element={<NurseHome />} />
+              <Route path="/nurse/patients" element={<NurseProgressPatients />} />
+              <Route path="nurse/inpatients" element={<NurseInpatients />} />
+              <Route path="/nurse/inpatient/:planId" element={<NurseInpatientDetail />} />
+              <Route path="/nurse/profile" element={<NurseProfile />} />
               {/* <Route path="/reception-nurse-profile" element={<NurseProfile />} /> */}
             </>
           )}
           {role === 'Admin' && (
             <>
-              <Route path="/" element={<AdminHome />} />
-              <Route path="/services" element={<AdminServices />} />
-              <Route path="/admin-rooms" element={<AdminRooms />} />
-              <Route path="/admin-doctors" element={<AdminDoctors />} />
-              <Route path="/admin-nurses" element={<AdminNurses />} />
-              <Route path="/admin-res-nurses" element={<AdminResNurses />} />
-              <Route path="/admin-medicines" element={<AdminMedicines />} />
+              <Route path="/" element={<Navigate to="admin" replace />} />
+              <Route path="/admin" element={<AdminHome />} />
+              <Route path="/admin/services" element={<AdminServices />} />
+              <Route path="/admin/rooms/all-rooms" element={<AdminRooms />} />
+              <Route path="/admin/doctors" element={<AdminDoctors />} />
+              {/* <Route path="/admin/nurses" element={<AdminNurses />} />
+              <Route path="/admin/res-nurses" element={<AdminResNurses />} /> */}
+              <Route path="/admin/medicines" element={<AdminMedicines />} />
             </>
           )}
           {
             role === "AssistantDoctor" && (
               <>
-                <Route path="/" element={<AssistantDoctorHome />} />
-                <Route path="/waiting-patients" element={<AssistantDoctorPatients />} />
-                <Route path="/waiting-patients/:id" element={<AssistantDoctorTaskDetail />} />
-                <Route path="/assistant-doctor/tasks" element={<AssistantDoctorTasks />} />
+                <Route path="/" element={<Navigate to="doctor" replace />} />
+                <Route path="/doctor" element={<AssistantDoctorHome />} />
+                <Route path="/doctor/patients/waitings" element={<AssistantDoctorPatients />} />
+                <Route path="/doctor/patients/waiting/:id" element={<AssistantDoctorTaskDetail />} />
+                <Route path="/doctor/patients/tasks" element={<AssistantDoctorTasks />} />
                 <Route
-                  path="/assistant-doctor/tasks/:planId/:serviceId"
+                  path="/doctor/patients/task/:planId/:serviceId"
                   element={<AssistantDoctorPTaskDetail />}
                 />
-                <Route path="/doctor-profile" element={<AssistantDoctorProfile />} />
+                <Route path="/doctor/profile" element={<AssistantDoctorProfile />} />
 
-                <Route path="/assistant-doctor/examination-patients" element={<AssistantDoctorExcaminationPatients />} />
-                <Route path="/assistant-doctor/examination-patients/:id" element={<AssistantDoctorExcaminationDetail />} />
+                <Route path="/doctor/patients/examinations" element={<AssistantDoctorExcaminationPatients />} />
+                <Route path="/doctor/patients/examination/:id" element={<AssistantDoctorExcaminationDetail />} />
               </>
             )
           }
           {
             role === "Cashier" && (
               <>
-                <Route path="/" element={<CashierHome />} />
-                <Route path="/cashier/payments/visits-payments" element={<CashierVisitPayments />} />
-                <Route path="/cashier/payments/treatments-payments" element={<CashierTreatmentPayment />} />
-                <Route path="/cashier/payments/services-payments" element={<CashierServicesPayments />} />
-                <Route path="/cashier/payments/doctor-services-payments" element={<CashierDoctorServicesPayments />} />
+                <Route path="/" element={<Navigate to="cashier" replace />} />
+                <Route path="/cashier" element={<CashierHome />} />
+                <Route path="/cashier/payments/visits" element={<CashierVisitPayments />} />
+                <Route path="/cashier/payments/treatments" element={<CashierTreatmentPayment />} />
+                <Route path="/cashier/payments/services" element={<CashierServicesPayments />} />
+                <Route path="/cashier/payments/doctor-services" element={<CashierDoctorServicesPayments />} />
               </>
             )
           }
-
           <Route path="*" element={<NotFound />} />
         </Route>
         <Route path="/sign-in" element={<Login />} />

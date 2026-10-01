@@ -8,25 +8,25 @@ const SIDEBAR_STORAGE_KEY = 'klinika_sidebar_collapsed'
 const menuLinks = {
     admin: {
         main: [
-            { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
+            { to: '/admin', icon: 'bi-house-door', text: 'Bosh sahifa' },
         ],
         sections: [
             {
                 title: 'XIZMATLAR',
                 links: [
-                    { to: '/services', icon: 'bi-sliders2', text: 'Servislar' },
+                    { to: '/admin/services', icon: 'bi-sliders2', text: 'Servislar' },
                 ],
             },
             {
                 title: 'XONALAR',
                 links: [
-                    { to: '/admin-rooms', icon: 'bi-hospital', text: 'Xonalar' },
+                    { to: '/admin/rooms/all-rooms', icon: 'bi-hospital', text: 'Xonalar' },
                 ],
             },
             {
                 title: 'XODIMLAR',
                 links: [
-                    { to: '/admin-doctors', icon: 'bi-people', text: 'Barcha xodimlar' },
+                    { to: '/admin/doctors', icon: 'bi-people', text: 'Barcha xodimlar' },
                     // { to: '/admin-nurses', icon: 'bi-people', text: 'Hamshiralar' },
                     // { to: '/admin-res-nurses', icon: 'bi-people', text: 'Qabul Hamshiralari' },
                 ],
@@ -34,7 +34,7 @@ const menuLinks = {
             {
                 title: 'Dori-darmonlar',
                 links: [
-                    { to: '/admin-medicines', icon: 'bi-capsule', text: 'Dorilar' },
+                    { to: '/admin/medicines', icon: 'bi-capsule', text: 'Dorilar' },
                 ],
             },
         ],
@@ -49,26 +49,26 @@ const menuLinks = {
     },
     cashier: {
         main: [
-            { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
+            { to: '/cashier', icon: 'bi-house-door', text: 'Bosh sahifa' },
         ],
         sections: [
             {
                 title: 'UMUMIY TO\'LOVLAR',
                 links: [
-                    { to: '/cashier/payments/treatments-payments', icon: 'bi-cash-coin', text: 'Davolanish to\'lovlari' },
+                    { to: '/cashier/payments/treatments', icon: 'bi-cash-coin', text: 'Davolanish to\'lovlari' },
                 ],
             },
             {
                 title: "DOKTOR TO'LOVLARI",
                 links: [
-                    { to: '/cashier/payments/visits-payments', icon: 'bi-cash-coin', text: 'Doktor ko\'rik to\'lovlari' },
+                    { to: '/cashier/payments/visits', icon: 'bi-cash-coin', text: 'Doktor ko\'rik to\'lovlari' },
                 ],
             },
             {
                 title: "XIZMAT TO'LOVLARI",
                 links: [
-                    { to: '/cashier/payments/services-payments', icon: 'bi-cash-coin', text: 'Tashqi bemor to\'lovlari' },
-                    { to: '/cashier/payments/doctor-services-payments', icon: 'bi-cash-coin', text: 'Biriktirilgan bemor to\'lovlari' },
+                    { to: '/cashier/payments/services', icon: 'bi-cash-coin', text: 'Tashqi bemor to\'lovlari' },
+                    { to: '/cashier/payments/doctor-services', icon: 'bi-cash-coin', text: 'Biriktirilgan bemor to\'lovlari' },
                 ]
             }
         ],
@@ -83,98 +83,101 @@ const menuLinks = {
     },
     doctor: {
         main: [
-            { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
+            { to: '/doctor', icon: 'bi-house-door', text: 'Bosh sahifa' },
         ],
         patientsTitle: 'BIRIKTIRILGAN BEMORLAR',
         patients: [
             {
-                to: '/doctor-waiting-patients',
+                to: '/doctor/patients/waitings',
                 icon: 'bi-hourglass',
                 text: 'Kutilayotgan bemorlar',
                 countKey: 'waiting',
                 // Bosilganda ochiladigan dropdown ichidagi 2 link:
                 children: [
-                    { to: '/doctor-waiting-patients?flow=diagnostics', icon: 'bi-camera', text: 'Diagnostikaga yuborish' },
-                    { to: '/doctor-waiting-patients?flow=treatment', icon: 'bi-clipboard2-pulse', text: 'Davolash rejasi' },
+                    { to: '/doctor/patients/waitings?flow=diagnostics', icon: 'bi-camera', text: 'Diagnostikaga yuborish' },
+                    { to: '/doctor/patients/waitings?flow=treatments', icon: 'bi-clipboard2-pulse', text: 'Davolash rejasi' },
                 ],
             },
-            { to: '/doctor-progress-patients', icon: 'bi-clock', text: 'Jarayondagi bemorlar', countKey: 'process' },
-            { to: '/doctor-complated-patients', icon: 'bi-check-circle', text: 'Yakunlangan bemorlar', countKey: 'completed' },
+            { to: '/doctor/patients/progresses', icon: 'bi-clock', text: 'Jarayondagi bemorlar', countKey: 'process' },
+            { to: '/doctor/patients/completeds', icon: 'bi-check-circle', text: 'Yakunlangan bemorlar', countKey: 'completed' },
         ],
         roomsTitle: 'Xonalar',
         rooms: [
-            { to: '/doctor-rooms', icon: 'bi-hospital', text: 'Xonalar' },
+            { to: '/doctor/rooms/all-rooms', icon: 'bi-hospital', text: 'Xonalar' },
         ],
         profile: [
-            { to: '/doctor-profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
+            { to: '/doctor/profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
         ]
     },
     assistantDoctor: {
         main: [
-            { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
+            { to: '/doctor', icon: 'bi-house-door', text: 'Bosh sahifa' },
         ],
         patientsTitle: "Bemorlar",
         patients: [
-            { to: '/waiting-patients', icon: 'bi-activity', text: 'Diagnostik bemorlar' },
-            { to: '/assistant-doctor/tasks', icon: 'bi-people', text: 'Biriktirilgan bemorlar' },
-            { to: '/assistant-doctor/examination-patients', icon: 'bi-building-exclamation', text: 'Ko\'rikdagi bemorlar' },
+            { to: '/doctor/patients/waitings', icon: 'bi-activity', text: 'Diagnostik bemorlar' },
+            { to: '/doctor/patients/tasks', icon: 'bi-people', text: 'Biriktirilgan bemorlar' },
+            { to: '/doctor/patients/examinations', icon: 'bi-building-exclamation', text: 'Ko\'rikdagi bemorlar' },
         ],
         roomsTitle: null,
         rooms: [
         ],
         profile: [
-            { to: '/doctor-profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
+            { to: '/doctor/profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
         ]
     },
     nurseRecieption: {
         main: [
-            { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
+            { to: '/nurse', icon: 'bi-house-door', text: 'Bosh sahifa' },
         ],
         patientsTitle: 'BEMORLAR',
         patients: [
-            { to: '/nurse-patients', icon: 'bi-people', text: 'Bemorlar ro\'yxati' },
+            { to: '/nurse/patients/patients', icon: 'bi-people', text: 'Bemorlar ro\'yxati' },
         ],
         services: [
             { to: '/nurse/services', icon: 'bi-clock', text: 'Xizmatlar' },
         ],
-        roomsTitle: null,
+        roomsTitle: "Xonalar",
         rooms: [
+            {
+                to: "/nurse/rooms/all-rooms/", icon: "bi-hospital", text: "Xonalar"
+            }
         ],
         profile: [
-            { to: '/reception-nurse-profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
+            { to: '/nurse/profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
         ]
     },
     nurse: {
         main: [
-            { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
+            { to: '/nurse', icon: 'bi-house-door', text: 'Bosh sahifa' },
         ],
         patientsTitle: 'BEMORLAR',
         patients: [
-            { to: '/nurse-patients', icon: 'bi-clock', text: 'Bemorlar ro\'yxati', countKey: 'process' },
-            { to: '/nurse-inpatients', icon: 'bi-hospital', text: 'Yotib davolanayotgan bemorlar' },
+            { to: '/nurse/patients', icon: 'bi-clock', text: 'Bemorlar ro\'yxati', countKey: 'process' },
+            { to: '/nurse/inpatients', icon: 'bi-hospital', text: 'Yotib davolanayotgan bemorlar' },
         ],
         roomsTitle: null,
         rooms: [
         ],
         profile: [
-            { to: '/nurse-profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
+            { to: '/nurse/profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
         ]
     },
     patient: {
         main: [
-            { to: '/', icon: 'bi-house-door', text: 'Bosh sahifa' },
+            { to: '/me', icon: 'bi-house-door', text: 'Bosh sahifa' },
         ],
         patientsTitle: null,
         patients: [],
         medicines: [
-            { to: '/me/treatments-progress-list', icon: 'bi-clock', text: 'Davolanish jarayonim', countKey: 'process' },
-            { to: '/me/treatments-complated-list', icon: 'bi-check-circle', text: 'Yakunlangan davolanishlarim', countKey: 'done' },
+            { to: '/me/treatments/progresses', icon: 'bi-clock', text: 'Davolanish jarayonim', countKey: 'process' },
+            { to: '/me/treatments/completeds', icon: 'bi-check-circle', text: 'Yakunlangan davolanishlarim', countKey: 'done' },
         ],
         roomsTitle: null,
         rooms: [
         ],
         profile: [
-            { to: '/patient-profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
+            { to: '/me/profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
         ]
     },
 }
@@ -236,11 +239,13 @@ const Header = () => {
         links = menuLinks.assistantDoctor
     }
 
-    const isActive = (to) => {
-        if (to === '/') {
-            return location.pathname === '/'
-        }
-        return location.pathname === to || location.pathname.startsWith(`${to}/`)
+    const normalizePath = (p) => (p.length > 1 ? p.replace(/\/+$/, '') : p)
+
+    const isActive = (to, exact = false) => {
+        const current = normalizePath(location.pathname)
+        const target = normalizePath(to)
+        if (exact || target === '/') return current === target
+        return current === target || current.startsWith(`${target}/`)
     }
 
     const isChildActive = (child) => {
@@ -315,7 +320,7 @@ const Header = () => {
                             <li key={index}>
                                 <Link
                                     to={link.to}
-                                    className={isActive(link.to) ? s.ActiveLink : ''}
+                                    className={isActive(link.to, true) ? s.ActiveLink : ''}
                                 >
                                     <span className={s.icon}><i className={`bi ${link.icon}`}></i></span>
                                     <span className={s.text}>{link.text}</span>
@@ -547,7 +552,7 @@ const Header = () => {
                     </div>
                     <div className={s.ProfileDatas}>
                         <p>{userName()}</p>
-                        <p>{user?.doctor?.department_detail?.name}</p>
+                        <p>{user?.doctor ? user?.doctor?.department_detail?.name : user?.patient ? "Bemor" : "Boshqa"}</p>
                         {/* <p>{userRole()}</p> */}
                     </div>
                 </div>

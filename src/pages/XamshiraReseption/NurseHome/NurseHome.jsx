@@ -104,7 +104,7 @@ const ResNurseHome = () => {
                         <h3>Bugun ro'yxatga olingan bemorlar</h3>
                         <span className={s.CountBadge}>{todayAdmissions.length} ta</span>
                     </div>
-                    <Link to="/nurse-patients">Barchasini ko'rish</Link>
+                    <Link to="/nurse/patients/all-patients">Barchasini ko'rish</Link>
                 </div>
 
                 {todayAdmissions.length === 0 ? (
@@ -113,7 +113,7 @@ const ResNurseHome = () => {
                     <ul>
                         {todayAdmissions.map((p) => (
                             <li key={p.id}>
-                                <Link to={`/nurse-patients/${p.id}`}>
+                                <Link to={`/nurse/patients/patient/${p.id}`}>
                                     <div className={s.PatientLeft}>
                                         <div className={s.Avatar}>{p.name ? p.name[0] : '?'}</div>
                                         <div className={s.PatientInfo}>

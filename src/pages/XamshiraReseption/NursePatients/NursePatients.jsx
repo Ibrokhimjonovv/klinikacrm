@@ -36,7 +36,7 @@ const NursePatients = () => {
                 <ul>
                     {todayAdmissions.map((p) => (
                         <li key={p.id}>
-                            <Link to={`/nurse-patients/${p.id}`}>
+                            <Link to={`/nurse/patients/patient/${p.id}`}>
                                 <div className={s.PatientLeft}>
                                     <div className={s.Avatar}>{p.name ? p.name[0] : '?'}</div>
                                     <div className={s.PatientInfo}>

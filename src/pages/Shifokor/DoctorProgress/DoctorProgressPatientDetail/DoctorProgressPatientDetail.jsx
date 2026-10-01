@@ -837,7 +837,7 @@ const DoctorProgressPatientDetail = () => {
     return (
         <div className={s.DetailPage}>
 
-            <button className={s.BackBtn} onClick={() => navigate('/doctor-progress-patients')}>
+            <button className={s.BackBtn} onClick={() => navigate(-1)}>
                 <i className="bi bi-arrow-left"></i> Bemorlar ro'yxatiga qaytish
             </button>
 
