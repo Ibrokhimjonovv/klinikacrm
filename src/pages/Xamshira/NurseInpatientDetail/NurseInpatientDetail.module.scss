@@ -350,7 +350,9 @@ $text-muted: #6b7280;
 }
 
 .DayBadge {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     background: $primary;
     color: #fff;
     font-size: 12px;
@@ -573,6 +575,34 @@ $text-muted: #6b7280;
 
     &:active {
         transform: scale(0.995);
+    }
+}
+
+// ✅ YANGI: Qulflangan kun (oldingi kun bajarilmagan)
+.DayCardLocked {
+    background: #f9fafb;
+    cursor: not-allowed;
+
+    // ichidagi kontentni xiralashtiramiz, lekin karta bosilishi (ogohlantirish uchun) saqlanadi
+    > * {
+        opacity: 0.55;
+    }
+
+    &:hover {
+        border-color: $border;
+        box-shadow: none;
+    }
+
+    &:active {
+        transform: none;
+    }
+
+    .DayBadge {
+        background: $text-muted;
+    }
+
+    .DayCardFoot {
+        color: $text-muted;
     }
 }
 
@@ -824,6 +854,7 @@ $text-muted: #6b7280;
     border-radius: 12px;
     font-size: 13px;
     line-height: 1.5;
+    margin-top: 10px;
 
     i {
         font-size: 18px;

@@ -3,6 +3,9 @@ import s from "./DoctorComplatedPatients.module.scss"
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../../../App';
 
+import Pagination from '../../../../components/shared/Pagination/Pagination';
+import usePagination from '../../../../components/shared/Pagination/usePagination';
+
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
     const diff = Date.now() - new Date(birthDate).getTime()
@@ -72,6 +75,15 @@ const DoctorComplatedPatients = () => {
         const fullName = `${p.first_name} ${p.last_name} ${p.middle_name}`.toLowerCase()
         return fullName.includes(search.toLowerCase())
     })
+
+    const {
+        pageItems,
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
+        total,
+    } = usePagination(filtered, 100)
 
     if (loading) {
         return (
@@ -143,7 +155,7 @@ const DoctorComplatedPatients = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map(p => {
+                            {pageItems.map(p => {
                                 const statusInfo = getStatusInfo(p.progress)
                                 return (
                                     <tr key={p.id} onClick={() => navigate(`/doctor/patients/completed/${p.id}`)}>
@@ -171,7 +183,7 @@ const DoctorComplatedPatients = () => {
 
             {view === 'card' && filtered.length > 0 && (
                 <div className={s.CardsGrid}>
-                    {filtered.map(p => {
+                    {pageItems.map(p => {
                         const statusInfo = getStatusInfo(p.progress)
                         return (
                             <div
@@ -193,6 +205,14 @@ const DoctorComplatedPatients = () => {
                     })}
                 </div>
             )}
+
+            <Pagination
+                total={total}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+            />
 
         </div>
     )

@@ -4,10 +4,58 @@ import s from "./NurseHome.module.scss"
 import { useAppContext } from '../../../context/context'
 import { api } from '../../../App';
 
-const STATUS_MAP = {
-  WAITING: { label: 'Kutilmoqda', key: 'pending' },
-  IN_PROGRESS: { label: 'Jarayonda', key: 'progress' },
-  DONE: { label: 'Yakunlandi', key: 'done' },
+// ------------------------------------------------------------
+// Bemorlar ro'yxatidagi (NurseInpatients) bilan bir xil mantiq:
+// yozuvlar REJA (treatment_plan_id) bo'yicha guruhlanadi.
+// ------------------------------------------------------------
+const groupByPlan = (waiting, inProgress, completed) => {
+  const all = [...waiting, ...inProgress, ...completed]
+  const map = new Map()
+
+  for (const item of all) {
+    const patient = item.patient || {}
+    const planId = item.treatment_plan_id
+
+    if (!map.has(planId)) {
+      map.set(planId, {
+        planId,
+        patientId: patient.id,
+        first_name: patient.first_name || '',
+        last_name: patient.last_name || '',
+        diagnosis:
+          item.diagnosis ||
+          item.plan?.diagnosis ||
+          item.treatment_plan?.diagnosis ||
+          item.treatment_plan_diagnosis ||
+          null,
+        total: 0,
+        waitingCount: 0,
+        progressCount: 0,
+        doneCount: 0,
+      })
+    }
+
+    const entry = map.get(planId)
+    entry.total++
+    if (item.status === 'WAITING') entry.waitingCount++
+    else if (item.status === 'IN_PROGRESS') entry.progressCount++
+    else if (item.status === 'DONE') entry.doneCount++
+  }
+
+  return Array.from(map.values()).map(entry => {
+    let statusKey = 'pending'
+    let statusLabel = 'Kutilmoqda'
+
+    if (entry.progressCount > 0 || (entry.doneCount > 0 && entry.waitingCount > 0)) {
+      statusKey = 'progress'
+      statusLabel = 'Jarayonda'
+    } else if (entry.waitingCount === 0 && entry.doneCount > 0) {
+      statusKey = 'done'
+      statusLabel = 'Yakunlangan'
+    }
+
+    return { ...entry, statusKey, statusLabel }
+  })
 }
 
 const NurseHome = () => {
@@ -107,36 +155,26 @@ const NurseHome = () => {
     ? Math.round((completed_count / totalCount) * 100)
     : 0
 
-  // ✅ TUZATILDI: eski kod barcha yozuvlarni id bo'yicha o'sish tartibida
-  // saralab (eng ESKI/tugagan yozuvlar birinchi chiqib), shulardan
-  // faqat dastlabki 4 tasini olar edi — shu sabab "waiting" (hali
-  // boshlanmagan) yozuvlar deyarli hech qachon ro'yxatga kirmasdi.
-  // Endi eng muhimi (waiting) birinchi, keyin in_progress, oxirida
-  // completed tartibida chiqadi.
-  const recentTreatments = [...waiting, ...in_progress, ...completed]
-    .slice(0, 4)
-    .map(t => {
-      const statusInfo = STATUS_MAP[t.status] || { label: t.status, key: 'pending' }
-      const patient = t.patient || {}
+  // ✅ Bemorlar ro'yxatidagi rejalar ichidan eng oxirgi 5 tasi.
+  // "Eng oxirgi" = eng katta treatment_plan_id (eng yangi yaratilgan reja).
+  const recentPlans = groupByPlan(waiting, in_progress, completed)
+    .sort((a, b) => b.planId - a.planId)
+    .slice(0, 5)
+    .map(p => ({
+      planId: p.planId,
+      name: `${p.first_name} ${p.last_name}`.trim() || "Noma'lum",
+      task: p.diagnosis || `№${p.planId}-reja`,
+      progress: `${p.doneCount}/${p.total} bajarilgan`,
+      avatar: p.first_name ? p.first_name[0].toUpperCase() : '?',
+      statusLabel: p.statusLabel,
+      statusKey: p.statusKey,
+    }))
 
-      return {
-        id: t.id,
-        patientId: patient.id,
-        name: `${patient.first_name || ''} ${patient.last_name || ''}`.trim() || "Noma'lum",
-        task: t.treatment || "Ko'rsatilmagan",
-        avatar: patient.first_name ? patient.first_name[0].toUpperCase() : '?',
-        statusLabel: statusInfo.label,
-        statusKey: statusInfo.key,
-        status: t.status,
-      }
-    })
-
-  // ✅ YANGI: endi "Boshlash"/"Tugatish" tugmalari yo'q — qatorga
-  // bosilganda hamshiraning "yotib davolanayotgan bemorlar" detail
-  // sahifasiga (/nurse-inpatients/:id) o'tadi.
-  const goToInpatientDetail = (patientId) => {
-    if (patientId == null) return
-    navigate(`/nurse/inpatient/${patientId}`)
+  // Qatorga bosilganda REJA detail sahifasiga o'tadi
+  // (detail sahifa endi bemor id emas, planId kutadi)
+  const goToInpatientDetail = (planId) => {
+    if (planId == null) return
+    navigate(`/nurse/inpatient/${planId}`)
   }
 
   return (
@@ -174,34 +212,34 @@ const NurseHome = () => {
 
         <div className={s.PatientsCard}>
           <div className={s.UpcomingHead}>
-            <h3>Davolashlar ro'yxati</h3>
+            <h3>So'nggi bemorlar</h3>
           </div>
 
           {loading ? (
             <p className={s.Empty}>Yuklanmoqda...</p>
           ) : error ? (
             <p className={s.Empty}>Xatolik: {error}</p>
-          ) : recentTreatments.length === 0 ? (
-            <p className={s.Empty}>Hozircha davolashlar mavjud emas</p>
+          ) : recentPlans.length === 0 ? (
+            <p className={s.Empty}>Hozircha bemorlar mavjud emas</p>
           ) : (
             <ul>
-              {recentTreatments.map((t) => (
+              {recentPlans.slice(0, 10).map((p) => (
                 <li
-                  key={t.id}
+                  key={p.planId}
                   className={s.ClickableRow}
-                  onClick={() => goToInpatientDetail(t.patientId)}
+                  onClick={() => goToInpatientDetail(p.planId)}
                 >
                   <div className={s.PatientLeft}>
-                    <div className={s.Avatar}>{t.avatar}</div>
+                    <div className={s.Avatar}>{p.avatar}</div>
                     <div>
-                      <p>{t.name}</p>
-                      <span>{t.task}</span>
+                      <p>{p.name}</p>
+                      <span>{p.task} · {p.progress}</span>
                     </div>
                   </div>
 
                   <div className={s.RowRight}>
-                    <span className={`${s.Status} ${s[t.statusKey]}`}>
-                      {t.statusLabel}
+                    <span className={`${s.Status} ${s[p.statusKey]}`}>
+                      {p.statusLabel}
                     </span>
                   </div>
                 </li>

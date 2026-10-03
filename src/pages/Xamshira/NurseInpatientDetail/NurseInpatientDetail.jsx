@@ -4,6 +4,7 @@ import s from './NurseInpatientDetail.module.scss';
 import { api } from '../../../App';
 import Modal from '../../../components/Modal/Modal';
 import ImageZoomViewer from '../../../components/shared/ImageZoomViewer/ImageZoomViewer';
+import { useToast } from '../../../context/ToastContext';
 
 // ============================================================
 // Yordamchi funksiyalar
@@ -33,8 +34,42 @@ const isImage = (url) => {
     return /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(clean);
 };
 
-const getPlanDiagnosis = (planItems) => {
-    const first = planItems?.[0] || {};
+const formatDate = (iso) => {
+    if (!iso) return '';
+    const [y, m, d] = String(iso).split('-');
+    return y && m && d ? `${d}.${m}.${y}` : iso;
+};
+
+// ------------------------------------------------------------
+// YANGI API: har bir element — bitta KUN, muolajalar `items` ichida.
+// Kun statusi shu muolajalar statuslaridan hisoblanadi.
+// ------------------------------------------------------------
+const getDayStatus = (items = []) => {
+    const statuses = items.map(t => t.status);
+    if (statuses.length === 0) return 'WAITING';
+    if (statuses.every(st => st === 'DONE')) return 'DONE';
+    if (statuses.every(st => st === 'CANCELLED')) return 'CANCELLED';
+    if (statuses.some(st => st === 'IN_PROGRESS')) return 'IN_PROGRESS';
+    if (statuses.some(st => st === 'DONE')) return 'IN_PROGRESS'; // qisman bajarilgan
+    return 'WAITING';
+};
+
+// ✅ YANGI: kun yakunlangan hisoblanadimi (bajarilgan yoki bekor qilingan)
+const isDayFinished = (day) => day.status === 'DONE' || day.status === 'CANCELLED';
+
+// ✅ YANGI: tanlangan kundan oldingi, hali yakunlanmagan birinchi kunni topadi.
+// Bajarilgan kun hech qachon qulflanmaydi (uni ko'rib chiqish mumkin).
+const findBlockingDay = (days, targetDay) => {
+    if (!targetDay || targetDay.status === 'DONE') return null;
+    return (
+        [...days]
+            .sort((a, b) => a.day_number - b.day_number)
+            .find(d => d.day_number < targetDay.day_number && !isDayFinished(d)) || null
+    );
+};
+
+const getPlanDiagnosis = (days) => {
+    const first = days?.[0] || {};
     return (
         first.diagnosis ||
         first.plan?.diagnosis ||
@@ -44,53 +79,15 @@ const getPlanDiagnosis = (planItems) => {
     );
 };
 
-const getDoctorsLabel = (planItems) => {
+const getDoctorsLabel = (days) => {
     const label = Array.from(
         new Map(
-            (planItems || [])
-                .flatMap(i => i.doctors || [])
+            (days || [])
+                .flatMap(d => d.doctors || [])
                 .map(d => [d.id, `${d.first_name || ''} ${d.last_name || ''}`.trim()])
         ).values()
     ).join(', ');
     return label || "Ko'rsatilmagan";
-};
-
-// ------------------------------------------------------------
-// Kun statusi — shu kundagi muolajalar statuslaridan hisoblanadi
-// ------------------------------------------------------------
-const getDayStatus = (treatments) => {
-    const statuses = treatments.map(t => t.status);
-    if (statuses.length === 0) return 'WAITING';
-    if (statuses.every(st => st === 'DONE')) return 'DONE';
-    if (statuses.every(st => st === 'CANCELLED')) return 'CANCELLED';
-    if (statuses.some(st => st === 'IN_PROGRESS')) return 'IN_PROGRESS';
-    if (statuses.some(st => st === 'DONE')) return 'IN_PROGRESS'; // qisman bajarilgan
-    return 'WAITING';
-};
-
-// ------------------------------------------------------------
-// day_id bo'yicha guruhlash: 1 kun = 1 karta, ichida muolajalar
-// ------------------------------------------------------------
-const groupByDay = (planItems) => {
-    const map = new Map();
-
-    planItems.forEach(item => {
-        if (!map.has(item.day_id)) {
-            map.set(item.day_id, {
-                day_id: item.day_id,
-                day_number: item.day_number,
-                treatments: [],
-            });
-        }
-        map.get(item.day_id).treatments.push(item);
-    });
-
-    return Array.from(map.values())
-        .map(day => {
-            const treatments = day.treatments.slice().sort((a, b) => a.id - b.id);
-            return { ...day, treatments, status: getDayStatus(treatments) };
-        })
-        .sort((a, b) => a.day_number - b.day_number);
 };
 
 // ============================================================
@@ -101,11 +98,12 @@ const NurseInpatientDetail = () => {
     // Route'dan to'g'ridan-to'g'ri REJA id (treatment_plan_id) olinadi
     const { planId } = useParams();
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const [patient, setPatient] = useState(null);
     const [diagnosis, setDiagnosis] = useState(null);
     const [doctorsLabel, setDoctorsLabel] = useState("Ko'rsatilmagan");
-    const [dayItems, setDayItems] = useState([]); // guruhlangan kunlar
+    const [dayItems, setDayItems] = useState([]); // kunlar (har birida items = muolajalar)
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -115,7 +113,6 @@ const NurseInpatientDetail = () => {
 
     // Har bir muolaja uchun alohida qoralama: { [treatmentId]: { file, comment } }
     const [drafts, setDrafts] = useState({});
-    // Hozir so'rov ketayotgan muolaja id si
     const [savingId, setSavingId] = useState(null);
     const [formError, setFormError] = useState('');
 
@@ -134,12 +131,12 @@ const NurseInpatientDetail = () => {
     const getToken = () => localStorage.getItem('hospital_access');
 
     // ------------------------------------------------------------
-    // FETCH — /nurse/treatments/ dan faqat shu REJAga tegishli
-    // yozuvlarni olib, kun bo'yicha guruhlaymiz.
+    // FETCH — /nurse/treatments/ dan shu REJAga (planId) tegishli
+    // kunlarni ajratib olamiz.
     // ------------------------------------------------------------
     const fetchDetail = async (silent = false) => {
         try {
-            // Qayta yuklashda (start/complete dan keyin) butun sahifani
+            // Start/complete'dan keyin qayta yuklashda sahifani
             // "yuklanmoqda" ga almashtirmaymiz — modal yopilib ketmasligi uchun.
             if (!silent) setLoading(true);
             setError(null);
@@ -151,23 +148,28 @@ const NurseInpatientDetail = () => {
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
             const data = await res.json();
-            const all = [
+            const allDays = [
                 ...(data.waiting || []),
                 ...(data.in_progress || []),
                 ...(data.completed || []),
             ];
 
-            const planItems = all.filter(
-                item => String(item.treatment_plan_id) === String(planId)
-            );
+            const planDays = allDays
+                .filter(day => String(day.treatment_plan_id) === String(planId))
+                .map(day => ({
+                    ...day,
+                    items: (day.items || []).slice().sort((a, b) => a.id - b.id),
+                    status: getDayStatus(day.items),
+                }))
+                .sort((a, b) => a.day_number - b.day_number);
 
-            if (planItems.length > 0) {
-                setPatient(planItems[0].patient);
+            if (planDays.length > 0) {
+                setPatient(planDays[0].patient);
             }
 
-            setDiagnosis(getPlanDiagnosis(planItems));
-            setDoctorsLabel(getDoctorsLabel(planItems));
-            setDayItems(groupByDay(planItems));
+            setDiagnosis(getPlanDiagnosis(planDays));
+            setDoctorsLabel(getDoctorsLabel(planDays));
+            setDayItems(planDays);
         } catch (err) {
             console.error('Reja tafsilotlarini olishda xatolik:', err);
             setError(err.message);
@@ -182,6 +184,16 @@ const NurseInpatientDetail = () => {
     }, [planId, reloadKey]);
 
     const activeDay = dayItems.find((d) => d.day_id === activeDayId) || null;
+
+    // ------------------------------------------------------------
+    // ✅ YANGI: qulf ogohlantirishi
+    // ------------------------------------------------------------
+    const warnBlocked = (blocking) => {
+        showToast(
+            `Avval ${blocking.day_number}-kunni bajarishingiz kerak!`,
+            'warning'
+        );
+    };
 
     // ------------------------------------------------------------
     // Qoralama (draft) yordamchilari
@@ -208,6 +220,13 @@ const NurseInpatientDetail = () => {
     // Modal ochish / yopish
     // ------------------------------------------------------------
     const openDay = (day) => {
+        // ✅ YANGI: oldingi kun bajarilmagan bo'lsa — ochmaymiz, ogohlantiramiz
+        const blocking = findBlockingDay(dayItems, day);
+        if (blocking) {
+            warnBlocked(blocking);
+            return;
+        }
+
         setFormError('');
         setActiveDayId(day.day_id);
     };
@@ -215,9 +234,16 @@ const NurseInpatientDetail = () => {
     const closeDrawer = () => setActiveDayId(null);
 
     // ------------------------------------------------------------
-    // Muolajani boshlash — id = MUOLAJA id si (masalan 85, 86, 87)
+    // Muolajani boshlash — id = MUOLAJA (item) id si
     // ------------------------------------------------------------
     const handleStart = async (treatmentId) => {
+        // ✅ YANGI: qo'shimcha himoya
+        const blocking = findBlockingDay(dayItems, activeDay);
+        if (blocking) {
+            warnBlocked(blocking);
+            return;
+        }
+
         try {
             setSavingId(treatmentId);
             setFormError('');
@@ -246,6 +272,13 @@ const NurseInpatientDetail = () => {
     // Backend boshqacha kutsa, shu joyni to'g'irlash kerak bo'ladi.
     // ------------------------------------------------------------
     const handleFinish = async (treatment) => {
+        // ✅ YANGI: qo'shimcha himoya
+        const blocking = findBlockingDay(dayItems, activeDay);
+        if (blocking) {
+            warnBlocked(blocking);
+            return;
+        }
+
         const { file, comment } = getDraft(treatment);
 
         try {
@@ -295,6 +328,7 @@ const NurseInpatientDetail = () => {
         const draft = getDraft(t);
         const isSaving = savingId === t.id;
         const anySaving = savingId !== null;
+        const fileUrl = t.file_url || t.result_file_url;
 
         return (
             <div key={t.id} className={s.StatusBox} style={{ marginBottom: 16 }}>
@@ -302,9 +336,26 @@ const NurseInpatientDetail = () => {
                     <span className="label">
                         <i className="bi bi-clipboard2-pulse"></i>{' '}
                         <strong>{t.treatment || "Ko'rsatilmagan"}</strong>
+                        {t.time ? ` · ${t.time}` : ''}
                     </span>
                     {renderStatusPill(t.status)}
                 </div>
+
+                {t.service_detail?.name && (
+                    <p className={s.FormInfo} style={{ marginTop: 8 }}>
+                        <i className="bi bi-bandaid"></i> {t.service_detail.name}
+                    </p>
+                )}
+
+                {t.medicines?.length > 0 && (
+                    <ul style={{ margin: '8px 0', paddingLeft: 18, fontSize: 13 }}>
+                        {t.medicines.map(m => (
+                            <li key={m.id}>
+                                {m.medicine_detail?.name || 'Dori'} — {m.quantity} dona
+                            </li>
+                        ))}
+                    </ul>
+                )}
 
                 {t.status === 'WAITING' && (
                     <>
@@ -323,7 +374,7 @@ const NurseInpatientDetail = () => {
                         </button>
                     </>
                 )}
-
+{/* 
                 {t.status === 'IN_PROGRESS' && (
                     <>
                         <div className={s.Field}>
@@ -354,18 +405,18 @@ const NurseInpatientDetail = () => {
                                 onChange={(e) => setDraft(t.id, { comment: e.target.value })}
                             />
                         </div>
-
-                        <button
-                            type="button"
-                            className={s.FinishBtn}
-                            onClick={() => handleFinish(t)}
-                            disabled={anySaving}
-                        >
-                            <i className="bi bi-check-lg"></i>{' '}
-                            {isSaving ? 'Saqlanmoqda...' : 'Yakunlash'}
-                        </button>
                     </>
-                )}
+                )} */}
+
+                <button
+                    type="button"
+                    className={s.FinishBtn}
+                    onClick={() => handleFinish(t)}
+                    disabled={anySaving}
+                >
+                    <i className="bi bi-check-lg"></i>{' '}
+                    {isSaving ? 'Saqlanmoqda...' : 'Yakunlash'}
+                </button>
 
                 {t.status === 'DONE' && (
                     <div className={s.DoneBox}>
@@ -380,24 +431,20 @@ const NurseInpatientDetail = () => {
                                 </div>
                             )}
 
-                            {t.result_file_url && (
+                            {fileUrl && (
                                 <div className={s.FilePreviewBox}>
                                     <button
                                         type="button"
                                         className={s.FileViewBtn}
                                         onClick={() =>
-                                            isImage(t.result_file_url)
-                                                ? openImageModal(t.result_file_url)
-                                                : window.open(
-                                                    t.result_file_url,
-                                                    '_blank',
-                                                    'noopener,noreferrer'
-                                                )
+                                            isImage(fileUrl)
+                                                ? openImageModal(fileUrl)
+                                                : window.open(fileUrl, '_blank', 'noopener,noreferrer')
                                         }
                                     >
                                         <i
                                             className={
-                                                isImage(t.result_file_url)
+                                                isImage(fileUrl)
                                                     ? 'bi bi-image'
                                                     : 'bi bi-file-earmark-pdf'
                                             }
@@ -441,9 +488,9 @@ const NurseInpatientDetail = () => {
     }
 
     const doneDays = dayItems.filter(d => d.status === 'DONE').length;
-    const totalTreatments = dayItems.reduce((sum, d) => sum + d.treatments.length, 0);
+    const totalTreatments = dayItems.reduce((sum, d) => sum + d.items.length, 0);
     const doneTreatments = dayItems.reduce(
-        (sum, d) => sum + d.treatments.filter(t => t.status === 'DONE').length,
+        (sum, d) => sum + d.items.filter(t => t.status === 'DONE').length,
         0
     );
 
@@ -522,36 +569,51 @@ const NurseInpatientDetail = () => {
                 <h2>Kunlik reja</h2>
 
                 <div className={s.PlanDaysGrid}>
-                    {dayItems.map((day) => (
-                        <button
-                            key={day.day_id}
-                            type="button"
-                            className={s.DayCardBtn}
-                            onClick={() => openDay(day)}
-                        >
-                            <div className={s.DayCardTop}>
-                                <span className={s.DayBadge}>
-                                    {day.day_number}-kun
-                                </span>
-                                {renderStatusPill(day.status)}
-                            </div>
+                    {dayItems.map((day) => {
+                        const locked = !!findBlockingDay(dayItems, day);
 
-                            {day.treatments.map((t) => (
-                                <div key={t.id} className={s.DayServiceMini}>
-                                    <i className="bi bi-clipboard2-pulse"></i>
-                                    <span className="name">{t.treatment || "Ko'rsatilmagan"}</span>
-                                    <span style={{ marginLeft: 'auto' }}>
-                                        {renderStatusPill(t.status)}
+                        return (
+                            <button
+                                key={day.day_id}
+                                type="button"
+                                className={`${s.DayCardBtn} ${locked ? s.DayCardLocked : ''}`}
+                                onClick={() => openDay(day)}
+                            >
+                                <div className={s.DayCardTop}>
+                                    <span className={s.DayBadge}>
+                                        {locked && <i className="bi bi-lock-fill"></i>}
+                                        {day.day_number}-kun
                                     </span>
+                                    {renderStatusPill(day.status)}
                                 </div>
-                            ))}
 
-                            <div className={s.DayCardFoot}>
-                                <span>Batafsil ko'rish</span>
-                                <i className="bi bi-chevron-right"></i>
-                            </div>
-                        </button>
-                    ))}
+                                {day.date && (
+                                    <div className={s.DayServiceMini}>
+                                        <i className="bi bi-calendar3"></i>
+                                        <span className="name">{formatDate(day.date)}</span>
+                                    </div>
+                                )}
+
+                                {day.items.map((t) => (
+                                    <div key={t.id} className={s.DayServiceMini}>
+                                        <i className="bi bi-clipboard2-pulse"></i>
+                                        <span className="name">
+                                            {t.time ? `${t.time} · ` : ''}
+                                            {t.treatment || "Ko'rsatilmagan"}
+                                        </span>
+                                        <span style={{ marginLeft: 'auto' }}>
+                                            {renderStatusPill(t.status)}
+                                        </span>
+                                    </div>
+                                ))}
+
+                                <div className={s.DayCardFoot}>
+                                    <span>{locked ? 'Qulflangan' : "Batafsil ko'rish"}</span>
+                                    <i className={`bi ${locked ? 'bi-lock' : 'bi-chevron-right'}`}></i>
+                                </div>
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -562,7 +624,11 @@ const NurseInpatientDetail = () => {
                         <div className={s.DrawerHead}>
                             <div>
                                 <h2>{activeDay.day_number}-kun</h2>
-                                <p>{activeDay.treatments.length} ta muolaja</p>
+                                <p>
+                                    {formatDate(activeDay.date)}
+                                    {activeDay.date ? ' · ' : ''}
+                                    {activeDay.items.length} ta muolaja
+                                </p>
                             </div>
                         </div>
 
@@ -577,7 +643,7 @@ const NurseInpatientDetail = () => {
                                 </p>
                             )}
 
-                            {activeDay.treatments.map(renderTreatmentBlock)}
+                            {activeDay.items.map(renderTreatmentBlock)}
                         </div>
                     </>
                 )}

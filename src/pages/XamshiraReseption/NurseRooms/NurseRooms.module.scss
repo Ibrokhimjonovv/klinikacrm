@@ -4,9 +4,9 @@ $border: #e5e7eb;
 $text-muted: #6b7280;
 $success-bg: rgba(14, 27, 51, 0.06);
 
-.wrapper {
-    padding: 24px;
-}
+// .wrapper {
+//     padding: 24px;
+// }
 
 .header {
     display: flex;
@@ -365,4 +365,80 @@ $success-bg: rgba(14, 27, 51, 0.06);
 .freeStatus {
     color: #15803d;
     font-weight: 600;
+}
+
+// Qavatlar bo'yicha filtr
+.floorTabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.floorTab {
+    padding: 8px 16px;
+    border: 1px solid #eee;
+    border-radius: 20px;
+    background: #fff;
+    color: #1b3050;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+
+    &:hover:not(.active) {
+        background-color: #eaf0f7;
+        border-color: #4a7bb5;
+        color: #4a7bb5;
+    }
+
+    &.active {
+        background: linear-gradient(135deg, #4a7bb5, #1b3050);
+        border-color: transparent;
+        color: #fff;
+        font-weight: 600;
+    }
+}
+
+// Qavat sarlavhasi
+.floorHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+
+    .blockTitle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+
+        i { color: #4a7bb5; }
+    }
+}
+
+.floorStats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+
+    span {
+        padding: 4px 10px;
+        border-radius: 20px;
+        background-color: #eaf0f7;
+        color: #4a7bb5;
+    }
+
+    .statFree {
+        background-color: #e9f7ef;
+        color: #17643c;
+    }
+
+    .statFull {
+        background-color: #fdecea;
+        color: #c0392b;
+    }
 }

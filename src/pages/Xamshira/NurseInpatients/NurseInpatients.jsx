@@ -3,6 +3,9 @@ import s from "./NurseInpatients.module.scss"
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../../App';
 
+import Pagination from '../../../components/shared/Pagination/Pagination';
+import usePagination from '../../../components/shared/Pagination/usePagination';
+
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
     const diff = Date.now() - new Date(birthDate).getTime()
@@ -53,9 +56,10 @@ const groupByPlan = (waiting, inProgress, completed) => {
         const entry = map.get(key)
         entry.items.push(item)
 
-        if (item.status === 'WAITING') entry.waitingCount++
-        else if (item.status === 'IN_PROGRESS') entry.progressCount++
-        else if (item.status === 'DONE') entry.doneCount++
+        // ✅ Kun obyektida `status` yo'q — kun holatini qaysi ro'yxatdan kelganiga qarab olamiz
+        if (item._bucket === 'WAITING') entry.waitingCount++
+        else if (item._bucket === 'IN_PROGRESS') entry.progressCount++
+        else if (item._bucket === 'DONE') entry.doneCount++
 
         for (const doc of item.doctors || []) {
             entry.doctors.set(doc.id, `${doc.first_name || ''} ${doc.last_name || ''}`.trim())
@@ -135,6 +139,15 @@ const NurseInpatients = () => {
         return fullName.includes(search.toLowerCase())
     })
 
+    const {
+        pageItems,
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
+        total,
+    } = usePagination(filtered, 100)
+
     if (loading) {
         return (
             <div className={s.PatientsPage}>
@@ -206,7 +219,7 @@ const NurseInpatients = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map(p => (
+                            {pageItems.map(p => (
                                 <tr key={p.planId} onClick={() => navigate(`/nurse/inpatient/${p.planId}`)}>
                                     <td>
                                         <div className={s.NameCell}>
@@ -237,7 +250,7 @@ const NurseInpatients = () => {
 
             {view === 'card' && filtered.length > 0 && (
                 <div className={s.CardsGrid}>
-                    {filtered.map(p => (
+                    {pageItems.map(p => (
                         <div
                             key={p.planId}
                             className={s.PatientCard}
@@ -263,6 +276,14 @@ const NurseInpatients = () => {
                     ))}
                 </div>
             )}
+
+            <Pagination
+                total={total}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+            />
 
         </div>
     )

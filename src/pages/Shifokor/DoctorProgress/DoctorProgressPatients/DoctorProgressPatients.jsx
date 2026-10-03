@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../../../../App';
 import DateTimeFormatter from '../../../../components/shared/DateTimeFormatter/DateTimeFormatter';
 
+import Pagination from '../../../../components/shared/Pagination/Pagination';
+import usePagination from '../../../../components/shared/Pagination/usePagination';
+
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
     const diff = Date.now() - new Date(birthDate).getTime()
@@ -115,6 +118,15 @@ const DoctorProgressPatients = () => {
         return fullName.includes(search.toLowerCase())
     })
 
+    const {
+        pageItems,
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
+        total,
+    } = usePagination(filtered, 100)
+
     if (loading) {
         return (
             <div className={s.PatientsPage}>
@@ -186,7 +198,8 @@ const DoctorProgressPatients = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map(p => (
+                            {pageItems.map(p => (
+
                                 <tr key={p.id} onClick={() => navigate(`/doctor/patients/progress/${p.id}`)}>
                                     <td>
                                         <div className={s.NameCell}>
@@ -236,7 +249,7 @@ const DoctorProgressPatients = () => {
 
             {view === 'card' && filtered.length > 0 && (
                 <div className={s.CardsGrid}>
-                    {filtered.map(p => (
+                    {pageItems.map(p => (
                         <div
                             key={p.id}
                             className={s.PatientCard}
@@ -267,6 +280,14 @@ const DoctorProgressPatients = () => {
                     ))}
                 </div>
             )}
+
+            <Pagination
+                total={total}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+            />
 
         </div>
     )

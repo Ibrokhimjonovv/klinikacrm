@@ -111,7 +111,7 @@ const ResNurseHome = () => {
                     <p className={s.Empty}>Bugun hali hech kim qabul qilinmagan</p>
                 ) : (
                     <ul>
-                        {todayAdmissions.map((p) => (
+                        {todayAdmissions.slice(0, 10).map((p) => (
                             <li key={p.id}>
                                 <Link to={`/nurse/patients/patient/${p.id}`}>
                                     <div className={s.PatientLeft}>

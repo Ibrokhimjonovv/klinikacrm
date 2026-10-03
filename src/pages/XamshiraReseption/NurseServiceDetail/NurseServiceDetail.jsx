@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 import s from './NurseServiceDetail.module.scss';
 import { api } from '../../../App'; // yo'lni loyihangizga moslang
@@ -7,6 +8,9 @@ import { useAppContext } from '../../../context/context';
 import Loading from '../../../components/Loading/Loading';
 import Modal from '../../../components/Modal/Modal';
 import ServicePatientAdd from '../../../components/shared/ServicePatientAdd/ServicePatientAdd';
+import PrintReceipt, { logoReady } from '../../../components/shared/PrintReceipt/PrintReceipt';
+import Pagination from '../../../components/shared/Pagination/Pagination';
+import usePagination from '../../../components/shared/Pagination/usePagination';
 
 // ⚠️ API manzillarini backend'ingizga moslang
 const SERVICES_PATH = '/services/';        // GET  /services/:id/
@@ -63,6 +67,10 @@ const NurseServiceDetail = () => {
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
 
+  // ✅ YANGI: oxirgi muvaffaqiyatli biriktirish — chek shundan chiqariladi.
+  // (`selected` biriktirishdan keyin tozalanadi, shuning uchun alohida saqlaymiz)
+  const [assigned, setAssigned] = useState(null); // { patient, requestId }
+
   const getToken = () => localStorage.getItem('hospital_access');
 
   // Bemorlar ro'yxati bo'sh bo'lsagina qayta so'raymiz
@@ -118,11 +126,20 @@ const NurseServiceDetail = () => {
         (p.complaint || '').toLowerCase().includes(q)
     );
   }, [displayPatients, search]);
+  const {
+    pageItems,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    total,
+  } = usePagination(filtered, 100);
 
   // Yangi bemor yaratilganda — yuqorida ko'rsatamiz va avtomatik tanlaymiz
   const handleCreated = (patient) => {
     setFormError('');
     setFormSuccess('');
+    setAssigned(null);
     setNewPatient(patient);
     setSelected(patient);
   };
@@ -130,6 +147,7 @@ const NurseServiceDetail = () => {
   const togglePatient = (p) => {
     setFormError('');
     setFormSuccess('');
+    setAssigned(null); // yangi bemor tanlansa, eski chek yashiriladi
     setSelected(selected?.id === p.id ? null : p);
   };
 
@@ -142,6 +160,7 @@ const NurseServiceDetail = () => {
       setAssigning(true);
       setFormError('');
       setFormSuccess('');
+      setAssigned(null);
 
       const res = await fetch(`${api}${ASSIGN_PATH}`, {
         method: 'POST',
@@ -154,6 +173,8 @@ const NurseServiceDetail = () => {
       }
 
       setFormSuccess(`${getName(selected)} xizmatga biriktirildi`);
+      // Chek uchun bemor va (backend qaytarsa) so'rov ID'sini saqlaymiz
+      setAssigned({ patient: selected, requestId: data?.id || null });
       setSelected(null);
     } catch (err) {
       console.error('Biriktirishda xatolik:', err);
@@ -161,6 +182,12 @@ const NurseServiceDetail = () => {
     } finally {
       setAssigning(false);
     }
+  };
+
+  // ✅ YANGI: chek chop etish — logotip yuklanib bo'lishini kutib, keyin print
+  const handlePrint = async () => {
+    await logoReady;
+    window.print();
   };
 
   // Bitta bemor qatori (yuqori blokda ham, ro'yxatda ham ishlatiladi)
@@ -200,6 +227,17 @@ const NurseServiceDetail = () => {
   if (patientsLoading || serviceLoading) return <Loading />;
   if (patientsError) return <p>{patientsError}</p>;
   if (serviceError) return <p>Xizmatni yuklashda xatolik: {serviceError}</p>;
+
+  // Chek ma'lumotlari — bemor sahifalaridagi maydon nomlari turlicha bo'lishi mumkin
+  const receiptPatient = assigned?.patient;
+  const receiptInfo = receiptPatient
+    ? [
+      { label: 'Xizmat', value: service?.name },
+      { label: 'Narxi', value: formatSum(service?.price) },
+      { label: 'Telefon', value: receiptPatient.contact_number || receiptPatient.phone },
+      { label: "Tug'ilgan sana", value: receiptPatient.date_of_birth || receiptPatient.birth_date },
+    ].filter((row) => row.value)
+    : [];
 
   return (
     <div className={s.HomeContainer}>
@@ -249,25 +287,42 @@ const NurseServiceDetail = () => {
           </div>
         </div>
 
-        {filtered.length === 0 ? (
+        {total === 0 ? (
           <p className={s.Empty}>Bemor topilmadi</p>
         ) : (
           <ul>
-            {filtered.map((p) => (
+            {pageItems.map((p) => (
               <li key={p.id}>{renderPatientRow(p)}</li>
             ))}
           </ul>
         )}
+
+        <Pagination
+          total={total}
+          page={page}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
 
         {formError && (
           <p className={s.FormError}>
             <i className="bi bi-exclamation-circle-fill"></i> {formError}
           </p>
         )}
+
+        {/* ✅ Muvaffaqiyat xabari + chek tugmasi — biriktirish tugmasi yonida */}
         {formSuccess && (
-          <p className={s.FormSuccess}>
-            <i className="bi bi-check-circle-fill"></i> {formSuccess}
-          </p>
+          <div className={s.SuccessRow}>
+            <p className={s.FormSuccess}>
+              <i className="bi bi-check-circle-fill"></i> {formSuccess}
+            </p>
+            {assigned && (
+              <button type="button" className={s.PrintBtn} onClick={handlePrint}>
+                <i className="bi bi-printer"></i> Chek chop etish
+              </button>
+            )}
+          </div>
         )}
 
         <button
@@ -280,8 +335,8 @@ const NurseServiceDetail = () => {
           {assigning
             ? 'Biriktirilmoqda...'
             : selected
-            ? `${getName(selected)} ni biriktirish`
-            : 'Bemorni tanlang'}
+              ? `${getName(selected)} ni biriktirish`
+              : 'Bemorni tanlang'}
         </button>
       </div>
 
@@ -292,6 +347,19 @@ const NurseServiceDetail = () => {
           onClose={() => setShowAdd(false)}
         />
       </Modal>
+
+      {/* CHOP ETISH SHABLONI — ekranda ko'rinmaydi, faqat print paytida chiqadi */}
+      {assigned &&
+        createPortal(
+          <div className="print-root">
+            <PrintReceipt
+              title="Xizmat varaqasi"
+              patientName={getName(receiptPatient)}
+              patientInfo={receiptInfo}
+            />
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

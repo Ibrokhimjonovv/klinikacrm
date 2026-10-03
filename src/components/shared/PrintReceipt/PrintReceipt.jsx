@@ -4,8 +4,8 @@ import logo from './logo.png';
 import s from './PrintReceipt.module.scss';
 
 const CLINIC_NAME = 'American Orthopedic Center';
-const SITE_URL = 'https://aoc-center.uz';
-const SITE_LABEL = 'aoc-center.uz';
+const SITE_URL = 'https://aoc.uz';
+const SITE_LABEL = 'aoc.uz';
 const INSTAGRAM_HANDLE = '@american_orthopedic_center';
 
 const pad = (n) => String(n).padStart(2, '0');
@@ -61,8 +61,8 @@ export const logoReady = new Promise((resolve) => {
  *  - complaintId: shikoyat ID raqami
  *  - complaint:   shikoyat matni
  *  - notes:       izoh
- *  - qrUrl:       QR code ichidagi link (default: https://aoc-center.uz)
- *  - qrCaption:   QR ostidagi yozuv (default: "aoc-center.uz")
+ *  - qrUrl:       QR code ichidagi link (default: https://aoc.uz)
+ *  - qrCaption:   QR ostidagi yozuv (default: "aoc.uz")
  */
 const PrintReceipt = ({
     title = 'Bemor qabul varaqasi',

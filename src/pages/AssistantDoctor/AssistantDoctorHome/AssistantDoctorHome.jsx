@@ -206,7 +206,7 @@ const AssistantDoctorHome = () => {
             <p className={s.Empty}>Hozircha vazifalar mavjud emas</p>
           ) : (
             <ul>
-              {recentTasks.map((t) => (
+              {recentTasks.slice(0, 10).map((t) => (
                 <li key={t.id}>
                   <div className={s.PatientLeft}>
                     <div className={s.Avatar}>{t.avatar}</div>

@@ -9,11 +9,54 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;   // ← qo'shing
+    gap: 12px;         // ← qo'shing
     margin-bottom: 16px;
 
     h3 {
         font-size: 16px;
         color: #1b3050;
+    }
+}
+
+.ListHeadLeft {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.SearchBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 280px;
+
+    i {
+        position: absolute;
+        left: 12px;
+        color: #888;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px 12px 10px 36px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #1b3050;
+        background: #fff;
+        outline: none;
+
+        &:focus {
+            border-color: #4a7bb5;
+        }
+    }
+}
+
+@media (max-width: 600px) {
+    .SearchBox {
+        min-width: 0;
+        width: 100%;
     }
 }
 

@@ -1,0 +1,129 @@
+.Pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding-top: 14px;
+    margin-top: 8px;
+    border-top: 1px solid #9999993a;
+    flex-shrink: 0;
+}
+
+.Left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.Summary {
+    font-size: 13px;
+    color: #888;
+
+    strong {
+        color: #1b3050;
+        font-weight: 600;
+    }
+}
+
+.SizeSelect {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #888;
+
+    select {
+        padding: 7px 28px 7px 12px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        background-color: #fff;
+        color: #1b3050;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        outline: none;
+        appearance: none;
+        // kichik pastga qaragan strelka
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' fill='none' stroke='%234a7bb5' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+
+        &:hover,
+        &:focus {
+            border-color: #4a7bb5;
+        }
+    }
+}
+
+.Pages {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.PageBtn,
+.NavBtn {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    background-color: #fff;
+    color: #1b3050;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+
+    &:hover:not(:disabled):not(.Active) {
+        background-color: #eaf0f7;
+        border-color: #4a7bb5;
+        color: #4a7bb5;
+    }
+
+    &:focus-visible {
+        outline: 2px solid #4a7bb5;
+        outline-offset: 2px;
+    }
+
+    &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+}
+
+.Active {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    border-color: transparent;
+    color: #fff;
+    font-weight: 600;
+    cursor: default;
+}
+
+.Dots {
+    min-width: 24px;
+    text-align: center;
+    color: #999;
+    user-select: none;
+}
+
+@media (max-width: 600px) {
+    .Pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .Left {
+        justify-content: space-between;
+    }
+
+    .Pages {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}

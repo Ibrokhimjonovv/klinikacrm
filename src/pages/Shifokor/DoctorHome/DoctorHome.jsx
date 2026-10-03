@@ -168,7 +168,7 @@ const DoctorHome = () => {
             <p className={s.Empty}>Hozircha bemorlar mavjud emas</p>
           ) : (
             <ul>
-              {recentPatients.map((p) => (
+              {recentPatients.slice(0, 10).map((p) => (
                 <li key={p.id}>
                   <div className={s.PatientLeft}>
                     <div className={s.Avatar}>{p.avatar}</div>

@@ -3,6 +3,9 @@ import s from "./DoctorWaitingPatients.module.scss"
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../../../../App';
 
+import Pagination from '../../../../components/shared/Pagination/Pagination';
+import usePagination from '../../../../components/shared/Pagination/usePagination';
+
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
     const diff = Date.now() - new Date(birthDate).getTime()
@@ -74,6 +77,15 @@ const DoctorWaitingPatients = () => {
         const fullName = `${p.first_name} ${p.last_name} ${p.middle_name}`.toLowerCase()
         return fullName.includes(search.toLowerCase())
     })
+
+    const {
+        pageItems,
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
+        total,
+    } = usePagination(filtered, 100)
 
     const [searchParams] = useSearchParams()
     const flow = searchParams.get('flow') || 'treatment'
@@ -154,7 +166,7 @@ const DoctorWaitingPatients = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map(p => (
+                            {pageItems.map(p => (
                                 <tr key={p.id} onClick={() => navigate(`/doctor/patients/waitings/${p.id}/${flow}`)}>
                                     <td>
                                         <div className={s.NameCell}>
@@ -186,7 +198,7 @@ const DoctorWaitingPatients = () => {
 
             {view === 'card' && filtered.length > 0 && (
                 <div className={s.CardsGrid}>
-                    {filtered.map(p => (
+                    {pageItems.map(p => (
                         <div
                             key={p.id}
                             className={s.PatientCard}
@@ -204,6 +216,14 @@ const DoctorWaitingPatients = () => {
                     ))}
                 </div>
             )}
+
+            <Pagination
+                total={total}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+            />
 
         </div>
     )

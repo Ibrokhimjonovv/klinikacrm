@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import s from './AssistantDoctorTasks.module.scss';
 import { api } from '../../../App';
 import { useToast } from '../../../context/ToastContext'; // ⚠️ qo'shildi
+import Pagination from '../../../components/shared/Pagination/Pagination';
+import usePagination from '../../../components/shared/Pagination/usePagination';
+
 
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
@@ -118,6 +121,15 @@ const AssistantDoctorTasks = () => {
 
         return matchName && matchPay && matchStatus
     })
+
+    const {
+        pageItems,
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
+        total,
+    } = usePagination(filtered, 100)
 
     // ⚠️ Qatorga bosish: faqat to'langan bo'lsa detail sahifaga o'tadi
     const handleRowClick = (task) => {
@@ -236,7 +248,7 @@ const AssistantDoctorTasks = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map(task => {
+                            {pageItems.map(task => {
                                 const patient = taskPatient(task)
                                 const statusInfo = STATUS_LABELS[taskStatus(task)] || STATUS_LABELS.WAITING
                                 const isPaid = isTaskPaid(task) // ⚠️
@@ -288,7 +300,7 @@ const AssistantDoctorTasks = () => {
 
             {view === 'card' && filtered.length > 0 && (
                 <div className={s.CardsGrid}>
-                    {filtered.map(task => {
+                    {pageItems.map(task => {
                         const patient = taskPatient(task)
                         const statusInfo = STATUS_LABELS[taskStatus(task)] || STATUS_LABELS.WAITING
                         const isPaid = isTaskPaid(task) // ⚠️
@@ -328,6 +340,14 @@ const AssistantDoctorTasks = () => {
                     })}
                 </div>
             )}
+
+            <Pagination
+                total={total}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+            />
 
         </div>
     )

@@ -4,6 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../../../App';
 import { useToast } from '../../../context/ToastContext';
 
+import Pagination from '../../../components/shared/Pagination/Pagination';
+import usePagination from '../../../components/shared/Pagination/usePagination';
+
 // GET /doctor/my-direct-tasks/  (ixtiyoriy: ?service=ID)
 const ASSIGNED_PATH = '/doctor/my-direct-tasks/'
 // ⚠️ Qatorga bosilganda ochiladigan detail sahifa marshruti (App'dagi Route bilan bir xil bo'lsin)
@@ -134,6 +137,15 @@ const AssistantDoctorExcaminationPatients = () => {
         return matchName && matchPay && matchStatus
     })
 
+    const {
+        pageItems,
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
+        total,
+    } = usePagination(filtered, 100)
+
     // ⚠️ Qatorga bosish: faqat to'langan bo'lsa detail sahifaga o'tadi
     const handleRowClick = (p) => {
         if (!p.isPaid) {
@@ -248,7 +260,7 @@ const AssistantDoctorExcaminationPatients = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map(p => {
+                            {pageItems.map(p => {
                                 const age = calcAge(p.birth_date)
                                 return (
                                     <tr
@@ -296,7 +308,7 @@ const AssistantDoctorExcaminationPatients = () => {
 
             {view === 'card' && filtered.length > 0 && (
                 <div className={s.CardsGrid}>
-                    {filtered.map(p => {
+                    {pageItems.map(p => {
                         const age = calcAge(p.birth_date)
                         return (
                             <div
@@ -333,6 +345,14 @@ const AssistantDoctorExcaminationPatients = () => {
                     })}
                 </div>
             )}
+
+            <Pagination
+                total={total}
+                page={page}
+                pageSize={pageSize}
+                onPageChange={setPage}
+                onPageSizeChange={setPageSize}
+            />
 
         </div>
     )

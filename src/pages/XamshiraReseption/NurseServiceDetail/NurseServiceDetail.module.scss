@@ -1,9 +1,13 @@
-// Faqat NurseServiceDetail.jsx (xizmatning ichki sahifasi) uchun
-
 .HomeContainer {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 10px;
+
+    // Sahifa ekran balandligiga qotiriladi, tashqi scroll chiqmaydi.
+    // --page-offset = tepadagi header + sahifa padding'lari yig'indisi (kerak bo'lsa moslang)
+    --page-offset: 75px; // oldin 120px edi
+    height: calc(100dvh - var(--page-offset));
+    overflow: hidden;
 }
 
 .TopRow {
@@ -12,6 +16,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 15px;
+    flex-shrink: 0;
 
     h1 {
         font-size: 26px;
@@ -98,10 +103,13 @@
     background-color: #fff;
     border: 1px solid #eee;
     border-radius: 16px;
-    padding: 22px;
+    padding: 15px 22px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 5px;
+
+    flex: 1;
+    min-height: 0; // flex ichida ichki scroll ishlashi uchun shart
 
     ul {
         list-style: none;
@@ -110,6 +118,13 @@
         gap: 8px;
         padding: 0;
         margin: 0;
+
+        // faqat ro'yxat scroll bo'ladi
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding-right: 4px;
+        overscroll-behavior: contain; // ro'yxat oxirida sahifa scroll bo'lib ketmasin
     }
 }
 
@@ -302,7 +317,6 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-top: 6px;
 
     &:hover {
         opacity: 0.92;
@@ -335,18 +349,52 @@
 }
 
 @media (max-width: 600px) {
-    .TopRow {
-        flex-direction: column;
-        align-items: flex-start;
+    .HomeContainer {
+        height: auto;
+        overflow: visible;
     }
 
-    .AddPatientBtn {
-        width: 100%;
-        justify-content: center;
+    .ListCard ul {
+        flex: none;
+        max-height: 55vh;
     }
+}
 
-    .SearchBox {
-        min-width: 0;
-        width: 100%;
+.SuccessRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 12px 0;
+
+    .FormSuccess {
+        margin: 0;
     }
+}
+
+.PrintBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 1px solid #0f1b33;
+    border-radius: 10px;
+    background: #fff;
+    color: #0f1b33;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+        background: #0f1b33;
+        color: #fff;
+    }
+}
+
+.ListHead,
+.NewPatientBox,
+.FormError,
+.SuccessRow,
+.AssignBtn {
+    flex-shrink: 0;
 }
