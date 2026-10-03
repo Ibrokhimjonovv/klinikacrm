@@ -136,7 +136,7 @@ const NurseHome = () => {
   // sahifasiga (/nurse-inpatients/:id) o'tadi.
   const goToInpatientDetail = (patientId) => {
     if (patientId == null) return
-    navigate(`/nurse-inpatients/${patientId}`)
+    navigate(`/nurse/inpatient/${patientId}`)
   }
 
   return (
