@@ -112,7 +112,7 @@ const NurseInpatientDetail = () => {
     const [activeDayId, setActiveDayId] = useState(null);
 
     // Har bir muolaja uchun alohida qoralama: { [treatmentId]: { file, comment } }
-    const [drafts, setDrafts] = useState({});
+    // const [drafts, setDrafts] = useState({});
     const [savingId, setSavingId] = useState(null);
     const [formError, setFormError] = useState('');
 
@@ -198,23 +198,23 @@ const NurseInpatientDetail = () => {
     // ------------------------------------------------------------
     // Qoralama (draft) yordamchilari
     // ------------------------------------------------------------
-    const getDraft = (t) => {
-        const d = drafts[t.id];
-        return {
-            file: d?.file || null,
-            comment: d?.comment !== undefined ? d.comment : (t.result_text || t.note || ''),
-        };
-    };
+    // const getDraft = (t) => {
+    //     const d = drafts[t.id];
+    //     return {
+    //         file: d?.file || null,
+    //         comment: d?.comment !== undefined ? d.comment : (t.result_text || t.note || ''),
+    //     };
+    // };
 
-    const setDraft = (id, patch) =>
-        setDrafts(prev => ({ ...prev, [id]: { ...prev[id], ...patch } }));
+    // const setDraft = (id, patch) =>
+    //     setDrafts(prev => ({ ...prev, [id]: { ...prev[id], ...patch } }));
 
-    const clearDraft = (id) =>
-        setDrafts(prev => {
-            const next = { ...prev };
-            delete next[id];
-            return next;
-        });
+    // const clearDraft = (id) =>
+    //     setDrafts(prev => {
+    //         const next = { ...prev };
+    //         delete next[id];
+    //         return next;
+    //     });
 
     // ------------------------------------------------------------
     // Modal ochish / yopish
@@ -272,34 +272,24 @@ const NurseInpatientDetail = () => {
     // Backend boshqacha kutsa, shu joyni to'g'irlash kerak bo'ladi.
     // ------------------------------------------------------------
     const handleFinish = async (treatment) => {
-        // ✅ YANGI: qo'shimcha himoya
         const blocking = findBlockingDay(dayItems, activeDay);
         if (blocking) {
             warnBlocked(blocking);
             return;
         }
 
-        const { file, comment } = getDraft(treatment);
-
         try {
             setSavingId(treatment.id);
             setFormError('');
 
-            const formData = new FormData();
-            if (comment.trim()) formData.append('note', comment.trim());
-            if (comment.trim()) formData.append('result_text', comment.trim());
-            if (file) formData.append('result_file', file);
-
             const res = await fetch(`${api}/nurse/treatments/${treatment.id}/complete/`, {
                 method: 'POST',
-                headers: { Authorization: `Bearer ${getToken()}` },
-                body: formData,
+                headers: authHeaders(getToken(), false),
             });
 
             const data = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(data.detail || `HTTP error! status: ${res.status}`);
 
-            clearDraft(treatment.id);
             setReloadKey(k => k + 1);
         } catch (err) {
             console.error('Yakunlashda xatolik:', err);
@@ -325,7 +315,6 @@ const NurseInpatientDetail = () => {
     // Modal ichidagi bitta muolaja bloki
     // ------------------------------------------------------------
     const renderTreatmentBlock = (t) => {
-        const draft = getDraft(t);
         const isSaving = savingId === t.id;
         const anySaving = savingId !== null;
         const fileUrl = t.file_url || t.result_file_url;
@@ -358,78 +347,34 @@ const NurseInpatientDetail = () => {
                 )}
 
                 {t.status === 'WAITING' && (
-                    <>
-                        <p className={s.FormInfo}>
-                            <i className="bi bi-info-circle-fill"></i>
-                            Natija kiritish uchun avval muolajani boshlang.
-                        </p>
-                        <button
-                            type="button"
-                            className={s.SubmitPlanBtn}
-                            onClick={() => handleStart(t.id)}
-                            disabled={anySaving}
-                        >
-                            <i className="bi bi-play-fill"></i>{' '}
-                            {isSaving ? 'Yuklanmoqda...' : 'Muolajani boshlash'}
-                        </button>
-                    </>
+                    <button
+                        type="button"
+                        className={s.SubmitPlanBtn}
+                        onClick={() => handleStart(t.id)}
+                        disabled={anySaving}
+                    >
+                        <i className="bi bi-play-fill"></i>{' '}
+                        {isSaving ? 'Yuklanmoqda...' : 'Muolajani boshlash'}
+                    </button>
                 )}
-{/* 
+
                 {t.status === 'IN_PROGRESS' && (
-                    <>
-                        <div className={s.Field}>
-                            <label>Natija fayli</label>
-                            <label className={s.FileInputLabel}>
-                                <span>
-                                    <i className="bi bi-paperclip"></i>
-                                    {draft.file
-                                        ? draft.file.name
-                                        : 'Faylni tanlang (rasm yoki PDF)'}
-                                </span>
-                                <input
-                                    type="file"
-                                    accept="image/*,.pdf,application/pdf"
-                                    onChange={(e) =>
-                                        setDraft(t.id, { file: e.target.files?.[0] || null })
-                                    }
-                                />
-                            </label>
-                        </div>
-
-                        <div className={s.Field}>
-                            <label>Izoh</label>
-                            <textarea
-                                rows={4}
-                                placeholder="Bajarilgan ish, kuzatuv, tavsiyalar..."
-                                value={draft.comment}
-                                onChange={(e) => setDraft(t.id, { comment: e.target.value })}
-                            />
-                        </div>
-                    </>
-                )} */}
-
-                <button
-                    type="button"
-                    className={s.FinishBtn}
-                    onClick={() => handleFinish(t)}
-                    disabled={anySaving}
-                >
-                    <i className="bi bi-check-lg"></i>{' '}
-                    {isSaving ? 'Saqlanmoqda...' : 'Yakunlash'}
-                </button>
+                    <button
+                        type="button"
+                        className={s.FinishBtn}
+                        onClick={() => handleFinish(t)}
+                        disabled={anySaving}
+                    >
+                        <i className="bi bi-check-lg"></i>{' '}
+                        {isSaving ? 'Saqlanmoqda...' : 'Yakunlash'}
+                    </button>
+                )}
 
                 {t.status === 'DONE' && (
                     <div className={s.DoneBox}>
                         <i className="bi bi-check-circle-fill"></i>
                         <div>
                             <strong>Muolaja yakunlangan</strong>
-                            Natija va izoh saqlangan.
-
-                            {(t.result_text || t.note) && (
-                                <div className={s.CommentPreview}>
-                                    {t.result_text || t.note}
-                                </div>
-                            )}
 
                             {fileUrl && (
                                 <div className={s.FilePreviewBox}>
@@ -442,14 +387,8 @@ const NurseInpatientDetail = () => {
                                                 : window.open(fileUrl, '_blank', 'noopener,noreferrer')
                                         }
                                     >
-                                        <i
-                                            className={
-                                                isImage(fileUrl)
-                                                    ? 'bi bi-image'
-                                                    : 'bi bi-file-earmark-pdf'
-                                            }
-                                        ></i>
-                                        <span>Natija faylini ko'rish</span>
+                                        <i className={isImage(fileUrl) ? 'bi bi-image' : 'bi bi-file-earmark-pdf'}></i>
+                                        <span>Faylni ko'rish</span>
                                     </button>
                                 </div>
                             )}
