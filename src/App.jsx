@@ -57,7 +57,7 @@ import CashierServicesPayments from './pages/Cashier/CashierServicesPayments/Cas
 import CashierDoctorServicesPayments from './pages/Cashier/CashierDoctorServicesPayments/CashierDoctorServicesPayment'
 import NurseRooms from './pages/XamshiraReseption/NurseRooms/NurseRooms'
 
-export const api = 'http://192.168.1.5:8000/api/v1'
+export const api = 'https://bkapi.aoc.uz/api/v1'
 
 function App() {
   const { user } = useAppContext()
