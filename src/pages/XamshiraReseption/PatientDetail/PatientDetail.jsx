@@ -11,6 +11,7 @@ import DateTimeFormatter from '../../../components/shared/DateTimeFormatter/Date
 import { useAppContext } from '../../../context/context';
 import { createPortal, flushSync } from 'react-dom';
 import PrintReceipt, { logoReady } from '../../../components/shared/PrintReceipt/PrintReceipt';
+import ImageZoomViewer from '../../../components/shared/ImageZoomViewer/ImageZoomViewer';
 
 const calcAge = (birthDate) => {
     if (!birthDate) return 'Noma\'lum';
@@ -21,6 +22,38 @@ const calcAge = (birthDate) => {
 const formatSum = (n) =>
     Math.round(Number(n) || 0).toLocaleString('uz-UZ') + " so'm";
 
+const isImageUrl = (url) => {
+    if (!url) return false;
+    if (String(url).startsWith('data:image')) return true;
+    const clean = String(url).split('?')[0].toLowerCase();
+    return /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(clean);
+};
+
+// Nisbiy yo'lni (/media/...) to'liq URL'ga aylantiradi
+const fileUrl = (path) => {
+    if (!path) return '';
+    if (/^(https?:|data:)/.test(path)) return path;
+    try {
+        return new URL(path, api).href; // api = https://host/api bo'lsa ham origin olinadi
+    } catch {
+        return path;
+    }
+};
+
+const fileNameFromUrl = (url) => {
+    try {
+        return decodeURIComponent(String(url).split('?')[0].split('/').pop());
+    } catch {
+        return 'Fayl';
+    }
+};
+
+const EXAM_STATUS = {
+    COMPLETED: 'Yakunlandi',
+    IN_PROGRESS: 'Jarayonda',
+    PENDING: 'Kutilmoqda',
+};
+
 const NursePatientDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -29,6 +62,8 @@ const NursePatientDetail = () => {
     const [patient, setPatient] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
+    const [examinations, setExaminations] = useState([]);
 
     const [visits, setVisits] = useState([]);
     const [visitsLoading, setVisitsLoading] = useState(true);
@@ -48,6 +83,10 @@ const NursePatientDetail = () => {
 
     const [printTarget, setPrintTarget] = useState(null);
 
+    // Diagnostika fayli modali
+    const [selectedDiag, setSelectedDiag] = useState(null);
+    const [zoomImage, setZoomImage] = useState(null);
+
     const DEMO_CREDENTIALS = { username: 'xxxxxxxx', password: 'xxxxxxxx' };
 
     const latestVisit = visits.length
@@ -56,6 +95,18 @@ const NursePatientDetail = () => {
 
     // Faqat WAITING holatdagi shikoyatlar ko'rinadi
     const waitingVisits = visits.filter((v) => v.status === 'WAITING');
+
+    // Diagnostikalar: /patientInfo/:id/ javobidagi examinations massividan olinadi
+    const diagnostics = examinations.map((ex) => ({
+        id: ex.id,
+        name: ex.service_name,
+        status: ex.status,
+        completed_at: ex.completed_at,
+        file: fileUrl(ex.result?.result_file),
+        resultText: ex.result?.result_text,
+        diagnosis: ex.result?.diagnosis,
+        doctor: ex.result?.completed_by?.full_name || ex.assigned_to?.full_name,
+    }));
 
     const handlePrint = async (visit = null) => {
         await logoReady;
@@ -98,6 +149,7 @@ const NursePatientDetail = () => {
             };
 
             setPatient(formattedPatient);
+            setExaminations(Array.isArray(data.examinations) ? data.examinations : []);
             setLoading(false);
         } catch (err) {
             console.error('Bemorni yuklashda xatolik:', err);
@@ -427,6 +479,55 @@ const NursePatientDetail = () => {
                 )}
             </div>
 
+            {/* DIAGNOSTIKALAR — shikoyatlar daftarchasi tagida alohida karta */}
+            {diagnostics.length > 0 && (
+                <div className={s.DiagCard}>
+                    <div className={s.VisitsHead}>
+                        <h3>
+                            <i className="bi bi-clipboard2-pulse"></i> Diagnostikalar <span>{diagnostics.length} ta</span>
+                        </h3>
+                    </div>
+
+                    <ul className={s.DiagList}>
+                        {diagnostics.map((diag, i) => (
+                            <li key={diag.id || i} className={s.DiagBox}>
+                                <div className={s.DiagTop}>
+                                    <span className={s.DiagName}>
+                                        <i className="bi bi-clipboard2-pulse"></i> {diag.name}
+                                    </span>
+                                    <span className={s.DiagStatus}>
+                                        <i className="bi bi-check-circle-fill"></i> {EXAM_STATUS[diag.status] || diag.status}
+                                    </span>
+                                </div>
+
+                                <div className={s.DiagBottom}>
+                                    {diag.completed_at && (
+                                        <span className={s.DiagDate}>
+                                            <i className="bi bi-calendar-check"></i>
+                                            <DateTimeFormatter format="datetime" date={diag.completed_at} />
+                                        </span>
+                                    )}
+                                    {diag.doctor && (
+                                        <span className={s.DiagDate}>
+                                            <i className="bi bi-person"></i> {diag.doctor}
+                                        </span>
+                                    )}
+                                    {diag.file && (
+                                        <button
+                                            type="button"
+                                            className={s.DiagFile}
+                                            onClick={() => setSelectedDiag(diag)}
+                                        >
+                                            <i className="bi bi-file-earmark-text"></i> Diagnostika fayli
+                                        </button>
+                                    )}
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
             {/* TAHRIRLASH MODALI */}
             <Modal isOpen={showEditModal} onClose={() => setShowEditModal(false)}>
                 <PatientEdit
@@ -529,6 +630,57 @@ const NursePatientDetail = () => {
                         </button>
                     </div>
                 </div>
+            </Modal>
+
+            {/* DIAGNOSTIKA FAYLI MODALI (o'ngdan) */}
+            <Modal isOpen={!!selectedDiag} onClose={() => setSelectedDiag(null)} side="right">
+                {selectedDiag && (
+                    <div className={s.DiagModal}>
+                        <h2 className={s.DiagModalTitle}>
+                            <i className="bi bi-clipboard2-pulse"></i> {selectedDiag.name}
+                        </h2>
+
+                        {selectedDiag.diagnosis && <p><b>Tashxis:</b> {selectedDiag.diagnosis}</p>}
+                        {selectedDiag.resultText && <p>{selectedDiag.resultText}</p>}
+
+                        {selectedDiag.file ? (
+                            isImageUrl(selectedDiag.file) ? (
+                                <button
+                                    type="button"
+                                    className={s.DiagPreview}
+                                    onClick={() => setZoomImage(selectedDiag.file)}
+                                >
+                                    <img src={selectedDiag.file} alt={selectedDiag.name} />
+                                    <span className={s.DiagPreviewHint}>
+                                        <i className="bi bi-zoom-in"></i> Kattalashtirish
+                                    </span>
+                                </button>
+                            ) : (
+                                <a
+                                    className={s.DiagFile}
+                                    href={selectedDiag.file}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    download
+                                >
+                                    <i className="bi bi-file-earmark-word"></i> {fileNameFromUrl(selectedDiag.file)}
+                                </a>
+                            )
+                        ) : (
+                            <div className={s.DiagModalEmpty}>
+                                <i className="bi bi-inbox"></i>
+                                <p>Fayl biriktirilmagan</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </Modal>
+
+            {/* RASMNI KATTALASHTIRISH MODALI */}
+            <Modal isOpen={!!zoomImage} onClose={() => setZoomImage(null)} fullWidth>
+                {zoomImage && (
+                    <ImageZoomViewer src={zoomImage} alt="Diagnostika natijasi" />
+                )}
             </Modal>
 
             {printTarget && createPortal(

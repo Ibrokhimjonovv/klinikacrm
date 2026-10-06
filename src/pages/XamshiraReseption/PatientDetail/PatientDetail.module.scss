@@ -890,3 +890,298 @@
     &:hover:not(:disabled) { background: #15803d; }
     &:disabled { opacity: 0.6; cursor: default; }
 }
+
+
+/* ============================================================
+   DIAGNOSTIKA BLOKI (diagnostic_detail)
+   ============================================================ */
+.DiagBox {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fff;
+    border: 1px solid #e3ebf5;
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.DiagTop,
+.DiagBottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.DiagName {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1b3050;
+
+    i { color: #4a7bb5; }
+}
+
+.DiagStatus {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: #d1fae5;
+    color: #047857;
+}
+
+.DiagDate {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.DiagFile {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    padding: 6px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+
+    &:hover { opacity: 0.92; }
+}
+
+.DiagFile {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.DrawerOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(14, 27, 51, 0.45);
+    display: flex;
+    justify-content: flex-end;
+    animation: drawerFade 0.2s ease;
+}
+
+.Drawer {
+    width: 460px;
+    max-width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -12px 0 40px rgba(0, 0, 0, 0.15);
+    animation: drawerSlide 0.28s ease;
+}
+
+.DrawerHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+
+    h3 {
+        font-size: 16px;
+        color: #1b3050;
+        margin-bottom: 8px;
+    }
+}
+
+.DrawerClose {
+    border: none;
+    background: #f3f4f6;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    &:hover { background: #e5e7eb; }
+}
+
+.DrawerBody {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.DrawerMeta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+
+    span {
+        font-size: 11px;
+        color: #999;
+    }
+
+    p {
+        font-size: 14px;
+        font-weight: 500;
+        color: #0e1b33;
+        margin-top: 2px;
+    }
+}
+
+.DemoResult {
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    th {
+        text-align: left;
+        font-size: 11px;
+        font-weight: 600;
+        color: #6b7280;
+        padding: 8px 6px;
+        border-bottom: 1px solid #e3ebf5;
+    }
+
+    td {
+        padding: 10px 6px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #1f2937;
+    }
+}
+
+.DemoNote {
+    font-size: 12px;
+    color: #9a3412;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+}
+
+.Abnormal td {
+    color: #b91c1c;
+    font-weight: 600;
+    background: #fef2f2;
+}
+
+.DrawerFrame {
+    width: 100%;
+    flex: 1;
+    min-height: 420px;
+    border: 1px solid #e3ebf5;
+    border-radius: 10px;
+}
+
+.DrawerFoot {
+    padding: 16px 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+}
+
+@keyframes drawerSlide {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes drawerFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.DiagModal {
+    // min-width: 420px;
+    // max-width: 560px;
+    // width: 100%;
+    padding: 20px;
+}
+
+@media (max-width: 600px) {
+    .DiagModal {
+        min-width: 0;
+    }
+}
+
+.DiagModalTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 16px;
+    color: #1b3050;
+
+    i { color: #4a7bb5; }
+}
+
+.DiagPreview {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 1px solid #e3ebf5;
+    border-radius: 12px;
+    background: #f8fafc;
+    overflow: hidden;
+    cursor: zoom-in;
+
+    img {
+        display: block;
+        width: 100%;
+        max-height: 480px;
+        object-fit: contain;
+    }
+
+    &:hover .DiagPreviewHint { opacity: 1; }
+}
+
+.DiagPreviewHint {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(14, 27, 51, 0.85);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.DiagModalEmpty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 36px 16px;
+    text-align: center;
+    color: #6b7280;
+    background: #f8fafc;
+    border: 1px dashed #e5e7eb;
+    border-radius: 12px;
+
+    i { font-size: 30px; color: #cbd5e1; }
+    p { margin: 0; font-size: 13px; }
+}

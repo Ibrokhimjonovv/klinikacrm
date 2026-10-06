@@ -58,6 +58,7 @@ import CashierDoctorServicesPayments from './pages/Cashier/CashierDoctorServices
 import NurseRooms from './pages/XamshiraReseption/NurseRooms/NurseRooms'
 
 export const api = 'https://bkapi.aoc.uz/api/v1'
+// export const api = 'http://192.168.1.6:8000/api/v1'
 
 function App() {
   const { user } = useAppContext()
@@ -123,7 +124,7 @@ function App() {
               <Route path="/" element={<Navigate to="nurse" replace />} />
               <Route path="/nurse" element={<NurseHome />} />
               <Route path="/nurse/patients" element={<NurseProgressPatients />} />
-              <Route path="nurse/inpatients" element={<NurseInpatients />} />
+              <Route path="/nurse/inpatients" element={<NurseInpatients />} />
               <Route path="/nurse/inpatient/:planId" element={<NurseInpatientDetail />} />
               <Route path="/nurse/profile" element={<NurseProfile />} />
               {/* <Route path="/reception-nurse-profile" element={<NurseProfile />} /> */}
