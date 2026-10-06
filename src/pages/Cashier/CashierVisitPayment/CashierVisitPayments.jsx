@@ -205,7 +205,7 @@ const CashierVisitPayments = () => {
     // Filtr + statistika
     // ------------------------------------------------------------
     // Narxi belgilanmagan ko'riklar to'lanmaganlar ro'yxatiga kirmaydi
-    const unpaid = useMemo(() => visits.filter((v) => !v.isPaid && v.price > 0), [visits]);
+    const unpaid = useMemo(() => visits.filter((v) => !v.isPaid), [visits]);
 
     const current = tab === 'unpaid' ? unpaid : paidList || [];
     const filtered = current.filter((v) =>
