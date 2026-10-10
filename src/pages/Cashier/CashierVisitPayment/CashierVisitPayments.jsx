@@ -4,7 +4,6 @@ import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
 import { printReceipt } from '../../../components/shared/CashierReceipt/VisitReceipt';
 
-// ⚠️ To'langanlar API manzili (o'zingizdagiga moslang)
 const UNPAID_PATH = '/visits/unpaid/';
 const PAID_PATH = '/visits/paid/';
 
@@ -24,13 +23,20 @@ const formatDateTime = (iso) => {
     });
 };
 
+// Qo'shimcha summa inputi uchun
+const onlyDigits = (v) => v.replace(/\D/g, '');
+const formatInput = (v) => (v ? Number(v).toLocaleString('uz-UZ') : '');
+
 const PAYMENT_METHODS = [
     { value: 'CASH', label: 'Naqd', icon: 'bi-cash-stack' },
     { value: 'CARD', label: 'Karta', icon: 'bi-credit-card' },
     { value: 'TRANSFER', label: "O'tkazma", icon: 'bi-bank' },
 ];
 
-// To'lov usuli backendda yo'q, shuning uchun brauzerda saqlaymiz
+const methodLabel = (v) =>
+    PAYMENT_METHODS.find((m) => m.value === v)?.label || v || '—';
+
+// To'lov usuli (eski yozuvlar uchun brauzerda saqlaymiz)
 const METHODS_KEY = 'visit_payment_methods';
 const loadMethods = () => {
     try {
@@ -50,7 +56,7 @@ const saveMethod = (id, method) => {
     }
 };
 
-// Backend javobini bir xil shaklga keltiramiz (maydon nomlari farq qilsa shu yerni tuzating)
+// Backend javobini bir xil shaklga keltiramiz
 const normalize = (v) => {
     const p = typeof v.patient === 'object' && v.patient ? v.patient : {};
     const name =
@@ -89,20 +95,31 @@ const CashierVisitPayments = () => {
     const [tab, setTab] = useState('unpaid'); // unpaid | paid
     const [search, setSearch] = useState('');
 
-    const [visits, setVisits] = useState([]);       // to'lanmaganlar
-    const [paidList, setPaidList] = useState(null); // to'langanlar (null = hali yuklanmagan)
+    const [visits, setVisits] = useState([]);
+    const [paidList, setPaidList] = useState(null);
     const [loading, setLoading] = useState(true);
     const [paidLoading, setPaidLoading] = useState(false);
     const [error, setError] = useState(null);
     const [paidError, setPaidError] = useState(null);
 
-    const [selected, setSelected] = useState(null);   // to'lov oynasi
-    const [paidVisit, setPaidVisit] = useState(null); // to'lov qabul qilingandan keyingi holat
+    const [selected, setSelected] = useState(null);
+    const [paidVisit, setPaidVisit] = useState(null);
     const [paying, setPaying] = useState(false);
     const [formError, setFormError] = useState('');
     const [method, setMethod] = useState('CASH');
 
+    // Qo'shimcha to'lov
+    const [showExtra, setShowExtra] = useState(false);
+    const [extraAmount, setExtraAmount] = useState('');
+    const [extraNote, setExtraNote] = useState('');
+
     const getToken = () => localStorage.getItem('hospital_access');
+
+    const resetExtra = () => {
+        setShowExtra(false);
+        setExtraAmount('');
+        setExtraNote('');
+    };
 
     // ------------------------------------------------------------
     // Ro'yxatlar
@@ -149,7 +166,6 @@ const CashierVisitPayments = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // "To'langan" tabi ochilganda har safar yangidan so'raymiz
     useEffect(() => {
         if (tab === 'paid') fetchPaid();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -158,18 +174,43 @@ const CashierVisitPayments = () => {
     // ------------------------------------------------------------
     // Oynalarni boshqarish
     // ------------------------------------------------------------
+    const openVisit = (v) => {
+        setSelected(v);
+        setPaidVisit(null);
+        setFormError('');
+        setMethod('CASH');
+        resetExtra();
+    };
+
     const closeDrawer = () => {
         setSelected(null);
         setPaidVisit(null);
         setFormError('');
         setMethod('CASH');
+        resetExtra();
     };
+
+    // ------------------------------------------------------------
+    // Jami summa = ko'rik narxi + qo'shimcha
+    // ------------------------------------------------------------
+    const extraValue = showExtra ? Number(extraAmount) || 0 : 0;
+    const totalToPay = (selected?.price || 0) + extraValue;
 
     // ------------------------------------------------------------
     // To'lov qabul qilish
     // ------------------------------------------------------------
     const handlePay = async () => {
         if (!selected) return;
+
+        const extra = extraValue;
+        const note = showExtra ? extraNote.trim() : '';
+
+        const payload = { payment_method: method };
+        if (extra > 0 || note) {
+            payload.extra_amount = extra;
+            payload.extra_note = note;
+        }
+
         try {
             setPaying(true);
             setFormError('');
@@ -177,16 +218,27 @@ const CashierVisitPayments = () => {
             const res = await fetch(`${api}/medical-visits/${selected.id}/pay/`, {
                 method: 'POST',
                 headers: authHeaders(getToken()),
+                body: JSON.stringify(payload),
             });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error || `HTTP error! status: ${res.status}`);
+            if (!res.ok) {
+                throw new Error(data.detail || data.error || `HTTP error! status: ${res.status}`);
+            }
 
-            const paidAt = data.paid_at || new Date().toISOString(); // API bermasa, bugungi sana
+            const paidAt = data.paid_at || new Date().toISOString();
             saveMethod(selected.id, method);
+
+            const basePrice = Number(data.base_price) || selected.price;
+            const serverExtra = Number(data.extra_amount) || 0;
+            const total = Number(data.amount) || basePrice + serverExtra;
 
             setPaidVisit({
                 ...selected,
-                price: Number(data.amount) || selected.price,
+                basePrice,
+                price: total,
+                total,
+                extraAmount: serverExtra,
+                extraNote: data.extra_note || '',
                 isPaid: true,
                 paidAt,
                 method,
@@ -204,7 +256,6 @@ const CashierVisitPayments = () => {
     // ------------------------------------------------------------
     // Filtr + statistika
     // ------------------------------------------------------------
-    // Narxi belgilanmagan ko'riklar to'lanmaganlar ro'yxatiga kirmaydi
     const unpaid = useMemo(() => visits.filter((v) => !v.isPaid), [visits]);
 
     const current = tab === 'unpaid' ? unpaid : paidList || [];
@@ -291,7 +342,6 @@ const CashierVisitPayments = () => {
                 </div>
             </div>
 
-            {/* To'langanlar yuklanmoqda / xatolik */}
             {tab === 'paid' && paidLoading && <p className={s.Muted}>Yuklanmoqda...</p>}
             {tab === 'paid' && !paidLoading && paidError && (
                 <p className={s.FormError}>
@@ -325,11 +375,7 @@ const CashierVisitPayments = () => {
                                 <tr
                                     key={v.id}
                                     onClick={() => {
-                                        if (!v.isPaid) {
-                                            setSelected(v);
-                                            setPaidVisit(null);
-                                            setFormError('');
-                                        }
+                                        if (!v.isPaid) openVisit(v);
                                     }}
                                     style={v.isPaid ? { cursor: 'default' } : undefined}
                                 >
@@ -387,11 +433,42 @@ const CashierVisitPayments = () => {
                         </div>
 
                         {paidVisit ? (
-                            /* TO'LOV QABUL QILINDI -> chek tugmasi */
+                            /* TO'LOV QABUL QILINDI -> umumiy summa + chek */
                             <div className={s.DrawerBody}>
                                 <div className={s.AllPaidBox}>
                                     <i className="bi bi-check-circle-fill"></i>
-                                    <p>To'lov qabul qilindi · {formatSum(paidVisit.price)}</p>
+                                    <p>To'lov qabul qilindi</p>
+                                </div>
+
+                                <div className={s.PaidSummary}>
+                                    <span className={s.PaidSummaryLabel}>Umumiy summa</span>
+                                    <strong className={s.PaidSummaryTotal}>
+                                        {formatSum(paidVisit.total)}
+                                    </strong>
+
+                                    <div className={s.PaidRows}>
+                                        <div className={s.PaidRow}>
+                                            <span>Ko'rik narxi</span>
+                                            <b>{formatSum(paidVisit.basePrice)}</b>
+                                        </div>
+                                        {paidVisit.extraAmount > 0 && (
+                                            <div className={s.PaidRow}>
+                                                <span>Qo'shimcha</span>
+                                                <b>{formatSum(paidVisit.extraAmount)}</b>
+                                            </div>
+                                        )}
+                                        <div className={s.PaidRow}>
+                                            <span>To'lov usuli</span>
+                                            <b>{methodLabel(paidVisit.method)}</b>
+                                        </div>
+                                    </div>
+
+                                    {paidVisit.extraNote && (
+                                        <p className={s.PaidNote}>
+                                            <i className="bi bi-chat-left-text"></i>
+                                            {paidVisit.extraNote}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <button
@@ -416,7 +493,7 @@ const CashierVisitPayments = () => {
                                 <div className={s.AmountBox}>
                                     <span className={s.AmountLabel}>To'lanadigan summa</span>
                                     <strong className={s.AmountValue}>
-                                        {formatSum(selected.price)}
+                                        {formatSum(totalToPay)}
                                     </strong>
                                 </div>
 
@@ -429,6 +506,40 @@ const CashierVisitPayments = () => {
                                 <p className={s.InfoText}>
                                     {formatDateTime(selected.createdAt || new Date().toISOString())}
                                 </p>
+
+                                {/* QO'SHIMCHA */}
+                                <button
+                                    type="button"
+                                    className={`${s.ExtraToggle} ${showExtra ? s.ExtraToggleActive : ''}`}
+                                    onClick={() => setShowExtra((p) => !p)}
+                                >
+                                    <i className={`bi ${showExtra ? 'bi-dash-circle' : 'bi-plus-circle'}`}></i>
+                                    Qo'shimcha
+                                </button>
+
+                                {showExtra && (
+                                    <div className={s.ExtraBox}>
+                                        <label className={s.ExtraLabel}>To'lov summasi</label>
+                                        <div className={s.ExtraInputWrap}>
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                placeholder="0"
+                                                value={formatInput(extraAmount)}
+                                                onChange={(e) => setExtraAmount(onlyDigits(e.target.value))}
+                                            />
+                                            <span>so'm</span>
+                                        </div>
+
+                                        <label className={s.ExtraLabel}>Izoh</label>
+                                        <textarea
+                                            rows={3}
+                                            placeholder="Izoh yozing..."
+                                            value={extraNote}
+                                            onChange={(e) => setExtraNote(e.target.value)}
+                                        />
+                                    </div>
+                                )}
 
                                 <p className={s.DrawerSectionTitle}>To'lov usuli</p>
                                 <div className={s.MethodRow}>
@@ -460,7 +571,7 @@ const CashierVisitPayments = () => {
                                     <i className="bi bi-wallet2"></i>
                                     {paying
                                         ? 'Qabul qilinmoqda...'
-                                        : `To'lovni qabul qilish · ${formatSum(selected.price)}`}
+                                        : `To'lovni qabul qilish · ${formatSum(totalToPay)}`}
                                 </button>
                             </div>
                         )}

@@ -33,6 +33,10 @@ const formatDateTime = (iso) => {
   });
 };
 
+// Qo'shimcha summa inputi uchun
+const onlyDigits = (v) => v.replace(/\D/g, '');
+const formatInput = (v) => (v ? Number(v).toLocaleString('uz-UZ') : '');
+
 // ⚠️ Backend "status" qiymatlari (PAID / PARTIAL) ma'lum. To'lanmagan
 // holat nomi (masalan UNPAID) taxmin — boshqacha bo'lsa shu yerni tuzating.
 const PAY_STATUS = {
@@ -102,7 +106,18 @@ const CashierTreatmentPayment = () => {
   const [formSuccess, setFormSuccess] = useState('');
   const [printingId, setPrintingId] = useState(null);
 
+  // Qo'shimcha to'lov
+  const [showExtra, setShowExtra] = useState(false);
+  const [extraAmount, setExtraAmount] = useState('');
+  const [extraNote, setExtraNote] = useState('');
+
   const getToken = () => localStorage.getItem('hospital_access');
+
+  const resetExtra = () => {
+    setShowExtra(false);
+    setExtraAmount('');
+    setExtraNote('');
+  };
 
   // ------------------------------------------------------------
   // Ro'yxatlar
@@ -194,10 +209,14 @@ const CashierTreatmentPayment = () => {
     setComment('');
     setFormError('');
     setFormSuccess('');
+    resetExtra();
     fetchPlanDetail(plan.plan_id);
   };
 
-  const closePlan = () => setSelectedPlan(null);
+  const closePlan = () => {
+    setSelectedPlan(null);
+    resetExtra();
+  };
 
   // ------------------------------------------------------------
   // Chek chop etish (faqat to'langan rejalar uchun)
@@ -292,10 +311,17 @@ const CashierTreatmentPayment = () => {
     }
   };
 
-  const totalToPay = Object.values(picked).reduce(
+  // Tanlangan kunlar bo'yicha summa
+  const daysTotal = Object.values(picked).reduce(
     (sum, v) => sum + (Number(v) || 0),
     0
   );
+
+  // Qo'shimcha summa (faqat "Qo'shimcha" ochiq bo'lsa hisoblanadi)
+  const extraValue = showExtra ? Number(extraAmount) || 0 : 0;
+
+  // Jami to'lanadigan summa = kunlar + qo'shimcha
+  const totalToPay = daysTotal + extraValue;
 
   // ------------------------------------------------------------
   // To'lov qabul qilish
@@ -312,6 +338,19 @@ const CashierTreatmentPayment = () => {
       return;
     }
 
+    const note = showExtra ? extraNote.trim() : '';
+
+    // ⚠️ Backend maydon nomlariga moslang (extra_amount / extra_note)
+    const payload = {
+      allocations,
+      payment_method: method,
+      comment: comment.trim(),
+    };
+    if (extraValue > 0 || note) {
+      payload.extra_amount = extraValue;
+      payload.extra_note = note;
+    }
+
     try {
       setPaying(true);
       setFormError('');
@@ -322,20 +361,19 @@ const CashierTreatmentPayment = () => {
         {
           method: 'POST',
           headers: authHeaders(getToken()),
-          body: JSON.stringify({
-            allocations,
-            payment_method: method,
-            comment: comment.trim(),
-          }),
+          body: JSON.stringify(payload),
         }
       );
 
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || `HTTP error! status: ${res.status}`);
 
-      setFormSuccess(`${formatSum(data.amount)} to'lov qabul qilindi`);
+      setFormSuccess(
+        `${formatSum(data.amount ?? totalToPay)} to'lov qabul qilindi`
+      );
       setPicked({});
       setComment('');
+      resetExtra();
 
       await Promise.all([fetchPlanDetail(selectedPlan.plan_id), fetchPlans(true)]);
     } catch (err) {
@@ -777,9 +815,43 @@ const CashierTreatmentPayment = () => {
                     </div>
                   )}
 
-                  {/* TO'LOV USULI + IZOH */}
+                  {/* QO'SHIMCHA + TO'LOV USULI + IZOH */}
                   {unpaidDays.length > 0 && (
                     <>
+                      {/* QO'SHIMCHA */}
+                      <button
+                        type="button"
+                        className={`${s.ExtraToggle} ${showExtra ? s.ExtraToggleActive : ''}`}
+                        onClick={() => setShowExtra((p) => !p)}
+                      >
+                        <i className={`bi ${showExtra ? 'bi-dash-circle' : 'bi-plus-circle'}`}></i>
+                        Qo'shimcha
+                      </button>
+
+                      {showExtra && (
+                        <div className={s.ExtraBox}>
+                          <label className={s.ExtraLabel}>To'lov summasi</label>
+                          <div className={s.ExtraInputWrap}>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              placeholder="0"
+                              value={formatInput(extraAmount)}
+                              onChange={(e) => setExtraAmount(onlyDigits(e.target.value))}
+                            />
+                            <span>so'm</span>
+                          </div>
+
+                          <label className={s.ExtraLabel}>Izoh</label>
+                          <textarea
+                            rows={3}
+                            placeholder="Qo'shimcha to'lov izohi..."
+                            value={extraNote}
+                            onChange={(e) => setExtraNote(e.target.value)}
+                          />
+                        </div>
+                      )}
+
                       <p className={s.DrawerSectionTitle}>To'lov usuli</p>
                       <div className={s.MethodRow}>
                         {PAYMENT_METHODS.map((m) => (
@@ -815,7 +887,7 @@ const CashierTreatmentPayment = () => {
                         type="button"
                         className={s.PayBtn}
                         onClick={handlePay}
-                        disabled={paying || totalToPay <= 0}
+                        disabled={paying || daysTotal <= 0}
                       >
                         <i className="bi bi-wallet2"></i>
                         {paying

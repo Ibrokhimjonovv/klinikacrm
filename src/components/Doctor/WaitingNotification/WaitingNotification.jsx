@@ -67,7 +67,7 @@ const WaitingPatientNotifications = () => {
         if (!latestPatient) return;
 
         navigate(
-            `/doctor-waiting-patients/${latestPatient.id}/diagnostics/`
+            `/doctor/patients/waitings/${latestPatient.id}/diagnostics`
         );
         closeNotification()
     };

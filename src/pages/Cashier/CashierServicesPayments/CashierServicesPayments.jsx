@@ -24,6 +24,10 @@ const formatDateTime = (iso) => {
     });
 };
 
+// Qo'shimcha summa inputi uchun
+const onlyDigits = (v) => v.replace(/\D/g, '');
+const formatInput = (v) => (v ? Number(v).toLocaleString('uz-UZ') : '');
+
 const PAYMENT_METHODS = [
     { value: 'CASH', label: 'Naqd', icon: 'bi-cash-stack' },
     { value: 'CARD', label: 'Karta', icon: 'bi-credit-card' },
@@ -112,7 +116,18 @@ const CashierServicesPayments = () => {
     const [formError, setFormError] = useState('');
     const [method, setMethod] = useState('CASH');
 
+    // Qo'shimcha to'lov
+    const [showExtra, setShowExtra] = useState(false);
+    const [extraAmount, setExtraAmount] = useState('');
+    const [extraNote, setExtraNote] = useState('');
+
     const getToken = () => localStorage.getItem('hospital_access');
+
+    const resetExtra = () => {
+        setShowExtra(false);
+        setExtraAmount('');
+        setExtraNote('');
+    };
 
     // ------------------------------------------------------------
     // Ro'yxatlar
@@ -173,13 +188,24 @@ const CashierServicesPayments = () => {
         setPaidService(null);
         setFormError('');
         setMethod('CASH');
+        resetExtra();
     };
+
+    // ------------------------------------------------------------
+    // Jami summa = xizmat narxi + qo'shimcha
+    // ------------------------------------------------------------
+    const extraValue = showExtra ? Number(extraAmount) || 0 : 0;
+    const totalToPay = (selected?.price || 0) + extraValue;
 
     // ------------------------------------------------------------
     // To'lov qabul qilish
     // ------------------------------------------------------------
     const handlePay = async () => {
         if (!selected) return;
+
+        const extra = extraValue;
+        const note = showExtra ? extraNote.trim() : '';
+
         try {
             setPaying(true);
             setFormError('');
@@ -187,6 +213,12 @@ const CashierServicesPayments = () => {
             const res = await fetch(`${api}/direct-services/${selected.id}/pay/`, {
                 method: 'POST',
                 headers: authHeaders(getToken()),
+                // ⚠️ Backend maydon nomlariga moslang (extra_amount / extra_note)
+                body: JSON.stringify(
+                    extra > 0 || note
+                        ? { extra_amount: extra, extra_note: note }
+                        : {}
+                ),
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok) throw new Error(data.error || `HTTP error! status: ${res.status}`);
@@ -196,7 +228,9 @@ const CashierServicesPayments = () => {
 
             setPaidService({
                 ...selected,
-                price: Number(data.amount) || selected.price,
+                price: Number(data.amount) || selected.price + extra,
+                extraAmount: extra,
+                extraNote: note,
                 isPaid: true,
                 paidAt,
                 method,
@@ -354,6 +388,7 @@ const CashierServicesPayments = () => {
                                             setSelected(v);
                                             setPaidService(null);
                                             setFormError('');
+                                            resetExtra();
                                         }
                                     }}
                                     style={v.isPaid ? { cursor: 'default' } : undefined}
@@ -428,14 +463,6 @@ const CashierServicesPayments = () => {
                                     </p>
                                 </div>
 
-                                {/* <button
-                                    type="button"
-                                    className={s.PayBtn}
-                                    onClick={() => printServiceReceipt(paidService)}
-                                >
-                                    <i className="bi bi-printer"></i>
-                                    Chekni chop etish
-                                </button> */}
                                 <button
                                     type="button"
                                     className={s.PayBtn}
@@ -459,7 +486,7 @@ const CashierServicesPayments = () => {
                                         To'lanadigan summa
                                     </span>
                                     <strong className={s.AmountValue}>
-                                        {formatSum(selected.price)}
+                                        {formatSum(totalToPay)}
                                     </strong>
                                 </div>
 
@@ -470,6 +497,40 @@ const CashierServicesPayments = () => {
                                 <p className={s.InfoText}>
                                     {formatDateTime(selected.createdAt || new Date().toISOString())}
                                 </p>
+
+                                {/* QO'SHIMCHA */}
+                                <button
+                                    type="button"
+                                    className={`${s.ExtraToggle} ${showExtra ? s.ExtraToggleActive : ''}`}
+                                    onClick={() => setShowExtra((p) => !p)}
+                                >
+                                    <i className={`bi ${showExtra ? 'bi-dash-circle' : 'bi-plus-circle'}`}></i>
+                                    Qo'shimcha
+                                </button>
+
+                                {showExtra && (
+                                    <div className={s.ExtraBox}>
+                                        <label className={s.ExtraLabel}>To'lov summasi</label>
+                                        <div className={s.ExtraInputWrap}>
+                                            <input
+                                                type="text"
+                                                inputMode="numeric"
+                                                placeholder="0"
+                                                value={formatInput(extraAmount)}
+                                                onChange={(e) => setExtraAmount(onlyDigits(e.target.value))}
+                                            />
+                                            <span>so'm</span>
+                                        </div>
+
+                                        <label className={s.ExtraLabel}>Izoh</label>
+                                        <textarea
+                                            rows={3}
+                                            placeholder="Izoh yozing..."
+                                            value={extraNote}
+                                            onChange={(e) => setExtraNote(e.target.value)}
+                                        />
+                                    </div>
+                                )}
 
                                 <p className={s.DrawerSectionTitle}>To'lov usuli</p>
                                 <div className={s.MethodRow}>
@@ -502,9 +563,7 @@ const CashierServicesPayments = () => {
                                     <i className="bi bi-wallet2"></i>
                                     {paying
                                         ? 'Qabul qilinmoqda...'
-                                        : `To'lovni qabul qilish · ${formatSum(
-                                            selected.price
-                                        )}`}
+                                        : `To'lovni qabul qilish · ${formatSum(totalToPay)}`}
                                 </button>
                             </div>
                         )}

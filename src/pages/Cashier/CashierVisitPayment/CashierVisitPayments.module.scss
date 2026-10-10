@@ -492,3 +492,166 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
 
     i { color: #fff; }
 }
+
+// ---------- Qo'shimcha ----------
+.ExtraToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 10px 14px;
+    border: 1px dashed $accent;
+    background: transparent;
+    color: $accent;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    i { font-size: 16px; }
+    &:hover { background: #e0e9ff; }
+}
+
+.ExtraToggleActive {
+    border-style: solid;
+    background: #e0e9ff;
+}
+
+.ExtraBox {
+    margin-top: 12px;
+    padding: 14px;
+    background: $bg-soft;
+    border: 1px solid $border;
+    border-radius: 12px;
+    animation: fadeUp 0.2s ease;
+
+    textarea {
+        width: 100%;
+        resize: vertical;
+        padding: 11px 12px;
+        border: 1px solid $border;
+        border-radius: 10px;
+        background: #fff;
+        font-size: 14px;
+        font-family: inherit;
+        color: $text;
+        outline: none;
+        box-sizing: border-box;
+        transition: border-color 0.15s, box-shadow 0.15s;
+
+        &:focus {
+            border-color: $accent;
+            box-shadow: 0 0 0 3px rgba(42, 75, 201, 0.12);
+        }
+    }
+}
+
+.ExtraLabel {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $muted;
+    margin: 0 0 6px;
+
+    &:not(:first-child) { margin-top: 12px; }
+}
+
+.ExtraInputWrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 10px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:focus-within {
+        border-color: $accent;
+        box-shadow: 0 0 0 3px rgba(42, 75, 201, 0.12);
+    }
+
+    input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        padding: 11px 0;
+        font-size: 15px;
+        font-weight: 700;
+        font-family: inherit;
+        color: $primary;
+        min-width: 0;
+    }
+
+    span { font-size: 13px; color: $muted; }
+}
+
+// ---------- To'lov qabul qilindi: umumiy summa ----------
+.PaidSummary {
+    margin-top: 16px;
+    padding: 20px 16px;
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 16px;
+    box-shadow: $shadow-sm;
+    text-align: center;
+    animation: fadeUp 0.25s ease;
+}
+
+.PaidSummaryLabel {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: $muted;
+    margin-bottom: 6px;
+}
+
+.PaidSummaryTotal {
+    display: block;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: $green-dark;
+}
+
+.PaidRows {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed $border;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.PaidRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: $muted;
+
+    b { color: $primary; font-weight: 700; }
+}
+
+.PaidNote {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 14px 0 0;
+    padding: 10px 12px;
+    background: $bg-soft;
+    border: 1px solid $border;
+    border-radius: 10px;
+    font-size: 13px;
+    text-align: left;
+    color: $primary;
+
+    i { color: $muted; margin-top: 2px; }
+}

@@ -552,3 +552,94 @@ $text-muted: #6b7280;
     border-top: 1px dashed $border;
     padding-top: 8px;
 }
+
+// ---------- Qo'shimcha ----------
+.ExtraToggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 9px 14px;
+    border: 1px dashed #2a4bc9;
+    background: transparent;
+    color: #2a4bc9;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    i { font-size: 16px; }
+    &:hover { background: #e0e9ff; }
+}
+
+.ExtraToggleActive {
+    border-style: solid;
+    background: #e0e9ff;
+}
+
+.ExtraBox {
+    margin-top: 12px;
+    padding: 14px;
+    background: #fafbfc;
+    border: 1px solid $border;
+    border-radius: 12px;
+
+    textarea {
+        width: 100%;
+        resize: vertical;
+        padding: 10px 12px;
+        border: 1px solid $border;
+        border-radius: 10px;
+        background: #fff;
+        font-size: 14px;
+        font-family: inherit;
+        box-sizing: border-box;
+
+        &:focus { outline: none; border-color: $primary; }
+    }
+}
+
+.ExtraLabel {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: $text-muted;
+    margin: 0 0 6px;
+
+    &:not(:first-child) { margin-top: 12px; }
+}
+
+.ExtraInputWrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px;
+    background: #fff;
+    border: 1px solid $border;
+    border-radius: 10px;
+
+    &:focus-within { border-color: $primary; }
+
+    input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        padding: 10px 0;
+        font-size: 15px;
+        font-weight: 700;
+        font-family: inherit;
+        color: $primary;
+    }
+
+    span { font-size: 13px; color: $text-muted; }
+}
+
+// "Qo'shimcha" tugmasidan keyingi "To'lov usuli" sarlavhasi
+.ExtraBox + .DrawerSectionTitle,
+.ExtraToggle + .DrawerSectionTitle { margin-top: 20px; }
