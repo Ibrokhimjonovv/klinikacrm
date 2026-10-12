@@ -84,14 +84,14 @@ const DoctorPicker = ({ selected = [], onChange, disabled }) => {
                                 <p className={s.Name}>
                                     {d.first_name?.charAt(0)}. {d.last_name}
                                 </p>
-                                {d.specialty && <span className={s.Specialty}>{d.specialty}</span>}
+                                {d.specialty_name && <span className={s.Specialty}>{d.specialty_name}</span>}
                             </div>
                         </div>
 
 
                         <div className={s.MetaRow}>
-                            {d.department && (
-                                <span><i className="bi bi-building"></i> {d.department}</span>
+                            {d.department_name && (
+                                <span><i className="bi bi-building"></i> {d.department_name}</span>
                             )}
                             {d.experience_years != null && (
                                 <span><i className="bi bi-award"></i> {d.experience_years} yil</span>

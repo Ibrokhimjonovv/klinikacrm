@@ -1,9 +1,537 @@
-$primary: #0e1b33;
+/* =========================================================
+   CASHIER DASHBOARD — Modern SCSS
+   ========================================================= */
 
-.HomePage {
+/* ---------- Variables ---------- */
+$bg:            #f6f8fb;
+$card:          #ffffff;
+$text:          #0f172a;
+$text-muted:    #64748b;
+$border:        #e8ecf2;
+
+$blue:          #3b82f6;
+$blue-600:      #2563eb;
+$green:         #10b981;
+$green-600:     #059669;
+$orange:        #f59e0b;
+$orange-600:    #d97706;
+$red:           #ef4444;
+$red-600:       #dc2626;
+$indigo:        #6366f1;
+$purple:        #a855f7;
+$yellow:        #eab308;
+
+$radius:        16px;
+$radius-sm:     10px;
+$radius-xs:     8px;
+
+$shadow-sm:     0 1px 2px rgba(15, 23, 42, 0.04);
+$shadow-md:     0 4px 16px rgba(15, 23, 42, 0.06);
+$shadow-lg:     0 12px 32px rgba(15, 23, 42, 0.1);
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+.page {
+  min-height: 100vh;
+  padding: 28px 32px;
+  background: $bg;
+  color: $text;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+               Roboto, "Helvetica Neue", sans-serif;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+/* ---------- Header ---------- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  .titleBlock {
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      margin: 4px 0 0;
+      color: $text-muted;
+      font-size: 14px;
+    }
+  }
+
+  .refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: $card;
+    color: $text;
+    border: 1px solid $border;
+    border-radius: $radius-xs;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: $blue;
+      color: $blue;
+      box-shadow: 0 0 0 4px rgba($blue, 0.08);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.spinning svg {
+      animation: spin 0.8s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* =========================================================
+   STAT CARDS
+   ========================================================= */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+
+  @media (max-width: 1280px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.statCard {
+  position: relative;
+  padding: 22px 22px 20px;
+  border-radius: $radius;
+  background: $card;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+  /* rangli chap chiziq */
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+  }
+
+  &.clickable { cursor: pointer; }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: $shadow-lg;
+  }
+
+  &.blue::before    { background: linear-gradient(180deg, $blue, $blue-600); }
+  &.green::before   { background: linear-gradient(180deg, $green, $green-600); }
+  &.orange::before  { background: linear-gradient(180deg, $orange, $orange-600); }
+  &.red::before     { background: linear-gradient(180deg, $red, $red-600); }
+
+  .statTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+
+  .statLabel {
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .statIconBox {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+
+    &.blue   { background: rgba($blue, 0.1);   color: $blue; }
+    &.green  { background: rgba($green, 0.1);  color: $green-600; }
+    &.orange { background: rgba($orange, 0.12); color: $orange-600; }
+    &.red    { background: rgba($red, 0.1);    color: $red-600; }
+  }
+
+  .statValue {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    color: $text;
+    margin-bottom: 6px;
+  }
+
+  .statSub {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: $text-muted;
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+
+      &.up   { background: rgba($green, 0.12); color: $green-600; }
+      &.down { background: rgba($red, 0.12);   color: $red-600; }
+    }
+  }
+}
+
+/* =========================================================
+   GRID 2
+   ========================================================= */
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   CARD
+   ========================================================= */
+.card {
+  background: $card;
+  border-radius: $radius;
+  border: 1px solid $border;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+
+  .cardHead {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 22px;
+    border-bottom: 1px solid $border;
+
+    h3 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: $text;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: rgba($blue, 0.08);
+        color: $blue;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+    }
+
+    .cardLink {
+      font-size: 13px;
+      color: $blue;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  .cardBody {
+    padding: 20px 22px;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 16px;
+  }
+}
 
-    h1 { font-size: 24px; color: $primary; }
+/* =========================================================
+   SOURCE ROW (progress)
+   ========================================================= */
+.sourceRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &.clickable {
+    padding: 8px 10px;
+    margin: -8px -10px;
+    border-radius: $radius-xs;
+    transition: background 0.15s;
+    cursor: pointer;
+
+    &:hover { background: rgba($blue, 0.04); }
+  }
+
+  .sourceHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .sourceLabel {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: $text;
+      font-weight: 500;
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+    }
+
+    .sourceValue {
+      font-size: 14px;
+      font-weight: 600;
+      color: $text;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .sourceBar {
+    width: 100%;
+    height: 6px;
+    background: #f1f5f9;
+    border-radius: 999px;
+    overflow: hidden;
+
+    .fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 2px;
+
+      &.blue    { background: linear-gradient(90deg, $blue, $blue-600); }
+      &.green   { background: linear-gradient(90deg, $green, $green-600); }
+      &.orange  { background: linear-gradient(90deg, $orange, $orange-600); }
+      &.red     { background: linear-gradient(90deg, $red, $red-600); }
+      &.indigo  { background: linear-gradient(90deg, $indigo, #4f46e5); }
+      &.purple  { background: linear-gradient(90deg, $purple, #9333ea); }
+      &.yellow  { background: linear-gradient(90deg, $yellow, #ca8a04); }
+    }
+  }
+}
+
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
+.emptyBox {
+  padding: 28px 16px;
+  text-align: center;
+  color: $text-muted;
+
+  .emptyIcon {
+    font-size: 36px;
+    margin-bottom: 8px;
+    opacity: 0.5;
+  }
+
+  .emptyText {
+    font-size: 14px;
+  }
+}
+
+/* =========================================================
+   TABLE
+   ========================================================= */
+.tableWrap {
+  overflow-x: auto;
+
+  &::-webkit-scrollbar { height: 6px; }
+  &::-webkit-scrollbar-thumb {
+    background: $border;
+    border-radius: 999px;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  thead th {
+    padding: 12px 22px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: $text-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    background: #fafbfd;
+    border-bottom: 1px solid $border;
+    white-space: nowrap;
+
+    &.right { text-align: right; }
+  }
+
+  tbody tr {
+    border-bottom: 1px solid $border;
+    transition: background 0.15s;
+
+    &:last-child { border-bottom: none; }
+    &:hover { background: #fafbfd; }
+  }
+
+  td {
+    padding: 14px 22px;
+    color: $text;
+    vertical-align: middle;
+
+    &.right { text-align: right; }
+    &.muted {
+      color: $text-muted;
+      font-size: 13px;
+    }
+    &.amount {
+      font-weight: 600;
+      color: $green-600;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+  }
+
+  .patientCell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, $blue, $indigo);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .name {
+      font-weight: 500;
+      color: $text;
+    }
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: $text;
+    background: #f1f5f9;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .methodBadge {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 999px;
+    white-space: nowrap;
+
+    &.cash   { background: rgba($green, 0.1);  color: $green-600; }
+    &.card   { background: rgba($blue, 0.1);   color: $blue-600; }
+    &.bank   { background: rgba($yellow, 0.15); color: #a16207; }
+    &.online { background: rgba($purple, 0.1); color: #7e22ce; }
+  }
+}
+
+/* =========================================================
+   SKELETON
+   ========================================================= */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #eef2f6 0%,
+    #f8fafc 50%,
+    #eef2f6 100%
+  );
+  background-size: 200% 100%;
+  border-radius: $radius-xs;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeletonCard {
+  height: 140px;
+  border-radius: $radius;
+}
+
+.skeletonRow {
+  height: 20px;
+  margin-bottom: 12px;
+}
+
+/* =========================================================
+   LOADING / ERROR
+   ========================================================= */
+.loading, .error {
+  padding: 24px;
+  text-align: center;
+  font-size: 15px;
+  border-radius: $radius;
+}
+
+.loading {
+  color: $text-muted;
+}
+
+.error {
+  color: $red-600;
+  background: rgba($red, 0.06);
+  border: 1px solid rgba($red, 0.15);
 }
