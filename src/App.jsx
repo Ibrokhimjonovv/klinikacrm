@@ -58,8 +58,8 @@ import CashierDoctorServicesPayments from './pages/Cashier/CashierDoctorServices
 import NurseRooms from './pages/XamshiraReseption/NurseRooms/NurseRooms'
 import NurseServicesDoctors from './pages/XamshiraReseption/NurseServicesDoctors/NurseServicesDoctors'
 
-// export const api = 'https://bkapi.aoc.uz/api/v1'
-export const api = 'http://192.168.0.189:8000/api/v1'
+export const api = 'https://bkapi.aoc.uz/api/v1'
+// export const api = 'http://192.168.0.189:8000/api/v1'
 
 function App() {
   const { user } = useAppContext()
