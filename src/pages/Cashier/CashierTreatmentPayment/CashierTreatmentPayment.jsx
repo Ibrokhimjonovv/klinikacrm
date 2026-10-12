@@ -243,6 +243,11 @@ const CashierTreatmentPayment = () => {
         paid: daysData?.paid ?? plan.paid,
         remaining: daysData?.remaining ?? plan.remaining,
         payments: statusData?.payments || [],
+        queueNumber:
+          statusData?.queue_number ??
+          plan.queue_number ??
+          daysData?.queue_number ??
+          null,                                   // <-- YANGI
       });
     } catch (err) {
       console.error('Chek chiqarishda xatolik:', err);

@@ -56,9 +56,10 @@ import CashierTreatmentPayment from './pages/Cashier/CashierTreatmentPayment/Cas
 import CashierServicesPayments from './pages/Cashier/CashierServicesPayments/CashierServicesPayments'
 import CashierDoctorServicesPayments from './pages/Cashier/CashierDoctorServicesPayments/CashierDoctorServicesPayment'
 import NurseRooms from './pages/XamshiraReseption/NurseRooms/NurseRooms'
+import NurseServicesDoctors from './pages/XamshiraReseption/NurseServicesDoctors/NurseServicesDoctors'
 
 // export const api = 'https://bkapi.aoc.uz/api/v1'
-export const api = 'http://localhost:8000/api/v1'
+export const api = 'http://192.168.0.189:8000/api/v1'
 
 function App() {
   const { user } = useAppContext()
@@ -98,8 +99,9 @@ function App() {
               <Route path="/nurse/patients/:patientId/visits/:visitId" element={<VisitDetail />} />
               <Route path="/nurse/profile" element={<ResNurseProfile />} />
               {/* <Route path="/nurse-paid-patients" element={<NursePaidPatients />} /> */}
-              <Route path="nurse/services" element={<NurseServices />} />
-              <Route path="nurse/service/:serviceId" element={<NurseServiceDetail />} />
+              <Route path="nurse/services" element={<NurseServicesDoctors />} />
+              <Route path="nurse/doctor/:doctorId/services" element={<NurseServices />} />
+              <Route path="nurse/doctor/:doctorId/service/:serviceId" element={<NurseServiceDetail />} />
               <Route path="nurse/rooms/all-rooms" element={<NurseRooms />} />
             </>
           )}

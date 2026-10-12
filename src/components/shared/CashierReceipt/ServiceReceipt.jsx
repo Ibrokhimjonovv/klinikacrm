@@ -63,6 +63,19 @@ p{margin:0}
 .rc-patient{margin:.15em 0 .3em;font-weight:800;font-size:1.1em;word-break:break-word}
 .rc-sub{margin:.2em 0 0;font-size:.9em;word-break:break-word}
 .rc-hr{border-top:.3mm dashed #000;margin:.5em 0}
+.rc-queue{
+  width:45%;
+  aspect-ratio:1/1;
+  margin:2em auto 0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+.rc-queue-label{font-size:.9em;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.rc-queue-num{font-size:6em;font-weight:900;line-height:1}
+.rc-qr{display:flex;justify-content:center;margin:.8em 0 .2em}
 .rc-qr{display:flex;justify-content:center;margin:2em 0 .2em}
 .rc-qr svg{width:45%;height:auto}
 .rc-site{text-align:center;margin:.15em 0;font-size:1.1em;font-weight:800}
@@ -147,6 +160,12 @@ const ReceiptContent = ({ service, cashier }) => {
             <div className="rc-hr" />
 
             <div className="rc-sec">
+                {service.queueNumber != null && (
+                    <div className="rc-queue">
+                        <span className="rc-queue-label">Navbat</span>
+                        <span className="rc-queue-num">{service.queueNumber}</span>
+                    </div>
+                )}
                 <div className="rc-qr">
                     <QRCodeSVG value="https://aoc.uz" size={300} />
                 </div>

@@ -93,6 +93,7 @@ const normalize = (v) => {
         services,
         serviceName,
         price: Number(v.price || v.amount) || 0,
+        queueNumber: v.queue_number ?? v.queueNumber ?? null,   // <-- YANGI
         isPaid: !!v.is_paid,
         paidAt: v.paid_at,
         createdAt: v.created_at || v.date || v.service_date,
@@ -231,6 +232,7 @@ const CashierServicesPayments = () => {
                 price: Number(data.amount) || selected.price + extra,
                 extraAmount: extra,
                 extraNote: note,
+                queueNumber: data.queue_number ?? selected.queueNumber ?? null,   // <-- YANGI
                 isPaid: true,
                 paidAt,
                 method,

@@ -85,6 +85,7 @@ const normalize = (v) => {
         birthDate: p.birth_date || p.date_of_birth || p.birthday || '',
         doctors,
         price: Number(v.price) || 0,
+        queueNumber: v.queue_number ?? v.queueNumber ?? null,   // <-- YANGI
         isPaid: !!v.is_paid,
         paidAt: v.paid_at,
         createdAt: v.created_at || v.date || v.visit_date,
@@ -239,6 +240,7 @@ const CashierVisitPayments = () => {
                 total,
                 extraAmount: serverExtra,
                 extraNote: data.extra_note || '',
+                queueNumber: data.queue_number ?? selected.queueNumber ?? null,   // <-- YANGI
                 isPaid: true,
                 paidAt,
                 method,

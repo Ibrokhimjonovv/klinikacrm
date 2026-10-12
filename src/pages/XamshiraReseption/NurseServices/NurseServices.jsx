@@ -1,12 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import s from './NurseServices.module.scss';
-import { api } from '../../../App'; // yo'lni loyihangizga moslang
+import { api } from '../../../App';
 
-// ⚠️ Moslang
-const SERVICES_PATH = '/services/';
-// Xizmatning ichki sahifasi marshruti (App'dagi <Route path=".../:serviceId" /> bilan bir xil bo'lsin)
-const serviceRoute = (id) => `/nurse/service/${id}`;
+const SERVICES_PATH = (doctorId) => `/assist-doctors/${doctorId}/services/`;
+const serviceRoute = (doctorId, id) => `/nurse/doctor/${doctorId}/service/${id}`;
 
 const authHeaders = (token) => ({
   Authorization: `Bearer ${token}`,
@@ -18,6 +16,9 @@ const formatSum = (n) =>
 
 const NurseServices = () => {
   const navigate = useNavigate();
+  const { doctorId } = useParams();
+
+  const [doctor, setDoctor] = useState(null);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,12 +29,15 @@ const NurseServices = () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await fetch(`${api}${SERVICES_PATH}`, {
+        const res = await fetch(`${api}${SERVICES_PATH(doctorId)}`, {
           headers: authHeaders(localStorage.getItem('hospital_access')),
         });
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         const data = await res.json();
-        setServices(Array.isArray(data) ? data : data.results || []);
+
+        setDoctor(data.doctor || null);
+        const list = Array.isArray(data) ? data : data.services || data.results || [];
+        setServices(list.filter((sv) => sv.is_active !== false));
       } catch (err) {
         console.error('Xizmatlarni olishda xatolik:', err);
         setError(err.message);
@@ -42,7 +46,7 @@ const NurseServices = () => {
       }
     };
     load();
-  }, []);
+  }, [doctorId]);
 
   const filtered = useMemo(
     () =>
@@ -59,8 +63,18 @@ const NurseServices = () => {
     <div className={s.HomeContainer}>
       <div className={s.TopRow}>
         <div>
-          <h1>Xizmatlar</h1>
-          <p>Xizmatni tanlang va bemorni biriktiring</p>
+          <button
+            type="button"
+            className={s.BackBtn}
+            onClick={() => navigate('/nurse/services')}
+          >
+            <i className="bi bi-arrow-left"></i> Shifokorlarga qaytish
+          </button>
+          <h1>{doctor?.full_name || 'Xizmatlar'}</h1>
+          <p>
+            {doctor?.specialty ? `${doctor.specialty} · ` : ''}
+            Xizmatni tanlang va bemorni biriktiring
+          </p>
         </div>
 
         <div className={s.SearchBox}>
@@ -83,7 +97,7 @@ const NurseServices = () => {
               type="button"
               key={sv.id}
               className={s.ServiceCard}
-              onClick={() => navigate(serviceRoute(sv.id))}
+              onClick={() => navigate(serviceRoute(doctorId, sv.id))}
             >
               <div className={s.ServiceIcon}>
                 <i className="bi bi-heart-pulse"></i>

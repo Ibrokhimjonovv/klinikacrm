@@ -1,0 +1,136 @@
+.HomeContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.TopRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 15px;
+
+    h1 {
+        font-size: 26px;
+        color: #1b3050;
+    }
+
+    p {
+        color: #1b3050;
+        margin-top: 4px;
+    }
+}
+
+.SearchBox {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 280px;
+
+    i {
+        position: absolute;
+        left: 12px;
+        color: #888;
+    }
+
+    input {
+        width: 100%;
+        padding: 10px 12px 10px 36px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #1b3050;
+        background: #fff;
+        outline: none;
+
+        &:focus {
+            border-color: #4a7bb5;
+        }
+    }
+}
+
+.Empty {
+    color: #999;
+    text-align: center;
+    padding: 30px 0;
+    font-size: 14px;
+}
+
+.DoctorsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.DoctorCard {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #888;
+
+    &:hover {
+        border-color: #4a7bb5;
+        box-shadow: 0 6px 18px rgba(74, 123, 181, 0.18);
+        transform: translateY(-2px);
+    }
+}
+
+.DoctorAvatar {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: #eaf0f7;
+    color: #4a7bb5;
+    font-weight: 700;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.DoctorInfo {
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+        font-size: 16px;
+        color: #1b3050;
+    }
+
+    p {
+        font-size: 13px;
+        color: #888;
+        margin-top: 2px;
+    }
+}
+
+@media (max-width: 900px) {
+    .DoctorsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .DoctorsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .TopRow {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .SearchBox {
+        min-width: 0;
+        width: 100%;
+    }
+}

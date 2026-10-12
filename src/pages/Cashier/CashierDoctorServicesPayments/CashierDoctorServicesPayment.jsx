@@ -101,6 +101,7 @@ const normalize = (v) => {
         extraAmount,                    // qo'shimcha
         extraNote: v.extra_note || '',
         total: price + extraAmount,     // umumiy summa
+        queueNumber: v.queue_number ?? v.queueNumber ?? null,   // <-- YANGI
         isPaid: !!v.is_paid,
         paidAt: v.paid_at,
         createdAt: v.created_at || v.date || v.service_date,
@@ -268,10 +269,11 @@ const CashierDoctorServicesPayments = () => {
             setPaidService({
                 ...selected,
                 basePrice,
-                price: total,               // chek uchun umumiy summa
+                price: total,
                 total,
                 extraAmount: serverExtra,
                 extraNote: data.extra_note || '',
+                queueNumber: data.queue_number ?? selected.queueNumber ?? null,   // <-- YANGI
                 isPaid: true,
                 paidAt,
                 method,
