@@ -13,14 +13,31 @@ $shadow-sm: 0 1px 2px rgba(14, 27, 51, 0.04), 0 1px 3px rgba(14, 27, 51, 0.06);
 $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
 
 @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 @keyframes pop {
-    0% { transform: scale(0.85); opacity: 0; }
-    60% { transform: scale(1.04); opacity: 1; }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(0.85);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.04);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 .PatientsPage {
@@ -45,7 +62,12 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
         color: $primary;
         margin: 0;
     }
-    p { color: $muted; margin: 4px 0 0; font-size: 13px; }
+
+    p {
+        color: $muted;
+        margin: 4px 0 0;
+        font-size: 13px;
+    }
 }
 
 // ---------- Statistika ----------
@@ -54,7 +76,9 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
 
-    @media (max-width: 800px) { grid-template-columns: 1fr; }
+    @media (max-width: 800px) {
+        grid-template-columns: 1fr;
+    }
 }
 
 .StatCard {
@@ -70,7 +94,10 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     box-shadow: $shadow-sm;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
 
-    &:hover { box-shadow: $shadow-md; transform: translateY(-2px); }
+    &:hover {
+        box-shadow: $shadow-md;
+        transform: translateY(-2px);
+    }
 
     span {
         display: block;
@@ -79,6 +106,7 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
         color: $muted;
         margin-bottom: 3px;
     }
+
     p {
         margin: 0;
         font-size: 20px;
@@ -98,9 +126,21 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     font-size: 21px;
     flex-shrink: 0;
 }
-.StatIconRed { background: linear-gradient(135deg, #fee2e2, #fecaca); color: $red; }
-.StatIconGreen { background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #047857; }
-.StatIconBlue { background: linear-gradient(135deg, #e0e9ff, #c7d7ff); color: $accent; }
+
+.StatIconRed {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: $red;
+}
+
+.StatIconGreen {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #047857;
+}
+
+.StatIconBlue {
+    background: linear-gradient(135deg, #e0e9ff, #c7d7ff);
+    color: $accent;
+}
 
 // ---------- Qidiruv + tab ----------
 .SearchRow {
@@ -129,7 +169,9 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
         box-shadow: 0 0 0 3px rgba(42, 75, 201, 0.12);
     }
 
-    i { color: #9ca3af; }
+    i {
+        color: #9ca3af;
+    }
 
     input {
         border: none;
@@ -140,7 +182,9 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
         font-family: inherit;
         color: $text;
 
-        &::placeholder { color: #9ca3af; }
+        &::placeholder {
+            color: #9ca3af;
+        }
     }
 }
 
@@ -163,7 +207,9 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
         font-family: inherit;
         transition: all 0.15s;
 
-        &:hover { color: $primary; }
+        &:hover {
+            color: $primary;
+        }
     }
 
     .FilterActive {
@@ -174,7 +220,11 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     }
 }
 
-.Muted { color: $muted; font-size: 14px; margin: 0; }
+.Muted {
+    color: $muted;
+    font-size: 14px;
+    margin: 0;
+}
 
 .Empty {
     color: #9ca3af;
@@ -224,12 +274,20 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
         cursor: pointer;
         transition: background 0.15s;
 
-        &:hover td { background: #f8faff; }
-        &:last-child td { border-bottom: none; }
+        &:hover td {
+            background: #f8faff;
+        }
+
+        &:last-child td {
+            border-bottom: none;
+        }
     }
 }
 
-.DebtCell { font-weight: 700; color: $red !important; }
+.DebtCell {
+    font-weight: 700;
+    color: $red !important;
+}
 
 .NameCell {
     display: flex;
@@ -237,10 +295,17 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     gap: 12px;
     font-weight: 600;
 
-    span { color: $primary; }
+    span {
+        color: $primary;
+    }
 }
 
-.NameCellSub { margin: 2px 0 0; font-size: 12px; font-weight: 400; color: #9ca3af; }
+.NameCellSub {
+    margin: 2px 0 0;
+    font-size: 12px;
+    font-weight: 400;
+    color: #9ca3af;
+}
 
 .Avatar {
     width: 38px;
@@ -275,11 +340,21 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
         background: currentColor;
     }
 
-    &.unpaid { background: #fee2e2; color: $red; }
-    &.paid { background: #dcfce7; color: #15803d; }
+    &.unpaid {
+        background: #fee2e2;
+        color: $red;
+    }
+
+    &.paid {
+        background: #dcfce7;
+        color: #15803d;
+    }
 }
 
-.ArrowCell { text-align: right; color: #c4c9d2; }
+.ArrowCell {
+    text-align: right;
+    color: #c4c9d2;
+}
 
 .LinkBtn {
     background: none;
@@ -293,8 +368,13 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     border-radius: 8px;
     transition: background 0.15s;
 
-    &:hover { background: #e0e9ff; }
-    i { font-size: 16px; }
+    &:hover {
+        background: #e0e9ff;
+    }
+
+    i {
+        font-size: 16px;
+    }
 }
 
 // ---------- Yon oyna ----------
@@ -306,8 +386,18 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     background: linear-gradient(180deg, $bg-soft, #fff);
     border-bottom: 1px solid $border;
 
-    h2 { margin: 0 0 4px; font-size: 17px; font-weight: 800; color: $primary; }
-    p { margin: 0; font-size: 13px; color: $muted; }
+    h2 {
+        margin: 0 0 4px;
+        font-size: 17px;
+        font-weight: 800;
+        color: $primary;
+    }
+
+    p {
+        margin: 0;
+        font-size: 13px;
+        color: $muted;
+    }
 }
 
 .DrawerAvatar {
@@ -406,8 +496,13 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     font-weight: 700;
     animation: pop 0.35s ease;
 
-    i { font-size: 22px; }
-    p { margin: 0; }
+    i {
+        font-size: 22px;
+    }
+
+    p {
+        margin: 0;
+    }
 }
 
 // ---------- Tugmalar ----------
@@ -434,8 +529,56 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
         transform: translateY(-1px);
         box-shadow: 0 8px 20px rgba(22, 163, 74, 0.38);
     }
-    &:active:not(:disabled) { transform: translateY(0); }
-    &:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+
+    &:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+}
+
+.ActionRow {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+
+    .PayBtn {
+        margin-top: 0;
+        width: auto;
+        flex: 1;
+    }
+}
+
+.CancelBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 18px;
+    background: #fff;
+    color: $red;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+
+    &:hover:not(:disabled) {
+        background: #fef2f2;
+        border-color: $red;
+    }
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
 }
 
 .CloseBtn {
@@ -479,9 +622,14 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     font-family: inherit;
     transition: all 0.15s;
 
-    i { font-size: 18px; color: $muted; }
+    i {
+        font-size: 18px;
+        color: $muted;
+    }
 
-    &:hover { border-color: $primary; }
+    &:hover {
+        border-color: $primary;
+    }
 }
 
 .MethodBtnActive {
@@ -489,7 +637,9 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     background: $primary;
     color: #fff;
 
-    i { color: #fff; }
+    i {
+        color: #fff;
+    }
 }
 
 // ---------- Qo'shimcha ----------
@@ -509,8 +659,13 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     cursor: pointer;
     transition: all 0.15s;
 
-    i { font-size: 16px; }
-    &:hover { background: #e0e9ff; }
+    i {
+        font-size: 16px;
+    }
+
+    &:hover {
+        background: #e0e9ff;
+    }
 }
 
 .ExtraToggleActive {
@@ -556,7 +711,9 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     color: $muted;
     margin: 0 0 6px;
 
-    &:not(:first-child) { margin-top: 12px; }
+    &:not(:first-child) {
+        margin-top: 12px;
+    }
 }
 
 .ExtraInputWrap {
@@ -587,7 +744,10 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
         color: $primary;
     }
 
-    span { font-size: 13px; color: $muted; }
+    span {
+        font-size: 13px;
+        color: $muted;
+    }
 }
 
 // ---------- To'lov qabul qilindi: umumiy summa ----------
@@ -636,7 +796,10 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     font-size: 13px;
     color: $muted;
 
-    b { color: $primary; font-weight: 700; }
+    b {
+        color: $primary;
+        font-weight: 700;
+    }
 }
 
 .PaidNote {
@@ -652,5 +815,8 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     text-align: left;
     color: $primary;
 
-    i { color: $muted; margin-top: 2px; }
+    i {
+        color: $muted;
+        margin-top: 2px;
+    }
 }

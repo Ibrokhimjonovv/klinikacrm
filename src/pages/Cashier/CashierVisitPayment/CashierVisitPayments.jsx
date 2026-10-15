@@ -113,6 +113,7 @@ const CashierVisitPayments = () => {
     const [showExtra, setShowExtra] = useState(false);
     const [extraAmount, setExtraAmount] = useState('');
     const [extraNote, setExtraNote] = useState('');
+    const [cancelling, setCancelling] = useState(false);
 
     const getToken = () => localStorage.getItem('hospital_access');
 
@@ -252,6 +253,36 @@ const CashierVisitPayments = () => {
             setFormError(err.message || "To'lovni qabul qilib bo'lmadi");
         } finally {
             setPaying(false);
+        }
+    };
+
+    // ------------------------------------------------------------
+    // Ko'rikni bekor qilish
+    // ------------------------------------------------------------
+    const handleCancel = async () => {
+        if (!selected) return;
+
+        try {
+            setCancelling(true);
+            setFormError('');
+
+            const res = await fetch(`${api}/medical-visits/${selected.id}/pay/`, {
+                method: 'POST',
+                headers: authHeaders(getToken()),
+                body: JSON.stringify({ status: 'CANCELLED' }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.detail || data.error || `HTTP error! status: ${res.status}`);
+            }
+
+            closeDrawer();
+            await fetchVisits(true);
+        } catch (err) {
+            console.error('Bekor qilishda xatolik:', err);
+            setFormError(err.message || "Ko'rikni bekor qilib bo'lmadi");
+        } finally {
+            setCancelling(false);
         }
     };
 
@@ -564,17 +595,29 @@ const CashierVisitPayments = () => {
                                     </p>
                                 )}
 
-                                <button
-                                    type="button"
-                                    className={s.PayBtn}
-                                    onClick={handlePay}
-                                    disabled={paying}
-                                >
-                                    <i className="bi bi-wallet2"></i>
-                                    {paying
-                                        ? 'Qabul qilinmoqda...'
-                                        : `To'lovni qabul qilish · ${formatSum(totalToPay)}`}
-                                </button>
+                                <div className={s.ActionRow}>
+                                    <button
+                                        type="button"
+                                        className={s.CancelBtn}
+                                        onClick={handleCancel}
+                                        disabled={paying || cancelling}
+                                    >
+                                        <i className="bi bi-x-circle"></i>
+                                        {cancelling ? 'Bekor qilinmoqda...' : 'Bekor qilish'}
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className={s.PayBtn}
+                                        onClick={handlePay}
+                                        disabled={paying || cancelling}
+                                    >
+                                        <i className="bi bi-wallet2"></i>
+                                        {paying
+                                            ? 'Qabul qilinmoqda...'
+                                            : `To'lovni qabul qilish · ${formatSum(totalToPay)}`}
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </>

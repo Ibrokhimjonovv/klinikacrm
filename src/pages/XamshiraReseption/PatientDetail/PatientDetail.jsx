@@ -496,7 +496,8 @@ const NursePatientDetail = () => {
                                         <i className="bi bi-clipboard2-pulse"></i> {diag.name}
                                     </span>
                                     <span className={s.DiagStatus}>
-                                        <i className="bi bi-check-circle-fill"></i> {EXAM_STATUS[diag.status] || diag.status}
+                                        <i className="bi bi-check-circle-fill"></i>{' '}
+                                        {diag.status === 'REQUESTED' ? 'Yuborilgan' : EXAM_STATUS[diag.status] || diag.status}
                                     </span>
                                 </div>
 
