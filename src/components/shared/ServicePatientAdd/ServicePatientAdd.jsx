@@ -7,17 +7,13 @@ import { api } from '../../../App';
 import { useAppContext } from '../../../context/context';
 import PrintReceipt, { logoReady } from '../../shared/PrintReceipt/PrintReceipt';
 
-// Faqat 2 qadam: 1) ma'lumotlar  2) login/parol + chop etish
 const STEPS = ["Bemor ma'lumotlari", "Kirish ma'lumotlari"];
 
-// onCreated({ id, name }) — bemor yaratilishi bilan chaqiriladi
-// onClose() — "Yopish" tugmasi bosilganda
 const ServicePatientAdd = ({ onCreated, onClose }) => {
   const { addPatientLocally } = useAppContext();
 
   const [step, setStep] = useState(1);
 
-  // STEP 1
   const [formData, setFormData] = useState({
     first_name: '', last_name: '', middle_name: '',
     date_of_birth: '', gender: '', contact_number: '', address: '',
@@ -26,7 +22,6 @@ const ServicePatientAdd = ({ onCreated, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState('');
 
-  // STEP 2
   const [credentials, setCredentials] = useState(null);
   const [copied, setCopied] = useState('');
 
@@ -77,7 +72,6 @@ const ServicePatientAdd = ({ onCreated, onClose }) => {
 
       setCredentials({ username: data.username, password: data.generated_password });
 
-      // Ro'yxatga darhol qo'shamiz (PatientAdmission'dagi kabi)
       addPatientLocally({
         ...formData,
         id: data?.id,
@@ -85,7 +79,6 @@ const ServicePatientAdd = ({ onCreated, onClose }) => {
         complaints: [],
       });
 
-      // Xizmat sahifasiga yangi bemorni bildiramiz (avtomatik tanlash uchun)
       if (onCreated) {
         onCreated({
           id: data?.id,

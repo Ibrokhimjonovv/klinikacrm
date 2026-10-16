@@ -3,23 +3,6 @@ import s from "./AssistantDoctorHome.module.scss"
 import { useAppContext } from '../../../context/context'
 import { api } from '../../../App';
 
-// ==========================================================
-// Backend javobi (DoctorTaskSerializer) shu yerda bitta joyda
-// moslanadi. Maydon nomlari serializerdagi nomlardan farq
-// qilsa, FAQAT shu funksiyani o'zgartirasiz.
-//
-// Taxmin qilingan struktura (ExaminationRequest modeliga asosan):
-// {
-//   id, status, priority, requested_at, started_at, completed_at,
-//   service: { id, name },
-//   medical_visit: {
-//     id,
-//     patient: { id, first_name, last_name }
-//   },
-//   requested_by: {...},
-//   assigned_to: {...}
-// }
-// ==========================================================
 const normalizeTask = (t) => {
   const raw = String(t.status || '').toUpperCase()
 
@@ -98,28 +81,6 @@ const AssistantDoctorHome = () => {
     return () => controller.abort()
   }, [reloadKey])
 
-  // ----------------------------------------------------------
-  // Vazifani boshlash: PATCH /doctor/my-tasks/:id/start/
-  // ----------------------------------------------------------
-  // const handleStartTask = async (id) => {
-  //   try {
-  //     setStartingId(id)
-  //     const res = await fetch(`${api}/doctor/my-tasks/${id}/start/`, {
-  //       method: 'PATCH',
-  //       headers: {
-  //         'Authorization': `Bearer ${getToken()}`,
-  //         'Content-Type': 'application/json',
-  //       },
-  //     })
-  //     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
-  //     setReloadKey(k => k + 1)
-  //   } catch (err) {
-  //     console.error('Vazifani boshlashda xatolik:', err)
-  //   } finally {
-  //     setStartingId(null)
-  //   }
-  // }
-
   const count = (key) => tasks.filter(p => p.statusKey === key).length
   const total = tasks.length
   const waiting = count('pending')
@@ -154,10 +115,7 @@ const AssistantDoctorHome = () => {
     },
   ]
 
-  // Tekshiruvi yakunlangan vazifalar ulushi
   const progressPercent = total > 0 ? Math.round((completed / total) * 100) : 0
-
-  // So'nggi 4 ta vazifa
   const recentTasks = tasks.slice(0, 4)
 
   return (
@@ -220,16 +178,6 @@ const AssistantDoctorHome = () => {
                     <span className={`${s.Status} ${s[t.statusKey]}`}>
                       {t.statusLabel}
                     </span>
-
-                    {/* {t.statusKey === 'pending' && (
-                      <button
-                        className={s.SecondaryBtn}
-                        disabled={startingId === t.id}
-                        onClick={() => handleStartTask(t.id)}
-                      >
-                        {startingId === t.id ? 'Boshlanmoqda...' : 'Boshlash'}
-                      </button>
-                    )} */}
                   </div>
                 </li>
               ))}

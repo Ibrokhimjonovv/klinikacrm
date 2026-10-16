@@ -48,8 +48,6 @@ const DoctorHome = () => {
     const progress = patient.progress?.total_progress ?? 0
     const plans = patient.treatment_plan || []
     const complaints = patient.complaints || []
-
-    // Eng ustuvor: agar hali ko'rib chiqilmagan (tashxis qo'yilmagan) shikoyat bo'lsa
     const hasWaitingComplaint = complaints.some(c => c.status === 'WAITING')
     if (hasWaitingComplaint) {
       return { label: 'Kutilmoqda', key: 'pending' }
@@ -84,20 +82,18 @@ const DoctorHome = () => {
     },
     {
       title: 'Jarayondagi bemorlar',
-      value: doctorCounts.process,      // context "in_progress" -> "process" deb map qiladi
+      value: doctorCounts.process,
       change: "So'nggi oydan +3",
       icon: 'bi-heart-pulse'
     },
     {
       title: 'Yakunlangan',
-      value: doctorCounts.completed,     // context "done" -> "completed" deb map qiladi
+      value: doctorCounts.completed,
       change: "So'nggi oydan +5",
       icon: 'bi-check-circle'
     },
   ]
 
-  // ✅ Foizni backend "all"iga emas, real holatlar yig'indisiga (waiting+process+completed)
-  // nisbatan hisoblaymiz — chunki backend "all" har doim shu yig'indiga teng bo'lmasligi mumkin
   const totalForProgress =
     (doctorCounts.waiting || 0) +
     (doctorCounts.process || 0) +
@@ -107,7 +103,6 @@ const DoctorHome = () => {
     ? Math.round(((doctorCounts.completed || 0) / totalForProgress) * 100)
     : 0
 
-  // So'nggi 4 ta bemor (ro'yxatda ko'rsatish uchun)
   const recentPatients = patients.slice(0, 4).map(p => {
     const statusInfo = getPatientStatus(p)
 

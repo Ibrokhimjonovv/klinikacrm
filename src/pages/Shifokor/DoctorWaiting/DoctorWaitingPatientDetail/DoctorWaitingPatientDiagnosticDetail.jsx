@@ -6,9 +6,12 @@ import { api } from '../../../../App';
 import DateTimeFormatter from '../../../../components/shared/DateTimeFormatter/DateTimeFormatter';
 import ImageZoomViewer from '../../../../components/shared/ImageZoomViewer/ImageZoomViewer';
 
-// ============================================================
-// HELPERS
-// ============================================================
+const FINISH_METHOD = 'PATCH';
+const finishUrl = (visitId) => `${api}/medical-visits/${visitId}/`;
+const finishBody = (note) => ({
+    status: 'COMPLETED',
+    doctor_conclusion: note,
+});
 
 const calcAge = (birthDate) => {
     if (!birthDate) return '?';
@@ -65,10 +68,6 @@ const isImageFile = (url) => {
     return /\.(jpg|jpeg|png|gif|bmp|webp|svg)(\?.*)?$/i.test(url);
 };
 
-// ============================================================
-// COMPONENT
-// ============================================================
-
 const DoctorWaitingPatientDiagnosticsDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -78,6 +77,7 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
     const [error, setError] = useState(null);
 
     const [selectedComplaintId, setSelectedComplaintId] = useState(null);
+    const [actionMode, setActionMode] = useState('diagnostic');
 
     const [services, setServices] = useState([]);
     const [serviceEmployees, setServiceEmployees] = useState([]);
@@ -88,6 +88,10 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
     const [diagSaving, setDiagSaving] = useState(false);
     const [diagError, setDiagError] = useState('');
     const [diagSuccess, setDiagSuccess] = useState(false);
+
+    const [finishNote, setFinishNote] = useState('');
+    const [finishing, setFinishing] = useState(false);
+    const [finishError, setFinishError] = useState('');
 
     const [diagnosticRequests, setDiagnosticRequests] = useState([]);
     const [requestsLoading, setRequestsLoading] = useState(false);
@@ -106,19 +110,12 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
         }
     }, [patient]);
 
-    // ✅ YANGI: kassir to'lovni olgach, oynaga qaytilganda avtomatik yangilanadi
     useEffect(() => {
         const onFocus = () => fetchPatient(true);
         window.addEventListener('focus', onFocus);
         return () => window.removeEventListener('focus', onFocus);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id]);
 
-    // ------------------------------------------------------------
-    // FETCH PATIENT
-    // ------------------------------------------------------------
-
-    // ✅ YANGI: silent rejim — yuklanish ekranini ko'rsatmasdan yangilaydi
     const fetchPatient = async (silent = false) => {
         try {
             if (!silent) setLoading(true);
@@ -143,10 +140,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
             if (!silent) setLoading(false);
         }
     };
-
-    // ------------------------------------------------------------
-    // FETCH SERVICES + SERVICE EMPLOYEES
-    // ------------------------------------------------------------
 
     const fetchDiagnosticServices = async () => {
         try {
@@ -177,10 +170,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
             setServicesLoading(false);
         }
     };
-
-    // ------------------------------------------------------------
-    // FETCH EXAMINATION REQUESTS
-    // ------------------------------------------------------------
 
     const fetchDiagnosticRequests = async () => {
         try {
@@ -214,10 +203,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
             setRequestsLoading(false);
         }
     };
-
-    // ------------------------------------------------------------
-    // SELECTED COMPLAINT
-    // ------------------------------------------------------------
 
     const selectedComplaint =
         patient?.complaints?.find((complaint) => complaint.id === selectedComplaintId) || null;
@@ -253,25 +238,27 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
         setDiagNote('');
         setDiagError('');
         setDiagSuccess(false);
+        setFinishNote('');
+        setFinishError('');
+        setActionMode('diagnostic');
+    };
+
+    const closePanel = () => {
+        setSelectedComplaintId(null);
+        resetDiagState();
     };
 
     const handleSelectComplaint = (complaint) => {
-        // ✅ YANGI: ko'rik to'lovi qilinmagan bo'lsa ochilmaydi
         if (!complaint.is_paid) return;
 
         if (selectedComplaintId === complaint.id) {
-            setSelectedComplaintId(null);
-            resetDiagState();
+            closePanel();
             return;
         }
 
         setSelectedComplaintId(complaint.id);
         resetDiagState();
     };
-
-    // ------------------------------------------------------------
-    // GET DOCTORS FOR SERVICE
-    // ------------------------------------------------------------
 
     const getDoctorsForService = (serviceId) => {
         return serviceEmployees
@@ -302,10 +289,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
         );
     };
 
-    // ------------------------------------------------------------
-    // SUBMIT DIAGNOSTICS
-    // ------------------------------------------------------------
-
     const handleSubmitDiagnostics = async (e) => {
         e.preventDefault();
 
@@ -317,7 +300,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
             return;
         }
 
-        // ✅ YANGI: to'lov himoyasi
         if (!selectedComplaint.is_paid) {
             setDiagError("Doktor ko'rigi to'lovi hali qilinmagan");
             return;
@@ -387,9 +369,48 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
         }
     };
 
-    // ------------------------------------------------------------
-    // DELETE REQUEST
-    // ------------------------------------------------------------
+    const handleFinish = async (e) => {
+        e.preventDefault();
+
+        setFinishError('');
+
+        if (!selectedComplaint) {
+            setFinishError('Avval shikoyatni tanlang');
+            return;
+        }
+
+        if (!selectedComplaint.is_paid) {
+            setFinishError("Doktor ko'rigi to'lovi hali qilinmagan");
+            return;
+        }
+
+        setFinishing(true);
+
+        try {
+            const token = localStorage.getItem('hospital_access');
+
+            const res = await fetch(finishUrl(selectedComplaint.id), {
+                method: FINISH_METHOD,
+                headers: authHeaders(token, true),
+                body: JSON.stringify(finishBody(finishNote.trim())),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                throw new Error(
+                    errorData.detail || errorData.error || `HTTP error! status: ${res.status}`
+                );
+            }
+
+            closePanel();
+            await fetchPatient(true);
+        } catch (err) {
+            console.error('Yakunlashda xatolik:', err);
+            setFinishError(err.message || "Ko'rikni yakunlab bo'lmadi");
+        } finally {
+            setFinishing(false);
+        }
+    };
 
     const removeDiagRequest = async (requestId) => {
         try {
@@ -420,10 +441,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
         setModalOpen(false);
         setModalImage(null);
     };
-
-    // ------------------------------------------------------------
-    // BITTA DIAGNOSTIKA SO'ROVI KARTASI
-    // ------------------------------------------------------------
 
     const renderRequestCard = (request) => {
         const fileUrl = getFileUrl(request.result?.result_file);
@@ -523,10 +540,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
         );
     };
 
-    // ------------------------------------------------------------
-    // DIAGNOSTIKAGA YUBORISH FORMASI
-    // ------------------------------------------------------------
-
     const renderDiagnosticForm = () => {
         const totalPrice = selectedServices.reduce((sum, serviceId) => {
             const service = services.find(
@@ -541,15 +554,26 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                 <div className={s.PlanFormHead}>
                     <h2>Diagnostikaga yuborish</h2>
 
+                    <button type="button" className={s.CancelSelectBtn} onClick={closePanel}>
+                        <i className="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <div className={s.ActionSwitch}>
                     <button
                         type="button"
-                        className={s.CancelSelectBtn}
-                        onClick={() => {
-                            setSelectedComplaintId(null);
-                            resetDiagState();
-                        }}
+                        className={`${s.ActionSwitchBtn} ${s.ActionSwitchBtnActive}`}
                     >
-                        <i className="bi bi-x-lg"></i>
+                        <i className="bi bi-clipboard2-pulse"></i>
+                        Diagnostikaga yuborish
+                    </button>
+                    <button
+                        type="button"
+                        className={s.ActionSwitchBtn}
+                        onClick={() => setActionMode('finish')}
+                    >
+                        <i className="bi bi-check2-circle"></i>
+                        Izoh bilan yakunlash
                     </button>
                 </div>
 
@@ -631,9 +655,7 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                 <div className={s.SelectedServicesSummary}>
                     <div className={s.SelectedServicesTotal}>
                         <span>Jami:</span>
-                        <strong>
-                            {totalPrice.toLocaleString('uz-UZ')} so'm
-                        </strong>
+                        <strong>{totalPrice.toLocaleString('uz-UZ')} so'm</strong>
                     </div>
                 </div>
 
@@ -669,9 +691,67 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
         );
     };
 
-    // ------------------------------------------------------------
-    // RENDER STATES
-    // ------------------------------------------------------------
+    const renderFinishForm = (canSwitch) => (
+        <form className={s.ComplaintForm} onSubmit={handleFinish}>
+            <div className={s.PlanFormHead}>
+                <h2>Ko'rikni yakunlash</h2>
+
+                <button type="button" className={s.CancelSelectBtn} onClick={closePanel}>
+                    <i className="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            {canSwitch && (
+                <div className={s.ActionSwitch}>
+                    <button
+                        type="button"
+                        className={s.ActionSwitchBtn}
+                        onClick={() => setActionMode('diagnostic')}
+                    >
+                        <i className="bi bi-clipboard2-pulse"></i>
+                        Diagnostikaga yuborish
+                    </button>
+                    <button
+                        type="button"
+                        className={`${s.ActionSwitchBtn} ${s.ActionSwitchBtnActive}`}
+                    >
+                        <i className="bi bi-check2-circle"></i>
+                        Izoh bilan yakunlash
+                    </button>
+                </div>
+            )}
+
+            <div className={s.Field}>
+                <label>Xulosa / izoh</label>
+                <textarea
+                    rows={4}
+                    placeholder="Ko'rik bo'yicha xulosa yoki izoh yozing..."
+                    value={finishNote}
+                    onChange={(e) => setFinishNote(e.target.value)}
+                    disabled={finishing}
+                />
+                <span className={s.FieldHint}>
+                    Yakunlangach bu shikoyat ro'yxatdan chiqadi
+                </span>
+            </div>
+
+            {finishError && (
+                <p className={s.FormError}>
+                    <i className="bi bi-exclamation-circle-fill"></i>
+                    {finishError}
+                </p>
+            )}
+
+            <button
+                type="submit"
+                className={`${s.SubmitPlanBtn} ${s.FinishBtn}`}
+                disabled={finishing}
+            >
+                <i className="bi bi-check2-circle"></i>
+                {finishing ? 'Yakunlanmoqda...' : 'Yakunlash'}
+            </button>
+        </form>
+    );
 
     if (loading) {
         return (
@@ -690,10 +770,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
     }
 
     if (!patient) return null;
-
-    // ------------------------------------------------------------
-    // RENDER
-    // ------------------------------------------------------------
 
     return (
         <div className={s.DetailPage}>
@@ -762,7 +838,9 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
             {visibleComplaints.length > 0 ? (
                 <div className={s.ComplaintsSection}>
                     <h2>Shikoyatlar</h2>
-                    <p className={s.ComplaintsHint}>Diagnostikaga yuborish uchun shikoyatni tanlang</p>
+                    <p className={s.ComplaintsHint}>
+                        Diagnostikaga yuborish yoki yakunlash uchun shikoyatni tanlang
+                    </p>
 
                     <div className={s.ComplaintsList}>
                         {visibleComplaints.map((complaint) => {
@@ -780,7 +858,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
 
                             return (
                                 <div key={complaint.id} className={`${s.ComplaintGroup}`}>
-                                    {/* ✅ YANGI: to'lanmagan bo'lsa qulflangan ko'rinish */}
                                     <button
                                         type="button"
                                         className={`${s.ComplaintCard} ${!complaint.is_paid ? s.ComplaintCardLocked : ''}`}
@@ -823,7 +900,6 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                                         </div>
                                     </button>
 
-                                    {/* ✅ YANGI: to'lov xabari */}
                                     {!complaint.is_paid && (
                                         <div className={s.PayLockBox}>
                                             <i className="bi bi-wallet2"></i>
@@ -831,7 +907,7 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                                                 <strong>Ko'rik to'lovi qilinmagan</strong>
                                                 <p>
                                                     Bemor kassaga {Number(complaint.price || 0).toLocaleString('uz-UZ')} so'm
-                                                    to'lagach, diagnostikaga yuborish ochiladi.
+                                                    to'lagach, diagnostikaga yuborish va yakunlash ochiladi.
                                                 </p>
                                             </div>
                                             <button type="button" onClick={() => fetchPatient(true)}>
@@ -860,7 +936,13 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                                         )
                                     )}
 
-                                    {isSelected && complaint.is_paid && !hasDiagnostics && renderDiagnosticForm()}
+                                    {isSelected && complaint.is_paid && (
+                                        hasDiagnostics
+                                            ? renderFinishForm(false)
+                                            : actionMode === 'finish'
+                                                ? renderFinishForm(true)
+                                                : renderDiagnosticForm()
+                                    )}
                                 </div>
                             );
                         })}
@@ -871,7 +953,7 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                     <div className={s.AllDiagDoneCard}>
                         <i className="bi bi-check-circle-fill"></i>
                         <p>
-                            Barcha diagnostikalar yakunlangan. Ularni bemorning
+                            Barcha ko'riklar yakunlangan. Diagnostika natijalarini bemorning
                             davolanish sahifasida ko'rishingiz mumkin.
                         </p>
                         <button
@@ -886,16 +968,9 @@ const DoctorWaitingPatientDiagnosticsDetail = () => {
                 )
             )}
 
-            <Modal
-                isOpen={modalOpen}
-                onClose={closeImageModal}
-                fullWidth
-            >
+            <Modal isOpen={modalOpen} onClose={closeImageModal} fullWidth>
                 {modalImage && (
-                    <ImageZoomViewer
-                        src={modalImage}
-                        alt="Diagnostika natijasi"
-                    />
+                    <ImageZoomViewer src={modalImage} alt="Diagnostika natijasi" />
                 )}
             </Modal>
         </div>

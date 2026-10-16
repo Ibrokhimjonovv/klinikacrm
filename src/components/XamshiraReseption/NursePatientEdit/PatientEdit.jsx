@@ -15,7 +15,6 @@ const PatientEdit = ({ onSuccess, patientId: propPatientId, visitId: propVisitId
     const [success, setSuccess] = useState(false);
     const [fetchError, setFetchError] = useState('');
 
-    // Bemor ma'lumotlari
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',
@@ -32,7 +31,6 @@ const PatientEdit = ({ onSuccess, patientId: propPatientId, visitId: propVisitId
     const [visitErrors, setVisitErrors] = useState({});
     const [originalVisitData, setOriginalVisitData] = useState(null);
 
-    // Ikkalasini bir vaqtda yuklaymiz
     useEffect(() => {
         const fetchAll = async () => {
             if (!patientId) {
@@ -104,8 +102,6 @@ const PatientEdit = ({ onSuccess, patientId: propPatientId, visitId: propVisitId
         fetchAll();
     }, [patientId, propVisitId]);
 
-    // ---------- Bemor form handlerlari ----------
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -130,17 +126,12 @@ const PatientEdit = ({ onSuccess, patientId: propPatientId, visitId: propVisitId
         return Object.keys(newErrors).length === 0;
     };
 
-
-    // ---------- O'zgarishlarni tekshirish ----------
-
     const patientChanged = () => {
         if (!originalData) return false;
         return JSON.stringify(formData) !== JSON.stringify(originalData);
     };
 
     const hasAnyChanges = () => patientChanged();
-
-    // ---------- Bitta umumiy submit — ikkalasini bir vaqtda yuboradi ----------
 
     const handleSubmit = async (e) => {
     e.preventDefault();
@@ -203,8 +194,6 @@ const PatientEdit = ({ onSuccess, patientId: propPatientId, visitId: propVisitId
         setSaving(false);
     }
 };
-
-    // ---------- RENDER ----------
 
     if (loading) {
         return (

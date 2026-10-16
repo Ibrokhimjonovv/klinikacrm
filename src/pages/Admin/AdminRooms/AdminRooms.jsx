@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './AdminRooms.module.scss';
-// ⚠️ Fayllar qaysi papkada joylashishiga qarab yo'llarni to'g'rilang:
 import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
 
@@ -45,32 +44,23 @@ const AdminRooms = () => {
     const [rooms, setRooms] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-
     const [expandedRoomId, setExpandedRoomId] = useState(null)
-
     const [roomModalOpen, setRoomModalOpen] = useState(false)
     const [editingRoomId, setEditingRoomId] = useState(null)
     const [roomForm, setRoomForm] = useState(emptyRoomForm)
     const [roomSaving, setRoomSaving] = useState(false)
     const [roomFormError, setRoomFormError] = useState('')
-
     const [bedModalOpen, setBedModalOpen] = useState(false)
     const [editingBedId, setEditingBedId] = useState(null)
     const [bedForm, setBedForm] = useState(emptyBedForm)
     const [bedSaving, setBedSaving] = useState(false)
     const [bedFormError, setBedFormError] = useState('')
     const [bedNameOptions, setBedNameOptions] = useState(BED_CHOICES)
-
-    // O'chirishni tasdiqlash uchun modallar
     const [deleteRoomTarget, setDeleteRoomTarget] = useState(null)
     const [deletingRoom, setDeletingRoom] = useState(false)
-
     const [deleteBedTarget, setDeleteBedTarget] = useState(null)
     const [deletingBed, setDeletingBed] = useState(false)
-
-    // ---------- Toast (window.alert o'rniga) ----------
-
-    const [toast, setToast] = useState(null) // { type: 'error' | 'success', message }
+    const [toast, setToast] = useState(null)
     const toastTimer = useRef(null)
 
     const showToast = (type, message) => {
@@ -109,8 +99,6 @@ const AdminRooms = () => {
     useEffect(() => {
         fetchRooms()
     }, [])
-
-    // ---------- Room modal ----------
 
     const openCreateRoom = () => {
         setEditingRoomId(null)
@@ -198,8 +186,6 @@ const AdminRooms = () => {
         }
     }
 
-    // ---------- Room delete ----------
-
     const askDeleteRoom = (room) => {
         setDeleteRoomTarget(room)
     }
@@ -228,8 +214,6 @@ const AdminRooms = () => {
             setDeletingRoom(false)
         }
     }
-
-    // ---------- Bed modal ----------
 
     const openCreateBed = (room) => {
         const usedNames = (room.beds || []).map(b => b.name)
@@ -308,8 +292,6 @@ const AdminRooms = () => {
         }
     }
 
-    // ---------- Bed delete ----------
-
     const askDeleteBed = (bed) => {
         if (bed.is_occupied) {
             showToast('error', "Band bo'lgan yotoqni o'chirib bo'lmaydi.")
@@ -346,8 +328,6 @@ const AdminRooms = () => {
     const toggleRoom = (roomId) => {
         setExpandedRoomId(prev => (prev === roomId ? null : roomId))
     }
-
-    // ---------- Render ----------
 
     const getFloorLabel = (floor) =>
         FLOOR_CHOICES.find(f => String(f.value) === String(floor))?.label || (floor ? `${floor}-qavat` : 'Boshqa')

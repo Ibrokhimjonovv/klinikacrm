@@ -5,10 +5,6 @@ import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
 import ImageZoomViewer from '../../../components/shared/ImageZoomViewer/ImageZoomViewer';
 
-// ============================================================
-// Yordamchi funksiyalar
-// ============================================================
-
 const calcAge = (birthDate) => {
     if (!birthDate) return '?';
     const diff = Date.now() - new Date(birthDate).getTime();
@@ -30,57 +26,40 @@ const authHeaders = (token, json = true) => ({
     ...(json ? { 'Content-Type': 'application/json' } : {}),
 });
 
-// Fayl rasmmi yoki yo'qmi — kengaytma bo'yicha aniqlash
 const isImage = (url) => {
     if (!url) return false;
     const clean = String(url).split('?')[0].toLowerCase();
     return /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(clean);
 };
 
-// ============================================================
-// Komponent
-// ============================================================
-
 const AssistantDoctorPTaskDetail = () => {
     const navigate = useNavigate();
     const { planId, serviceId } = useParams();
-
     const [patient, setPatient] = useState(null);
     const [service, setService] = useState(null);
     const [plan, setPlan] = useState(null);
     const [days, setDays] = useState([]);
-
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-
     const [activeDayId, setActiveDayId] = useState(null);
     const [pendingFile, setPendingFile] = useState(null);
     const [pendingComment, setPendingComment] = useState('');
     const [saving, setSaving] = useState(false);
-
     const [modalOpen, setModalOpen] = useState(false);
     const [modalImage, setModalImage] = useState(null);
-
     const openImageModal = (url) => {
         setModalImage(url);
         setModalOpen(true);
     };
-
     const closeImageModal = () => {
         setModalOpen(false);
         setModalImage(null);
     };
-
     const activeDay = days.find((d) => d.id === activeDayId) || null;
-
-    // ------------------------------------------------------------
-    // Fetch
-    // ------------------------------------------------------------
     const fetchDetail = async () => {
         try {
             setLoading(true);
             setError(null);
-
             const token = localStorage.getItem('hospital_access');
             const res = await fetch(
                 `${api}/doctor/my-treatment-services/${planId}/${serviceId}/`,
@@ -89,18 +68,13 @@ const AssistantDoctorPTaskDetail = () => {
                     headers: authHeaders(token),
                 }
             );
-
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
             }
-
             const data = await res.json();
-
             setPatient(data.patient_detail || null);
             setService(data.service_detail || null);
             setPlan(data.treatment_plan_detail || null);
-
-            // Kunlarni UI shakliga moslash
             const normalizedDays = (data.days || []).map((d, index) => ({
                 id: d.id,
                 dayNumber: d.day_detail?.day_number ?? index + 1,
@@ -119,8 +93,8 @@ const AssistantDoctorPTaskDetail = () => {
                 file: d.result_file_url
                     ? String(d.result_file_url).split('/').pop()
                     : null,
-                fileUrl: d.result_file_url || null,   // ← to'liq URL/path
-                resultText: d.result_text || null,    // ← natija matni
+                fileUrl: d.result_file_url || null,
+                resultText: d.result_text || null,
                 comment: d.note || null,
                 raw: d,
             }));
@@ -136,12 +110,8 @@ const AssistantDoctorPTaskDetail = () => {
 
     useEffect(() => {
         if (planId && serviceId) fetchDetail();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [planId, serviceId]);
 
-    // ------------------------------------------------------------
-    // Modal
-    // ------------------------------------------------------------
     const openDay = (day) => {
         setActiveDayId(day.id);
         setPendingFile(null);
@@ -150,9 +120,6 @@ const AssistantDoctorPTaskDetail = () => {
 
     const closeDrawer = () => setActiveDayId(null);
 
-    // ------------------------------------------------------------
-    // Vazifani boshlash — PATCH status=IN_PROGRESS
-    // ------------------------------------------------------------
     const handleStartDay = async () => {
         if (!activeDay) return;
 
@@ -164,7 +131,7 @@ const AssistantDoctorPTaskDetail = () => {
                 `${api}/doctor/treatment-day-services/${activeDay.id}/`,
                 {
                     method: 'PATCH',
-                    headers: authHeaders(token), // JSON Content-Type
+                    headers: authHeaders(token),
                     body: JSON.stringify({ status: 'IN_PROGRESS' }),
                 }
             );
@@ -173,7 +140,6 @@ const AssistantDoctorPTaskDetail = () => {
 
             const updated = await res.json().catch(() => null);
 
-            // Lokal yangilash
             setDays((prev) =>
                 prev.map((d) =>
                     d.id === activeDay.id
@@ -192,9 +158,6 @@ const AssistantDoctorPTaskDetail = () => {
         }
     };
 
-    // ------------------------------------------------------------
-    // Vazifani yakunlash — fayl + izoh + status=DONE
-    // ------------------------------------------------------------
     const handleFinishDay = async () => {
         if (!activeDay) return;
 
@@ -214,7 +177,6 @@ const AssistantDoctorPTaskDetail = () => {
                     method: 'PATCH',
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        // Content-Type ni qo'lda qo'ymang — FormData o'zi qo'yadi
                     },
                     body: formData,
                 }
@@ -260,9 +222,6 @@ const AssistantDoctorPTaskDetail = () => {
         }
     };
 
-    // ------------------------------------------------------------
-    // Status pill
-    // ------------------------------------------------------------
     const renderStatusPill = (status) => {
         const st = DAY_STATUS_LABELS[status] || DAY_STATUS_LABELS.WAITING;
         return (
@@ -272,9 +231,6 @@ const AssistantDoctorPTaskDetail = () => {
         );
     };
 
-    // ------------------------------------------------------------
-    // Loading / Error
-    // ------------------------------------------------------------
     if (loading) {
         return (
             <div className={s.DetailPage}>
@@ -290,10 +246,6 @@ const AssistantDoctorPTaskDetail = () => {
             </div>
         );
     }
-
-    // ------------------------------------------------------------
-    // Render
-    // ------------------------------------------------------------
     return (
         <div className={s.DetailPage}>
             <button

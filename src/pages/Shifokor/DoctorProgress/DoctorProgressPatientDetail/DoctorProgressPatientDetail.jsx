@@ -70,8 +70,6 @@ const isImageUrl = (url) => {
     return /\.(png|jpe?g|gif|webp|bmp|svg)$/.test(clean)
 }
 
-// Kun ichidagi day.services yozuvini xizmat ID bo'yicha topadi.
-// (day.services har bir item uchun emas, xizmat turi uchun bitta yozuv)
 const findMatchedService = (day, item) => {
     const itemServiceId = item.service ?? item.service_detail?.id
     if (itemServiceId == null) return null
@@ -81,8 +79,6 @@ const findMatchedService = (day, item) => {
     ) || null
 }
 
-// ✅ day.steps ni step_number bo'yicha tartiblaydi va har bir stepdagi
-// xizmat/dori uchun "necha marta" (occurrence) ma'lumotini hisoblaydi.
 const buildStepsWithOccurrence = (day) => {
     const steps = [...(day.steps || [])].sort(
         (a, b) => (a.step_number ?? 0) - (b.step_number ?? 0)
@@ -468,7 +464,6 @@ const DoctorProgressPatientDetail = () => {
         )
     }
 
-    // Item o'zi bajarilgan VA day.services yozuvi DONE bo'lsagina tugma chiqadi
     const renderServiceResultTrigger = (matchedService, item) => {
         const itemDone = item.checked && item.status === 'DONE'
         const serviceDone = matchedService?.status === 'DONE'
@@ -718,14 +713,9 @@ const DoctorProgressPatientDetail = () => {
         )
     }
 
-    // ✅ YANGI: kun ichidagi xizmat va dorilarni day.steps ketma-ketligida chiqaradi.
-    // Har bir stepda: avval xizmat, keyin dori.
-    // Checkbox holati doim yangi bo'lishi uchun day.items / day.medicines
-    // dan jonli yozuv olinadi (step ichidagi nusxa eskirib qolishi mumkin).
     const renderDaySteps = (plan, day) => {
         const stepsWithOcc = buildStepsWithOccurrence(day)
 
-        // Steps kelmasa — eski ko'rinish (fallback)
         if (stepsWithOcc.length === 0) {
             const itemsWithOccurrence = withOccurrenceInfo(
                 day.items,

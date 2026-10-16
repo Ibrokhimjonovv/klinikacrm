@@ -6,14 +6,13 @@
     align-items: center;
     justify-content: center;
 
-    // Orqa fon — butun sahifada
+
     background-image: url(../../assets/images/login-bg.jpg);
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
 
-    // Rasm ustiga yengil qorong'ulashtiruvchi qatlam (matn/karta yaxshi ko'rinishi uchun)
     &::before {
         content: '';
         position: absolute;

@@ -1,20 +1,19 @@
-// src/components/shared/QueueReceipt/QueueTicketReceipt.js
 
 /**
- * Navbat chekini printerga chiqaradi.
+ * 
  *
  * @param {Object} data
- * @param {number|string} data.number    - navbat raqami (majburiy)
- * @param {string} [data.date]           - sana (ISO yoki matn)
- * @param {string} [data.issuedAt]       - olingan vaqt (ISO)
- * @param {string} [data.operator]       - kassir/xodim ismi
- * @param {string} [data.id]             - chek ID (ixtiyoriy)
- * @param {string} [data.qrUrl]          - QR manzil (default: https://aoc.uz)
- * @param {string} [data.clinicName]     - klinika nomi (default: AMERICAN)
- * @param {string} [data.clinicSub]      - klinika subtitle (default: ORTHOPEDIC CENTER)
- * @param {string} [data.headerColor]    - header fon rangi (default: '#000000')
- * @param {string} [data.headerTextColor]- header matn rangi (default: '#ffffff')
- * @param {string} [data.accentColor]    - raqam va ajratgich rangi (default: '#000000')
+ * @param {number|string} data.number    
+ * @param {string} [data.date]           
+ * @param {string} [data.issuedAt]       
+ * @param {string} [data.operator]       
+ * @param {string} [data.id]             
+ * @param {string} [data.qrUrl]          
+ * @param {string} [data.clinicName]     
+ * @param {string} [data.clinicSub]      
+ * @param {string} [data.headerColor]    
+ * @param {string} [data.headerTextColor]
+ * @param {string} [data.accentColor]
  */
 export const printQueueTicket = (data = {}) => {
     if (!data || data.number == null) {
@@ -46,12 +45,11 @@ export const printQueueTicket = (data = {}) => {
     const qrUrl = data.qrUrl || 'https://aoc.uz';
     const qrImg = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrUrl)}`;
 
-    // ── Ranglar (custom qilish mumkin) ─────────────────────
     const clinicName    = data.clinicName      || 'AMERICAN';
     const clinicSub     = data.clinicSub       || 'ORTHOPEDIC CENTER';
-    const headerColor   = data.headerColor     || '#000000'; // fon rangi
-    const headerText    = data.headerTextColor || '#ffffff'; // matn rangi
-    const accentColor   = data.accentColor     || '#000000'; // raqam rangi
+    const headerColor   = data.headerColor     || '#000000'; 
+    const headerText    = data.headerTextColor || '#ffffff'; 
+    const accentColor   = data.accentColor     || '#000000'; 
 
     const html = `
 <!DOCTYPE html>

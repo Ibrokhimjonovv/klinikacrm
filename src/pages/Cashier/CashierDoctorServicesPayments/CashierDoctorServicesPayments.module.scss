@@ -47,7 +47,6 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     animation: fadeUp 0.3s ease;
 }
 
-// ---------- Sarlavha ----------
 .TopRow {
     display: flex;
     align-items: center;
@@ -70,7 +69,6 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     }
 }
 
-// ---------- Statistika ----------
 .StatsRow {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -142,7 +140,6 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     color: $accent;
 }
 
-// ---------- Qidiruv + tab ----------
 .SearchRow {
     display: flex;
     align-items: center;
@@ -236,7 +233,6 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     font-size: 14px;
 }
 
-// ---------- Jadval ----------
 .TableWrap {
     overflow-x: auto;
     background: #fff;
@@ -377,7 +373,6 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     }
 }
 
-// ---------- Yon oyna ----------
 .DrawerHead {
     display: flex;
     align-items: center;
@@ -443,7 +438,6 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     color: $primary;
 }
 
-// To'lanadigan summa kartasi
 .AmountBox {
     display: flex;
     flex-direction: column;
@@ -482,7 +476,6 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     letter-spacing: -0.5px;
 }
 
-// ---------- Muvaffaqiyat ----------
 .AllPaidBox {
     display: flex;
     align-items: center;
@@ -505,7 +498,6 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     }
 }
 
-// ---------- Tugmalar ----------
 .PayBtn {
     width: 100%;
     display: inline-flex;
@@ -642,7 +634,6 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     }
 }
 
-// ---------- Qo'shimcha ----------
 .ExtraToggle {
     display: inline-flex;
     align-items: center;
@@ -750,7 +741,6 @@ $shadow-md: 0 6px 20px rgba(14, 27, 51, 0.08);
     }
 }
 
-// ---------- To'lov qabul qilindi: umumiy summa ----------
 .PaidSummary {
     margin-top: 16px;
     padding: 20px 16px;

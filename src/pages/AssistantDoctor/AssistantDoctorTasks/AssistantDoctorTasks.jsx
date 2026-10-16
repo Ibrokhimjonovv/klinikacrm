@@ -2,10 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import s from './AssistantDoctorTasks.module.scss';
 import { api } from '../../../App';
-import { useToast } from '../../../context/ToastContext'; // ⚠️ qo'shildi
+import { useToast } from '../../../context/ToastContext';
 import Pagination from '../../../components/shared/Pagination/Pagination';
 import usePagination from '../../../components/shared/Pagination/usePagination';
-
 
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
@@ -22,15 +21,12 @@ const taskPatient = (task) => task?.patient_detail || null
 const taskService = (task) => task?.service_detail || null
 const taskDiagnosis = (task) => task?.treatment_plan_detail?.diagnosis || null
 const taskServiceName = (task) => taskService(task)?.name || "Ko'rsatilmagan"
-
-// ⚠️ To'lov holatini har xil joydan tekshiramiz
 const todayStr = () => {
     const d = new Date()
     const pad = (n) => String(n).padStart(2, '0')
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
-// Bugungi kun; bo'lmasa, birinchi bajarilmagan kun
 const currentDay = (task) => {
     const days = task?.days || []
     return (
@@ -40,7 +36,6 @@ const currentDay = (task) => {
     )
 }
 
-// To'lov: shu kunning to'lovi bo'yicha (qisman to'langan rejalar uchun to'g'ri)
 const isTaskPaid = (task) => {
     if (!task) return false
     const day = currentDay(task)
@@ -48,15 +43,11 @@ const isTaskPaid = (task) => {
     return task.payment_summary?.status === 'PAID'
 }
 
-// Holat: API da task.status yo'q, kunning display_status idan olamiz
 const taskStatus = (task) => {
     const st = currentDay(task)?.display_status
     return st === 'DONE' || st === 'IN_PROGRESS' || st === 'CANCELLED' ? st : 'WAITING'
 }
-
-// API javobida task.id yo'q, shuning uchun kalit yasaymiz
 const taskKey = (task) => `${task.treatment_plan_id}-${task.service_id}`
-
 const STATUS_LABELS = {
     WAITING: { label: 'Kutilmoqda', className: 'watch' },
     IN_PROGRESS: { label: 'Jarayonda', className: 'active' },
@@ -66,16 +57,14 @@ const STATUS_LABELS = {
 
 const AssistantDoctorTasks = () => {
     const navigate = useNavigate()
-    const { showToast } = useToast() // ⚠️ qo'shildi
-
+    const { showToast } = useToast()
     const [view, setView] = useState('table')
     const [search, setSearch] = useState('')
-
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-    const [payFilter, setPayFilter] = useState('ALL')       // ALL | PAID | UNPAID
-    const [statusFilter, setStatusFilter] = useState('ALL') // ALL | WAITING | IN_PROGRESS | DONE | CANCELLED
+    const [payFilter, setPayFilter] = useState('ALL')
+    const [statusFilter, setStatusFilter] = useState('ALL') 
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -130,8 +119,6 @@ const AssistantDoctorTasks = () => {
         setPageSize,
         total,
     } = usePagination(filtered, 100)
-
-    // ⚠️ Qatorga bosish: faqat to'langan bo'lsa detail sahifaga o'tadi
     const handleRowClick = (task) => {
         if (!isTaskPaid(task)) {
             showToast(
@@ -251,7 +238,7 @@ const AssistantDoctorTasks = () => {
                             {pageItems.map(task => {
                                 const patient = taskPatient(task)
                                 const statusInfo = STATUS_LABELS[taskStatus(task)] || STATUS_LABELS.WAITING
-                                const isPaid = isTaskPaid(task) // ⚠️
+                                const isPaid = isTaskPaid(task)
 
                                 return (
                                     <tr
@@ -303,7 +290,7 @@ const AssistantDoctorTasks = () => {
                     {pageItems.map(task => {
                         const patient = taskPatient(task)
                         const statusInfo = STATUS_LABELS[taskStatus(task)] || STATUS_LABELS.WAITING
-                        const isPaid = isTaskPaid(task) // ⚠️
+                        const isPaid = isTaskPaid(task)
 
                         return (
                             <div

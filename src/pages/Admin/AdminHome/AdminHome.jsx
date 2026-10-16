@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import s from "./AdminHome.module.scss"
 
-// Oylik yangi bemorlar soni (demo, so'nggi 12 oy)
 const monthlyPatients = [
   { label: 'Yan', value: 12 },
   { label: 'Fev', value: 18 },
@@ -17,11 +16,6 @@ const monthlyPatients = [
   { label: 'Dek', value: 35 },
 ]
 
-// ============================================================
-// Sof SVG chart — tashqi kutubxonasiz. `view` qiymati 'bar'
-// yoki 'line' bo'lishi mumkin.
-// ============================================================
-
 const PatientsChart = ({ data, view }) => {
   const [hoverIndex, setHoverIndex] = useState(null)
 
@@ -32,19 +26,14 @@ const PatientsChart = ({ data, view }) => {
   const paddingBottom = 30
   const chartW = width - paddingX * 2
   const chartH = height - paddingTop - paddingBottom
-
   const maxValue = Math.max(...data.map(d => d.value)) * 1.15
   const stepX = chartW / (data.length - 1 || 1)
   const barSlot = chartW / data.length
   const barWidth = barSlot * 0.5
-
   const getX = (i) => paddingX + i * stepX
   const getY = (value) => paddingTop + chartH - (value / maxValue) * chartH
-
   const linePoints = data.map((d, i) => `${getX(i)},${getY(d.value)}`).join(' ')
   const areaPoints = `${getX(0)},${paddingTop + chartH} ${linePoints} ${getX(data.length - 1)},${paddingTop + chartH}`
-
-  // Gorizontal gridlar (0%, 50%, 100%)
   const gridLines = [0, 0.5, 1].map(f => paddingTop + chartH - f * chartH)
 
   const hovered = hoverIndex !== null ? data[hoverIndex] : null
@@ -55,7 +44,6 @@ const PatientsChart = ({ data, view }) => {
     ? (view === 'bar' ? paddingTop + chartH - (hovered.value / maxValue) * chartH : getY(hovered.value))
     : 0
 
-  // Tooltip ekrandan chiqib ketmasligi uchun chetlarda tekislaymiz
   const tooltipText = hovered ? `${hovered.label}: ${hovered.value} ta bemor` : ''
   const tooltipWidth = 26 + tooltipText.length * 5.6
   const tooltipBoxX = Math.min(Math.max(tooltipX - tooltipWidth / 2, paddingX), width - paddingX - tooltipWidth)
@@ -155,13 +143,6 @@ const PatientsChart = ({ data, view }) => {
   )
 }
 
-// ============================================================
-// DEMO MA'LUMOTLAR
-// Bular hozircha statik (backend endpoint hali yo'q).
-// Keyinchalik shu joyni useEffect + fetch bilan almashtirasiz,
-// masalan: GET /admin/dashboard/  ->  { stats, staffBreakdown, rooms }
-// ============================================================
-
 const stats = [
   { title: 'Jami xodimlar', value: 42, change: "So'nggi oydan +3", icon: 'bi-people-fill', dark: true },
   { title: 'Shifokorlar', value: 18, change: '6 ta bo\'lim', icon: 'bi-heart-pulse' },
@@ -191,7 +172,7 @@ const recentActivity = [
 ]
 
 const AdminHome = () => {
-  const [chartView, setChartView] = useState('bar') // 'bar' | 'line'
+  const [chartView, setChartView] = useState('bar')
 
   const occupiedPercent = rooms.total > 0
     ? Math.round((rooms.occupied / rooms.total) * 100)

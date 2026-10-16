@@ -36,14 +36,12 @@ const authHeaders = (token, json = false) => ({
     ...(json ? { 'Content-Type': 'application/json' } : {}),
 });
 
-// Bemor: obyekt bo'lsa olamiz. `patient: null` kelsa — null.
 const pickPatient = (t) => {
     if (t.patient_detail) return t.patient_detail;
     if (t.patient && typeof t.patient === 'object') return t.patient;
     return t.medical_visit?.patient || null;
 };
 
-// Backend javobi (direct task) shu yerda bitta joyda moslanadi
 const normalizeTask = (t) => {
     const patient = pickPatient(t) || {};
 
@@ -315,7 +313,6 @@ const AssistantDoctorExcaminationDetail = () => {
                 </div>
             </div>
 
-            {/* TASK CARD */}
             <div className={s.DiagRequestsSection}>
                 <h2>Vazifa tafsilotlari</h2>
 
@@ -379,7 +376,6 @@ const AssistantDoctorExcaminationDetail = () => {
                 </div>
             </div>
 
-            {/* PENDING — START */}
             {isPending && (
                 <div className={s.PlanForm}>
                     <p className={s.FormInfo}>
@@ -404,8 +400,6 @@ const AssistantDoctorExcaminationDetail = () => {
                     </button>
                 </div>
             )}
-
-            {/* IN PROGRESS / COMPLETED — RESULT FORM */}
             {!isPending && (
                 <div className={s.PlanForm}>
                     <div className={s.PlanFormHead}>

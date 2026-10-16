@@ -14,8 +14,6 @@
     }
 }
 
-// STEP INDICATOR
-
 .StepIndicator {
     display: flex;
     align-items: center;
@@ -78,8 +76,6 @@
         background-color: #1b3050;
     }
 }
-
-// FORM
 
 .AdmissionForm {
     display: flex;
@@ -167,8 +163,6 @@
         box-shadow: none;
     }
 }
-
-// STEP 2 — CREDENTIALS
 
 .CredentialsStep {
     display: flex;
@@ -322,13 +316,11 @@
     }
 }
 
-// ---- Faqat chop etishga mo'ljallangan shablon — ekranda yashirin ----
 .PrintOnly {
     display: none;
 }
 
 @media print {
-    // Chop etishda faqat shu blok ko'rinsin, qolgan hamma narsa yashirilsin
     body * {
         visibility: hidden;
     }

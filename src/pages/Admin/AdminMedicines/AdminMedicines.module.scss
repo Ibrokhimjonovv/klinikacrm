@@ -7,8 +7,6 @@ $text-muted: #6b7280;
     padding: 24px;
 }
 
-/* ---- Toast ---- */
-
 .toast {
     position: fixed;
     top: 20px;
@@ -70,7 +68,6 @@ $text-muted: #6b7280;
     }
 }
 
-/* ---- Header / search ---- */
 
 .header {
     display: flex;
@@ -173,8 +170,6 @@ $text-muted: #6b7280;
     text-align: center;
 }
 
-/* ---- Table ---- */
-
 .tableWrap {
     overflow-x: auto;
     border: 1px solid $border;
@@ -276,7 +271,6 @@ $text-muted: #6b7280;
     }
 }
 
-/* ---- Modal content (shared right-side Modal renders this inside) ---- */
 
 .modalContent {
     width: 100%;
@@ -367,8 +361,6 @@ $text-muted: #6b7280;
     gap: 10px;
     margin-top: 4px;
 }
-
-/* ---- Confirm (delete) modal ---- */
 
 .confirmContent {
     width: 100%;

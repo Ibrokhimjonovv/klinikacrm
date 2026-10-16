@@ -36,9 +36,7 @@ const METHOD_LABEL = {
     TRANSFER: "O'tkazma",
 };
 
-// Chek kengligi (mm)
 const PAPER_MM = 110;
-// Matn o'lchami (mm)
 const FONT_MM = 4;
 
 const RECEIPT_CSS = `
@@ -201,9 +199,6 @@ const ReceiptContent = ({ plan, cashier }) => {
     );
 };
 
-// ------------------------------------------------------------
-// Chop etish: yashirin iframe orqali
-// ------------------------------------------------------------
 export const printPlanReceipt = (plan, cashier = 'Kassa') => {
     if (!plan) return;
 
@@ -261,7 +256,6 @@ ${RECEIPT_CSS}
     setTimeout(remove, 60000);
 
     const go = () => {
-        // Kontent balandligiga qarab @page o'lchamini yangilaymiz
         try {
             const rc = doc.querySelector('.rc');
             if (rc) {
@@ -275,7 +269,7 @@ ${RECEIPT_CSS}
                 styleEl.textContent = `@page { size: ${PAPER_MM}mm ${hMm}mm; margin: 0; }`;
             }
         } catch (e) {
-            // e'tiborsiz
+            // pass
         }
 
         win.focus();

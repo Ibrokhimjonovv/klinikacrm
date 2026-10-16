@@ -159,8 +159,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     color: $text-muted;
     margin: -6px 0 12px;
 }
-
-// eski .ComplaintCard ni SHU BILAN ALMASHTIRING (endi button):
 .ComplaintCard {
     display: block;
     width: 100%;
@@ -1127,9 +1125,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
-/* =========================
-   DIAGNOSTIKAGA YUBORISH (demo)
-========================= */
 .DiagnosticServices {
     display: flex;
     flex-direction: column;
@@ -1482,16 +1477,12 @@ $success-bg: rgba(14, 27, 51, 0.06);
 .DiagStatusSelect {
     flex: 1;
     max-width: 220px;
-
     padding: 7px 10px;
-
     border: 1px solid $border;
     border-radius: 8px;
-
     font-size: 12px;
     font-family: inherit;
     color: #1a1a1a;
-
     background: #fff;
 
     cursor: pointer;
@@ -1501,12 +1492,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
         border-color: $primary;
     }
 }
-
-// =========================================================
-// DoctorWaitingPatientDetail.module.scss faylingizga
-// qo'shing (mavjud .SubmitPlanBtn, .FormError va
-// h.k. yonida)
-// =========================================================
 
 .SentBadge {
     display: flex;
@@ -1565,9 +1550,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
-// Diagnostika allaqachon yuborilgan bo'lsa,
-// xizmat qatorlarini "qulflangan" ko'rinishda
-// (checked, lekin bosib bo'lmaydigan) ko'rsatish
 .DiagnosticServiceRowLocked {
     opacity: 0.85;
     cursor: not-allowed;
@@ -1577,8 +1559,6 @@ $success-bg: rgba(14, 27, 51, 0.06);
     }
 }
 
-// Request kartasidagi holat - endi select emas,
-// faqat o'qish uchun badge
 .DiagStatusBadge {
     display: inline-flex;
     align-items: center;

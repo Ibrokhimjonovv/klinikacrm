@@ -14,8 +14,6 @@ $text-muted: #6b7280;
 .DetailPage {
     background: #fff;
     border-radius: 20px;
-    // max-width: 1200px;
-    // margin: 0 auto;
     width: 100%;
 }
 
@@ -246,7 +244,6 @@ $text-muted: #6b7280;
     background: #fafbfc;
 }
 
-// ✅ YANGI: kun sarlavhasi qatori — kun raqami + kunlik narx.
 .PlanDayCardHead {
     display: flex;
     align-items: center;
@@ -475,11 +472,8 @@ $text-muted: #6b7280;
     }
 }
 
-
-
 .EndConfirmBox {
     text-align: center;
-    padding: 8px;
     padding: 30px 20px;
 }
 
@@ -586,13 +580,6 @@ $text-muted: #6b7280;
     }
 }
 
-// ------------------------------------------------------------
-// ✅ TUZATILDI: har bir band endi ikki qatorli — ustida icon +
-// matn, ostida esa (agar mavjud bo'lsa) xizmat/vaqt/narx
-// belgilari (.ItemMetaRow). Shu sabab <li> flex-direction'ini
-// "row" dan "align-items: flex-start" bilan saqlab, ichiga
-// .ItemBody (column) qo'shildi.
-// ------------------------------------------------------------
 .ItemsPlainList {
     list-style: none;
     margin: 10px 0 0;
@@ -631,10 +618,6 @@ $text-muted: #6b7280;
     min-width: 0;
 }
 
-// ------------------------------------------------------------
-// ✅ YANGI: har bir band ostidagi xizmat / vaqt / narx / davomiylik
-// belgilari (API'dan kelayotgan service_detail va time uchun).
-// ------------------------------------------------------------
 .ItemMetaRow {
     display: flex;
     flex-wrap: wrap;
@@ -659,10 +642,6 @@ $text-muted: #6b7280;
     }
 }
 
-// ------------------------------------------------------------
-// ✅ YANGI: kunlik dorilar bloki (TreatmentPlanDay.medicines,
-// item'lardan alohida keladigan massiv).
-// ------------------------------------------------------------
 .DayMedicinesBox {
     margin-top: 10px;
     padding-top: 10px;
@@ -717,10 +696,6 @@ $text-muted: #6b7280;
     color: $text-muted;
 }
 
-// ------------------------------------------------------------
-// ✅ YANGI: MediaCard uslubi (xizmat/dori kartalari) va ularni
-// bir-biridan ranglar bilan ajratuvchi bloklar.
-// ------------------------------------------------------------
 .MediaCard {
     display: flex;
     flex-direction: column;
@@ -855,7 +830,6 @@ $text-muted: #6b7280;
     vertical-align: middle;
 }
 
-// ✅ Kun kartasini oq fon + yengil soya bilan ko'rsatish
 .PlanDayCard {
     border: 1px solid $border;
     border-radius: 14px;
@@ -864,14 +838,12 @@ $text-muted: #6b7280;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 }
 
-// ✅ Xizmatlar / Dorilar bloklarini rang bilan ajratish
 .DayServicesBox {
     margin-bottom: 12px;
     padding: 12px 12px 14px;
     border-radius: 12px;
     margin-top: 12px;
 
-    // Default: Xizmatlar bloki — ko'k (moviy) ottenka
     background: #eef4ff;
     border: 1px solid #dbe6ff;
     border-left: 3px solid #3b5fe0;
@@ -906,7 +878,6 @@ $text-muted: #6b7280;
     }
 }
 
-// ✅ Dorilar bloki — yashil ottenka bilan farqlanadi
 .DayServicesBoxMed {
     background: #eefcf3;
     border: 1px solid #d3f3de;

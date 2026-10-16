@@ -5,11 +5,6 @@
     background: linear-gradient(180deg, #16274A 0%, #0E1B33 100%);
     border-radius: 20px;
     padding: 20px;
-    // Ochilish va yopilish bir xil davomiylik/egri chiziqda ishlaydi —
-    // avval .collapsed ichida boshqacha transition (0.3s ease-in) qayta
-    // e'lon qilingani sabab ikki tomon tezligi bir-biriga mos kelmay,
-    // "notekis" his qilinardi. Endi shu yerdagi bitta qiymat ikkala
-    // yo'nalish uchun ham ishlatiladi.
     transition: width 0.32s cubic-bezier(0.4, 0, 0.2, 1),
         min-width 0.32s cubic-bezier(0.4, 0, 0.2, 1);
     will-change: width;
@@ -401,8 +396,8 @@
             background: #1b3050;
         }
 
-        scrollbar-width: thin; // Firefox
-        scrollbar-color: #4a7bb5 transparent; // Firefox
+        scrollbar-width: thin; 
+        scrollbar-color: #4a7bb5 transparent; 
     }
 
     .AsideBottom {
@@ -502,12 +497,6 @@
     &.collapsed {
         width: 90px;
         min-width: 90px;
-        // Diqqat: bu yerda avval alohida "transition: width .3s ease-in..."
-        // qatori bor edi — shu sabab ochilish (.aside bazaviy qiymati) va
-        // yopilish (shu yerdagi qiymat) turli tezlik/egri chiziqda
-        // ishlar edi. Endi bu yerda umuman qayta e'lon qilinmaydi, shuning
-        // uchun ikkala yo'nalish ham yuqoridagi bitta transition qiymatidan
-        // foydalanadi.
 
         .Logo {
             flex-direction: column-reverse;

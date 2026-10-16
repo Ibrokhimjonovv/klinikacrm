@@ -11,7 +11,7 @@ import s from './ImageZoomViewer.module.scss';
 const ImageZoomViewer = ({ src, alt = 'Rasm' }) => {
     const containerRef = useRef(null);
     const [isZoomed, setIsZoomed] = useState(false);
-    const [origin, setOrigin] = useState('50% 50%'); // transform-origin
+    const [origin, setOrigin] = useState('50% 50%');
 
     const handleMouseMove = (e) => {
         if (!isZoomed || !containerRef.current) return;
@@ -20,7 +20,6 @@ const ImageZoomViewer = ({ src, alt = 'Rasm' }) => {
         const x = ((e.clientX - rect.left) / rect.width) * 100;
         const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-        // Chegaradan chiqmaslik uchun
         const clampedX = Math.max(0, Math.min(100, x));
         const clampedY = Math.max(0, Math.min(100, y));
 

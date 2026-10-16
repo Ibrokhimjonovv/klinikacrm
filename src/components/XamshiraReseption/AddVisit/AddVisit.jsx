@@ -57,8 +57,6 @@ const AddVisit = ({ patientId, patientName, patientInfo = [], onSuccess }) => {
                 setServerError(data?.message || data?.detail || 'Saqlashda xatolik yuz berdi');
                 return;
             }
-
-            // MUHIM: backend qaytargan shikoyat ID'sini saqlaymiz (chop etish uchun kerak)
             setCreatedComplaintId(data?.id || data?.complaint?.id || data?.data?.id || null);
             setFinished(true);
 

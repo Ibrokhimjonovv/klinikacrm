@@ -57,9 +57,10 @@ import CashierServicesPayments from './pages/Cashier/CashierServicesPayments/Cas
 import CashierDoctorServicesPayments from './pages/Cashier/CashierDoctorServicesPayments/CashierDoctorServicesPayment'
 import NurseRooms from './pages/XamshiraReseption/NurseRooms/NurseRooms'
 import NurseServicesDoctors from './pages/XamshiraReseption/NurseServicesDoctors/NurseServicesDoctors'
+import CashierServicesCancelled from './pages/Cashier/CashierServicesCancelled/CashierServicesCancelled'
 
-export const api = 'https://bkapi.aoc.uz/api/v1'
-// export const api = 'http://192.168.0.189:8000/api/v1'
+// export const api = 'https://bkapi.aoc.uz/api/v1'
+export const api = 'http://192.168.0.189:8000/api/v1'
 
 function App() {
   const { user } = useAppContext()
@@ -172,6 +173,7 @@ function App() {
                 <Route path="/cashier/payments/treatments" element={<CashierTreatmentPayment />} />
                 <Route path="/cashier/payments/services" element={<CashierServicesPayments />} />
                 <Route path="/cashier/payments/doctor-services" element={<CashierDoctorServicesPayments />} />
+                <Route path="/cashier/payments/cancelled" element={<CashierServicesCancelled />} />
               </>
             )
           }

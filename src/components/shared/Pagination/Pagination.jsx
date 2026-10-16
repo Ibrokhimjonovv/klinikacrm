@@ -1,11 +1,9 @@
 import React from 'react';
 import s from './Pagination.module.scss';
 
-// Sahifa raqamlari: 1 ... 4 5 [6] 7 8 ... 20 ko'rinishida
 const DOTS = '...';
 
 const getPageRange = (current, totalPages, siblings = 1) => {
-    // birinchi + oxirgi + joriy + 2 yon + 2 ta "..." joyi
     const maxVisible = siblings * 2 + 5;
 
     if (totalPages <= maxVisible) {
@@ -30,16 +28,6 @@ const getPageRange = (current, totalPages, siblings = 1) => {
     return [1, DOTS, ...range(left, right), DOTS, totalPages];
 };
 
-/**
- * Props:
- *  - total:              jami elementlar soni
- *  - page:               joriy sahifa (1 dan boshlanadi)
- *  - pageSize:           bitta sahifadagi elementlar soni
- *  - onPageChange(n):    sahifa o'zgarganda
- *  - onPageSizeChange(n):"nechtadan ko'rsatish" o'zgarganda
- *  - pageSizeOptions:    tanlov variantlari (default [10, 25, 50, 100])
- *  - className:          ixtiyoriy qo'shimcha class
- */
 const Pagination = ({
     total,
     page,
@@ -49,7 +37,6 @@ const Pagination = ({
     pageSizeOptions = [5, 10, 25, 50, 100],
     className = '',
 }) => {
-    // Ro'yxat eng kichik hajmdan ham qisqa bo'lsa — paginatsiya kerak emas
     if (!total) return null;
 
     const totalPages = Math.max(1, Math.ceil(total / pageSize));

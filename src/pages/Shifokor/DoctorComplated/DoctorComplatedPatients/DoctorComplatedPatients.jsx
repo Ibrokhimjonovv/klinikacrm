@@ -21,7 +21,7 @@ const getStatusInfo = (progress) => {
 
 const DoctorComplatedPatients = () => {
     const navigate = useNavigate()
-    const [view, setView] = useState('table') // 'table' | 'card'
+    const [view, setView] = useState('table')
     const [search, setSearch] = useState('')
 
     const [patients, setPatients] = useState([])

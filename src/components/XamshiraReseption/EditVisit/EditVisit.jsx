@@ -4,7 +4,6 @@ import VisitForm from '../../shared/VisitForm/VisitForm';
 import { api } from '../../../App';
 
 const EditVisit = ({ visit, onSuccess }) => {
-    // MUHIM: visit.doctors to'liq obyektlar massivi — faqat ID'larini olamiz
     const initialDoctorIds = (visit.doctors || []).map(d => d.id);
 
     const [formData, setFormData] = useState({

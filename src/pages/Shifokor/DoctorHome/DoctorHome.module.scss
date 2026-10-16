@@ -52,8 +52,6 @@
     }
 }
 
-// STATS
-
 .StatsRow {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -111,8 +109,6 @@
     }
 }
 
-// MIDDLE ROW
-
 .MiddleRow {
     display: grid;
     grid-template-columns: 1.3fr 1fr 1.3fr;
@@ -136,17 +132,11 @@
     }
 }
 
-// BOTTOM ROW
-
 .BottomRow {
     display: grid;
     grid-template-columns: 1.6fr 1fr;
     gap: 15px;
-    // Grid elementlari ham (flex kabi) standart bo'yicha min-width: auto
-    // bo'lgani uchun, ichidagi uzun/kesilmaydigan matn butun kartani
-    // o'z fr-o'lchamidan kattalashtirib, sahifani gorizontal skroll
-    // qildirib yuborishi mumkin. Shu sabab bevosita grid elementlariga
-    // min-width: 0 shart:
+
     > * {
         min-width: 0;
     }
@@ -164,9 +154,6 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        // MUHIM: bu li o'zi ham flex konteyner ichidagi elementdir (ul flex-column).
-        // min-width:0 bo'lmasa, ichidagi matn o'z "tabiiy" kengligini talab qilib,
-        // shu li'ning o'zini kengaytirib, keyingi Status belgisini chetga suradi.
         min-width: 0;
         width: 100%;
         overflow: hidden;
@@ -182,14 +169,12 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    // Flex konteynerda ichki matn qisqarishi (ellipsis ishlashi) uchun shart:
     min-width: 0;
     flex: 1;
 }
 
-// Ism va shikoyat matni turgan konteyner
 .PatientInfo {
-    min-width: 0; // flex ichida qisqarishga ruxsat berish uchun majburiy
+    min-width: 0;
     flex: 1;
 
     p {
@@ -252,8 +237,6 @@
         color: #888;
     }
 }
-
-// DONUT PROGRESS
 
 .ProgressCard {
     display: flex;
@@ -325,8 +308,6 @@
         }
     }
 }
-
-// RESPONSIVE
 
 @media (max-width: 1100px) {
     .StatsRow {

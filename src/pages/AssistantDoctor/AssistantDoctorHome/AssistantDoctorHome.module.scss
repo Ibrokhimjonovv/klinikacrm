@@ -39,8 +39,6 @@
     }
 }
 
-// STATS
-
 .StatsRow {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -97,8 +95,6 @@
         color: #fff;
     }
 }
-
-// BOTTOM ROW
 
 .BottomRow {
     display: grid;
@@ -191,8 +187,6 @@
     }
 }
 
-// DONUT PROGRESS
-
 .ProgressCard {
     display: flex;
     flex-direction: column;
@@ -263,9 +257,6 @@
         }
     }
 }
-
-// RESPONSIVE
-
 @media (max-width: 1100px) {
     .StatsRow {
         grid-template-columns: repeat(2, 1fr);

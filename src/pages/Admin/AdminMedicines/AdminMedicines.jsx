@@ -1,13 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import s from './AdminMedicines.module.scss';
-// ⚠️ Fayllar qaysi papkada joylashishiga qarab yo'llarni to'g'rilang:
 import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
 
-// ⚠️ Postman'dagi so'rovda body turi "x-www-form-urlencoded" ekan,
-// shuning uchun JSON o'rniga URLSearchParams orqali yuboramiz va
-// 'Content-Type' sarlavhasini o'zimiz qo'ymaymiz — brauzer buni
-// avtomatik to'g'ri qo'yadi.
 const authHeaders = (token) => ({
     'Authorization': `Bearer ${token}`,
 })
@@ -28,22 +23,16 @@ const AdminMedicines = () => {
     const [medicines, setMedicines] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-
     const [search, setSearch] = useState('')
-
     const [modalOpen, setModalOpen] = useState(false)
-    const [editingId, setEditingId] = useState(null) // null => yangi qo'shish, aks holda tahrirlash
+    const [editingId, setEditingId] = useState(null)
     const [form, setForm] = useState(emptyForm)
-
     const [saving, setSaving] = useState(false)
     const [formError, setFormError] = useState('')
-
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
 
-    // ---------- Toast (window.alert o'rniga) ----------
-
-    const [toast, setToast] = useState(null) // { type: 'error' | 'success', message }
+    const [toast, setToast] = useState(null)
     const toastTimer = useRef(null)
 
     const showToast = (type, message) => {
@@ -138,10 +127,6 @@ const AdminMedicines = () => {
         setSaving(true)
         try {
             const token = localStorage.getItem('hospital_access')
-            // ⚠️ Faqat "create" endpointi tasdiqlangan
-            // (api/v1/medicine/create/). Tahrirlash uchun REST
-            // konvensiyasiga ko'ra PATCH api/v1/medicine/<id>/ deb
-            // taxmin qildim — agar boshqacha bo'lsa shu qatorni almashtiring.
             const url = editingId ? `${api}/medicine/${editingId}/` : `${api}/medicine/create/`
             const method = editingId ? 'PATCH' : 'POST'
 
@@ -183,8 +168,6 @@ const AdminMedicines = () => {
             showToast('error', "Holatni o'zgartirishda xatolik yuz berdi")
         }
     }
-
-    // ---------- Dorini o'chirish (tasdiqlash modali) ----------
 
     const askDelete = (medicine) => {
         setDeleteTarget(medicine)

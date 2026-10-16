@@ -1,8 +1,6 @@
-// src/components/DateTimeFormatter/DateTimeFormatter.jsx
 import React from 'react';
 
 const DateTimeFormatter = ({ date, format = 'datetime', className = '' }) => {
-    // Sanani formatlash funksiyasi
     const formatDateTime = (dateString) => {
         if (!dateString) return '00:00 01.01.2026'
         
@@ -27,7 +25,6 @@ const DateTimeFormatter = ({ date, format = 'datetime', className = '' }) => {
         }
     }
 
-    // Faqat vaqt formatlash
     const formatTimeOnly = (dateString) => {
         if (!dateString) return '00:00'
         
@@ -44,7 +41,6 @@ const DateTimeFormatter = ({ date, format = 'datetime', className = '' }) => {
         }
     }
 
-    // Faqat sana formatlash
     const formatDateOnly = (dateString) => {
         if (!dateString) return '01.01.2026'
         
@@ -62,7 +58,6 @@ const DateTimeFormatter = ({ date, format = 'datetime', className = '' }) => {
         }
     }
 
-    // Formatga qarab tanlash
     const getFormattedValue = () => {
         switch(format) {
             case 'time':

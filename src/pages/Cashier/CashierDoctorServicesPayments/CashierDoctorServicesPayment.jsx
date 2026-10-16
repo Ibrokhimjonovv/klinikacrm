@@ -6,7 +6,6 @@ import { printServiceReceipt } from '../../../components/shared/CashierReceipt/S
 
 const UNPAID_PATH = '/examination-requests/unpaid/';
 const PAID_PATH = '/examination-requests/paid/';
-// ⚠️ pay endpointi. Backendda pay_direct_service qaysi URL ga ulangan bo'lsa shuni yozing
 const PAY_PATH = (id) => `/examination-requests/${id}/pay/`;
 
 const authHeaders = (token) => ({
@@ -25,7 +24,6 @@ const formatDateTime = (iso) => {
     });
 };
 
-// Qo'shimcha summa inputi uchun
 const onlyDigits = (v) => v.replace(/\D/g, '');
 const formatInput = (v) => (v ? Number(v).toLocaleString('uz-UZ') : '');
 
@@ -38,7 +36,6 @@ const PAYMENT_METHODS = [
 const methodLabel = (v) =>
     PAYMENT_METHODS.find((m) => m.value === v)?.label || v || '—';
 
-// To'lov usuli (eski yozuvlar uchun brauzerda ham saqlaymiz)
 const METHODS_KEY = 'exam_payment_methods';
 const loadMethods = () => {
     try {
@@ -54,11 +51,9 @@ const saveMethod = (id, method) => {
             JSON.stringify({ ...loadMethods(), [id]: method })
         );
     } catch {
-        // e'tiborsiz
     }
 };
 
-// Backend javobini bir xil shaklga keltiramiz
 const normalize = (v) => {
     const p = typeof v.patient === 'object' && v.patient ? v.patient : {};
 
@@ -68,7 +63,6 @@ const normalize = (v) => {
         v.patient_full_name ||
         `Bemor #${typeof v.patient === 'object' ? p.id ?? '?' : v.patient ?? '?'}`;
 
-    // Chek uchun: otasining ismisiz
     const receiptName = [p.first_name, p.last_name].filter(Boolean).join(' ') || name;
 
     const services = (v.services || v.service_items || [])
@@ -97,11 +91,11 @@ const normalize = (v) => {
         birthDate: p.birth_date || p.date_of_birth || p.birthday || '',
         services,
         serviceName,
-        price,                          // asosiy narx
-        extraAmount,                    // qo'shimcha
+        price,
+        extraAmount,
         extraNote: v.extra_note || '',
-        total: price + extraAmount,     // umumiy summa
-        queueNumber: v.queue_number ?? v.queueNumber ?? null,   // <-- YANGI
+        total: price + extraAmount,
+        queueNumber: v.queue_number ?? v.queueNumber ?? null,
         isPaid: !!v.is_paid,
         paidAt: v.paid_at,
         createdAt: v.created_at || v.date || v.service_date,
@@ -109,7 +103,7 @@ const normalize = (v) => {
 };
 
 const CashierDoctorServicesPayments = () => {
-    const [tab, setTab] = useState('unpaid'); // unpaid | paid
+    const [tab, setTab] = useState('unpaid');
     const [search, setSearch] = useState('');
 
     const [services, setServices] = useState([]);
@@ -126,7 +120,6 @@ const CashierDoctorServicesPayments = () => {
     const [formError, setFormError] = useState('');
     const [method, setMethod] = useState('CASH');
 
-    // Qo'shimcha to'lov
     const [showExtra, setShowExtra] = useState(false);
     const [extraAmount, setExtraAmount] = useState('');
     const [extraNote, setExtraNote] = useState('');
@@ -139,9 +132,6 @@ const CashierDoctorServicesPayments = () => {
         setExtraNote('');
     };
 
-    // ------------------------------------------------------------
-    // Ro'yxatlar
-    // ------------------------------------------------------------
     const fetchList = async (path) => {
         const res = await fetch(`${api}${path}`, {
             headers: authHeaders(getToken()),
@@ -189,9 +179,6 @@ const CashierDoctorServicesPayments = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tab]);
 
-    // ------------------------------------------------------------
-    // Oynalarni boshqarish
-    // ------------------------------------------------------------
     const openService = (v) => {
         setSelected(v);
         setPaidService(null);
@@ -208,7 +195,6 @@ const CashierDoctorServicesPayments = () => {
         resetExtra();
     };
 
-    // "Qo'shimcha" ochilganda, oldindan saqlangan qiymat bo'lsa, uni ko'rsatamiz
     const toggleExtra = () => {
         if (!showExtra && selected) {
             if (!extraAmount && selected.extraAmount > 0) {
@@ -221,22 +207,14 @@ const CashierDoctorServicesPayments = () => {
         setShowExtra((p) => !p);
     };
 
-    // ------------------------------------------------------------
-    // Jami summa = asosiy narx + qo'shimcha
-    // (Qo'shimcha ochiq bo'lsa kiritilgan qiymat, yopiq bo'lsa modeldagisi)
-    // ------------------------------------------------------------
     const extraValue = showExtra
         ? Number(extraAmount) || 0
         : selected?.extraAmount || 0;
     const totalToPay = (selected?.price || 0) + extraValue;
 
-    // ------------------------------------------------------------
-    // To'lov qabul qilish
-    // ------------------------------------------------------------
     const handlePay = async () => {
         if (!selected) return;
 
-        // "Qo'shimcha" ochiq bo'lsagina yuboramiz, aks holda backend modeldagisini oladi
         const payload = { payment_method: method };
         if (showExtra) {
             payload.extra_amount = Number(extraAmount) || 0;
@@ -262,7 +240,6 @@ const CashierDoctorServicesPayments = () => {
             const paidAt = data.paid_at || new Date().toISOString();
             saveMethod(selected.id, method);
 
-            // Ekranda faqat serverning haqiqiy javobi ko'rinadi
             const basePrice = Number(data.base_price) || selected.price;
             const serverExtra = Number(data.extra_amount) || 0;
             const total = Number(data.amount) || basePrice + serverExtra;
@@ -274,7 +251,7 @@ const CashierDoctorServicesPayments = () => {
                 total,
                 extraAmount: serverExtra,
                 extraNote: data.extra_note || '',
-                queueNumber: data.queue_number ?? selected.queueNumber ?? null,   // <-- YANGI
+                queueNumber: data.queue_number ?? selected.queueNumber ?? null,
                 isPaid: true,
                 paidAt,
                 method,
@@ -289,9 +266,6 @@ const CashierDoctorServicesPayments = () => {
         }
     };
 
-    // ------------------------------------------------------------
-    // Xizmatni bekor qilish
-    // ------------------------------------------------------------
     const handleCancel = async () => {
         if (!selected) return;
         if (!window.confirm("Xizmatni bekor qilishni xohlaysizmi?")) return;
@@ -322,9 +296,6 @@ const CashierDoctorServicesPayments = () => {
         }
     };
 
-    // ------------------------------------------------------------
-    // Filtr + statistika
-    // ------------------------------------------------------------
     const unpaid = useMemo(
         () => services.filter((v) => !v.isPaid && v.price > 0),
         [services]
@@ -365,7 +336,6 @@ const CashierDoctorServicesPayments = () => {
                 </div>
             </div>
 
-            {/* STATISTIKA */}
             <div className={s.StatsRow}>
                 <div className={s.StatCard}>
                     <div className={`${s.StatIcon} ${s.StatIconRed}`}>
@@ -396,7 +366,6 @@ const CashierDoctorServicesPayments = () => {
                 </div>
             </div>
 
-            {/* QIDIRUV + TAB */}
             <div className={s.SearchRow}>
                 <div className={s.SearchBox}>
                     <i className="bi bi-search"></i>
@@ -440,7 +409,6 @@ const CashierDoctorServicesPayments = () => {
                 </p>
             )}
 
-            {/* JADVAL */}
             {!(tab === 'paid' && paidLoading) && filtered.length > 0 && (
                 <div className={s.TableWrap}>
                     <table className={s.Table}>
@@ -520,7 +488,6 @@ const CashierDoctorServicesPayments = () => {
                 </div>
             )}
 
-            {/* TO'LOV OYNASI */}
             <Modal isOpen={!!selected} onClose={closeDrawer} side="right">
                 {selected && (
                     <>
@@ -533,7 +500,6 @@ const CashierDoctorServicesPayments = () => {
                         </div>
 
                         {paidService ? (
-                            /* TO'LOV QABUL QILINDI -> umumiy summa + chek */
                             <div className={s.DrawerBody}>
                                 <div className={s.AllPaidBox}>
                                     <i className="bi bi-check-circle-fill"></i>
@@ -604,7 +570,6 @@ const CashierDoctorServicesPayments = () => {
                                     {formatDateTime(selected.createdAt || new Date().toISOString())}
                                 </p>
 
-                                {/* QO'SHIMCHA */}
                                 <button
                                     type="button"
                                     className={`${s.ExtraToggle} ${showExtra ? s.ExtraToggleActive : ''}`}

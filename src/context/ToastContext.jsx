@@ -17,7 +17,6 @@ export const ToastProvider = ({ children }) => {
         }
     }, []);
 
-    // type: 'success' | 'error' | 'warning' | 'info'
     const showToast = useCallback((message, type = 'info', duration = 3500) => {
         const id = (idCounter += 1);
         setToasts(prev => [...prev, { id, message, type }]);

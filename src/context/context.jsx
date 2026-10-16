@@ -7,14 +7,11 @@ export function AppProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [collapsed, setCollapsed] = useState(false)
-
-  // ---- Bemorlar (hamshira uchun umumiy ro'yxat) ----
   const [patients, setPatients] = useState([])
   const [patientsLoading, setPatientsLoading] = useState(true)
   const [patientsError, setPatientsError] = useState(null)
   const [patientsCount, setPatientsCount] = useState(0)
 
-  // ---- Doctor uchun 3 xil holatdagi bemorlar soni ----
   const [doctorCounts, setDoctorCounts] = useState({
     waiting: 0,
     process: 0,

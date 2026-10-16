@@ -95,16 +95,12 @@
     }
 }
 
-// FORMA
-
 .EditForm {
     display: flex;
     flex-direction: column;
     gap: 26px;
     animation: fadeSlide 0.3s ease;
 }
-
-// Har bir bo'lim (bemor / tashxis) alohida blok, orasida chiziq bilan ajratilgan
 
 .SectionBlock {
     display: flex;

@@ -61,7 +61,6 @@ p{margin:0}
 .rc-thanks{text-align:center;margin:.3em 0 0;font-weight:800}
 `;
 
-// Har bir kun bo'yicha to'langan summani to'lovlar allocations'idan yig'amiz
 const buildDays = (payments = []) => {
     const map = new Map();
     payments.forEach((p) =>

@@ -13,8 +13,6 @@ const STEPS = ['Bemor ma\'lumotlari', 'Kirish ma\'lumotlari', 'Shikoyat']
 const PatientAdmission = ({ onSuccess }) => {
     const [step, setStep] = useState(1)
     const { addPatientLocally } = useAppContext()
-
-    // STEP 1
     const [formData, setFormData] = useState({
         first_name: '', last_name: '', middle_name: '',
         date_of_birth: '', gender: '', contact_number: '', address: '',
@@ -22,13 +20,9 @@ const PatientAdmission = ({ onSuccess }) => {
     const [errors, setErrors] = useState({})
     const [loading, setLoading] = useState(false)
     const [serverError, setServerError] = useState('')
-
-    // STEP 2
     const [credentials, setCredentials] = useState(null)
     const [patientId, setPatientId] = useState(null)
     const [copied, setCopied] = useState('')
-
-    // STEP 3 — endi doctors massiv (bir nechta tanlash mumkin)
     const [visitData, setVisitData] = useState({
         doctors: [],
         complaint: '',
@@ -39,11 +33,7 @@ const PatientAdmission = ({ onSuccess }) => {
     const [visitLoading, setVisitLoading] = useState(false)
     const [visitServerError, setVisitServerError] = useState('')
     const [finished, setFinished] = useState(false)
-
     const [createdComplaintId, setCreatedComplaintId] = useState(null)
-
-    // ---------- STEP 1 handlers (o'zgarishsiz) ----------
-
     const handleChange = (e) => {
         const { name, value } = e.target
         setFormData(prev => ({ ...prev, [name]: value }))
@@ -91,9 +81,6 @@ const PatientAdmission = ({ onSuccess }) => {
 
             setPatientId(data?.id)
             setCredentials({ username: data.username, password: data.generated_password })
-
-            // MUHIM: formData'dan (biz allaqachon bilgan ma'lumotlar) + backend id'sini birlashtirib beramiz
-            // Backend javobi ba'zi fieldlarni qaytarmasligi mumkin, shuning uchun formData asosiy manba
             addPatientLocally({
                 ...formData,
                 id: data?.id,
@@ -110,8 +97,6 @@ const PatientAdmission = ({ onSuccess }) => {
         }
     }
 
-    // ---------- STEP 2 ----------
-
     const handleCopy = (text, field) => {
         navigator.clipboard.writeText(text)
         setCopied(field)
@@ -119,15 +104,9 @@ const PatientAdmission = ({ onSuccess }) => {
     }
 
     const handlePrint = async () => {
-        // Odatda bu ekranda logotip allaqachon yuklangan bo'ladi (finished
-        // holati o'rnatilgandan keyin foydalanuvchi tugmani bosguncha vaqt
-        // o'tadi), lekin tezkor bosilganda yoki sekin internetda xuddi
-        // PatientDetail'dagi kabi muammo takrorlanmasligi uchun baribir kutamiz.
         await logoReady
         window.print()
     }
-
-    // ---------- STEP 3 — VisitForm orqali ----------
 
     const validateStep3 = () => {
         const newErrors = {}
@@ -163,12 +142,8 @@ const PatientAdmission = ({ onSuccess }) => {
                 setVisitServerError(data?.message || data?.detail || "Saqlashda xatolik yuz berdi")
                 return
             }
-
-            // MUHIM: backend qaytargan complaint ID'sini saqlaymiz (chop etish uchun kerak)
             setCreatedComplaintId(data?.id || data?.complaint?.id || data?.data?.id || null)
-
             setFinished(true)
-
         } catch (err) {
             setVisitServerError("Serverga ulanishda xatolik yuz berdi. Qaytadan urinib ko'ring.")
         } finally {
@@ -178,7 +153,6 @@ const PatientAdmission = ({ onSuccess }) => {
 
     return (
         <section className={s.AdmissionSection}>
-
             <div className={s.StepHeader}>
                 <h1>Bemorni qabul qilish</h1>
                 <div className={s.StepIndicator}>

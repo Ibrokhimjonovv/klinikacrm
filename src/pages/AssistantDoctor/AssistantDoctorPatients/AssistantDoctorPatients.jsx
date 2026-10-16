@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import s from "./AssistantDoctorPatients.module.scss"
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../../App';
-import { useToast } from '../../../context/ToastContext'; // ⚠️ qo'shildi
+import { useToast } from '../../../context/ToastContext';
 import Pagination from '../../../components/shared/Pagination/Pagination';
 import usePagination from '../../../components/shared/Pagination/usePagination';
 
@@ -21,7 +21,6 @@ const STATUS_LABELS = {
     CANCELLED: 'Bekor qilingan',
 }
 
-// Backend javobi (DoctorTaskSerializer) shu yerda bitta joyda moslanadi.
 const normalizeTask = (t, index) => {
     const patient = t.medical_visit?.patient || t.patient || {}
     const raw = String(t.status || '').toUpperCase()
@@ -30,8 +29,6 @@ const normalizeTask = (t, index) => {
     if (['IN_PROGRESS', 'PROGRESS'].includes(raw)) statusKey = 'progress'
     else if (['COMPLETED', 'DONE'].includes(raw)) statusKey = 'done'
     else if (['CANCELLED', 'NO_SHOW'].includes(raw)) statusKey = 'cancelled'
-
-    // ⚠️ To'lov holati: bir nechta joydan tekshiriladi
     const isPaid = !!(
         t.is_paid ||
         t.service_detail?.is_paid ||
@@ -52,21 +49,20 @@ const normalizeTask = (t, index) => {
         statusRaw: t.status,
         statusKey,
         statusLabel: STATUS_LABELS[t.status] || t.status,
-        isPaid, // ⚠️ qo'shildi
+        isPaid, 
     }
 }
 
 const AssistantDoctorPatients = () => {
     const navigate = useNavigate()
-    const { showToast } = useToast() // ⚠️ qo'shildi
-    const [view, setView] = useState('table') // 'table' | 'card'
+    const { showToast } = useToast() 
+    const [view, setView] = useState('table')
     const [search, setSearch] = useState('')
-
     const [tasks, setTasks] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-    const [payFilter, setPayFilter] = useState('ALL') // ALL | PAID | UNPAID
-    const [statusFilter, setStatusFilter] = useState('ALL') // ALL | pending | progress | done | cancelled
+    const [payFilter, setPayFilter] = useState('ALL') 
+    const [statusFilter, setStatusFilter] = useState('ALL')
 
     useEffect(() => {
         const fetchTasks = async () => {
@@ -125,8 +121,6 @@ const AssistantDoctorPatients = () => {
         setPageSize,
         total,
     } = usePagination(filtered, 100)
-
-    // ⚠️ Qatorga bosish: faqat to'langan bo'lsa detail sahifaga o'tadi
     const handleRowClick = (p) => {
         if (!p.isPaid) {
             showToast(

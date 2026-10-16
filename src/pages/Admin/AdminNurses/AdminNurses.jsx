@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import s from './AdminNurses.module.scss';
-// ⚠️ Fayllar qaysi papkada joylashishiga qarab yo'llarni to'g'rilang:
 import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
 
@@ -8,12 +7,6 @@ const authHeaders = (token, json = true) => ({
     'Authorization': `Bearer ${token}`,
     ...(json ? { 'Content-Type': 'application/json' } : {}),
 })
-
-// ⚠️ /nurse-profiles/ javobining aniq maydon nomlari taxmin
-// qilindi (boshqa fayllardagi nurse obyektlariga qarab: first_name,
-// last_name, middle_name, specialty, department, contact_number).
-// Agar backend boshqacha nom qaytarsa, FAQAT shu joyni (emptyForm,
-// normalizeNurses, handleSubmit ichidagi payload) moslang.
 
 const emptyForm = {
     first_name: '',
@@ -42,22 +35,15 @@ const AdminNurses = () => {
     const [nurses, setNurses] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-
     const [search, setSearch] = useState('')
-
     const [modalOpen, setModalOpen] = useState(false)
-    const [editingId, setEditingId] = useState(null) // null => yangi qo'shish, aks holda tahrirlash
+    const [editingId, setEditingId] = useState(null)
     const [form, setForm] = useState(emptyForm)
-
     const [saving, setSaving] = useState(false)
     const [formError, setFormError] = useState('')
-
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
-
-    // ---------- Toast (window.alert o'rniga) ----------
-
-    const [toast, setToast] = useState(null) // { type: 'error' | 'success', message }
+    const [toast, setToast] = useState(null)
     const toastTimer = useRef(null)
 
     const showToast = (type, message) => {
@@ -101,8 +87,6 @@ const AdminNurses = () => {
         fullName(d).toLowerCase().includes(search.toLowerCase()) ||
         d.specialty.toLowerCase().includes(search.toLowerCase())
     )
-
-    // ---------- Create / edit modal ----------
 
     const openCreateModal = () => {
         setEditingId(null)
@@ -198,8 +182,6 @@ const AdminNurses = () => {
             showToast('error', "Holatni o'zgartirishda xatolik yuz berdi")
         }
     }
-
-    // ---------- Delete confirm modal ----------
 
     const askDelete = (nurse) => {
         setDeleteTarget(nurse)

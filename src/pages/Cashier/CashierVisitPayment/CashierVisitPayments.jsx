@@ -23,7 +23,6 @@ const formatDateTime = (iso) => {
     });
 };
 
-// Qo'shimcha summa inputi uchun
 const onlyDigits = (v) => v.replace(/\D/g, '');
 const formatInput = (v) => (v ? Number(v).toLocaleString('uz-UZ') : '');
 
@@ -36,7 +35,6 @@ const PAYMENT_METHODS = [
 const methodLabel = (v) =>
     PAYMENT_METHODS.find((m) => m.value === v)?.label || v || '—';
 
-// To'lov usuli (eski yozuvlar uchun brauzerda saqlaymiz)
 const METHODS_KEY = 'visit_payment_methods';
 const loadMethods = () => {
     try {
@@ -52,11 +50,9 @@ const saveMethod = (id, method) => {
             JSON.stringify({ ...loadMethods(), [id]: method })
         );
     } catch {
-        // e'tiborsiz
     }
 };
 
-// Backend javobini bir xil shaklga keltiramiz
 const normalize = (v) => {
     const p = typeof v.patient === 'object' && v.patient ? v.patient : {};
     const name =
@@ -65,7 +61,6 @@ const normalize = (v) => {
         v.patient_full_name ||
         `Bemor #${typeof v.patient === 'object' ? p.id ?? '?' : v.patient ?? '?'}`;
 
-    // Chek uchun: otasining ismisiz
     const receiptName = [p.first_name, p.last_name].filter(Boolean).join(' ') || name;
 
     const doctors = (v.doctors || [])
@@ -85,7 +80,7 @@ const normalize = (v) => {
         birthDate: p.birth_date || p.date_of_birth || p.birthday || '',
         doctors,
         price: Number(v.price) || 0,
-        queueNumber: v.queue_number ?? v.queueNumber ?? null,   // <-- YANGI
+        queueNumber: v.queue_number ?? v.queueNumber ?? null,
         isPaid: !!v.is_paid,
         paidAt: v.paid_at,
         createdAt: v.created_at || v.date || v.visit_date,
@@ -93,7 +88,7 @@ const normalize = (v) => {
 };
 
 const CashierVisitPayments = () => {
-    const [tab, setTab] = useState('unpaid'); // unpaid | paid
+    const [tab, setTab] = useState('unpaid');
     const [search, setSearch] = useState('');
 
     const [visits, setVisits] = useState([]);
@@ -109,7 +104,6 @@ const CashierVisitPayments = () => {
     const [formError, setFormError] = useState('');
     const [method, setMethod] = useState('CASH');
 
-    // Qo'shimcha to'lov
     const [showExtra, setShowExtra] = useState(false);
     const [extraAmount, setExtraAmount] = useState('');
     const [extraNote, setExtraNote] = useState('');
@@ -123,9 +117,6 @@ const CashierVisitPayments = () => {
         setExtraNote('');
     };
 
-    // ------------------------------------------------------------
-    // Ro'yxatlar
-    // ------------------------------------------------------------
     const fetchList = async (path) => {
         const res = await fetch(`${api}${path}`, {
             headers: authHeaders(getToken()),
@@ -173,9 +164,6 @@ const CashierVisitPayments = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tab]);
 
-    // ------------------------------------------------------------
-    // Oynalarni boshqarish
-    // ------------------------------------------------------------
     const openVisit = (v) => {
         setSelected(v);
         setPaidVisit(null);
@@ -192,15 +180,9 @@ const CashierVisitPayments = () => {
         resetExtra();
     };
 
-    // ------------------------------------------------------------
-    // Jami summa = ko'rik narxi + qo'shimcha
-    // ------------------------------------------------------------
     const extraValue = showExtra ? Number(extraAmount) || 0 : 0;
     const totalToPay = (selected?.price || 0) + extraValue;
 
-    // ------------------------------------------------------------
-    // To'lov qabul qilish
-    // ------------------------------------------------------------
     const handlePay = async () => {
         if (!selected) return;
 
@@ -241,7 +223,7 @@ const CashierVisitPayments = () => {
                 total,
                 extraAmount: serverExtra,
                 extraNote: data.extra_note || '',
-                queueNumber: data.queue_number ?? selected.queueNumber ?? null,   // <-- YANGI
+                queueNumber: data.queue_number ?? selected.queueNumber ?? null,
                 isPaid: true,
                 paidAt,
                 method,
@@ -256,9 +238,6 @@ const CashierVisitPayments = () => {
         }
     };
 
-    // ------------------------------------------------------------
-    // Ko'rikni bekor qilish
-    // ------------------------------------------------------------
     const handleCancel = async () => {
         if (!selected) return;
 
@@ -286,9 +265,6 @@ const CashierVisitPayments = () => {
         }
     };
 
-    // ------------------------------------------------------------
-    // Filtr + statistika
-    // ------------------------------------------------------------
     const unpaid = useMemo(() => visits.filter((v) => !v.isPaid), [visits]);
 
     const current = tab === 'unpaid' ? unpaid : paidList || [];
@@ -316,7 +292,6 @@ const CashierVisitPayments = () => {
                 </div>
             </div>
 
-            {/* STATISTIKA */}
             <div className={s.StatsRow}>
                 <div className={s.StatCard}>
                     <div className={`${s.StatIcon} ${s.StatIconRed}`}>
@@ -347,7 +322,6 @@ const CashierVisitPayments = () => {
                 </div>
             </div>
 
-            {/* QIDIRUV + TAB */}
             <div className={s.SearchRow}>
                 <div className={s.SearchBox}>
                     <i className="bi bi-search"></i>
@@ -389,7 +363,6 @@ const CashierVisitPayments = () => {
                 </p>
             )}
 
-            {/* JADVAL */}
             {!(tab === 'paid' && paidLoading) && filtered.length > 0 && (
                 <div className={s.TableWrap}>
                     <table className={s.Table}>
@@ -453,7 +426,6 @@ const CashierVisitPayments = () => {
                 </div>
             )}
 
-            {/* TO'LOV OYNASI */}
             <Modal isOpen={!!selected} onClose={closeDrawer} side="right">
                 {selected && (
                     <>
@@ -466,7 +438,6 @@ const CashierVisitPayments = () => {
                         </div>
 
                         {paidVisit ? (
-                            /* TO'LOV QABUL QILINDI -> umumiy summa + chek */
                             <div className={s.DrawerBody}>
                                 <div className={s.AllPaidBox}>
                                     <i className="bi bi-check-circle-fill"></i>
@@ -540,7 +511,6 @@ const CashierVisitPayments = () => {
                                     {formatDateTime(selected.createdAt || new Date().toISOString())}
                                 </p>
 
-                                {/* QO'SHIMCHA */}
                                 <button
                                     type="button"
                                     className={`${s.ExtraToggle} ${showExtra ? s.ExtraToggleActive : ''}`}

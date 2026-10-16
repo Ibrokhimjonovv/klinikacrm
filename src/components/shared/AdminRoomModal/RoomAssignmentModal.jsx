@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import s from './RoomAssignmentModal.module.scss';
-// ⚠️ Fayllar qaysi papkada joylashishiga qarab yo'llarni to'g'rilang:
 import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
 
@@ -17,10 +16,6 @@ const ROOM_TYPE_LABELS = {
     LUX: 'Lux',
 }
 
-// props:
-// isOpen, onClose — Modal komponenti bilan bir xil
-// patientId — RoomAssignment yaratishda kerak bo'ladigan bemor id'si
-// onSuccess(assignment) — muvaffaqiyatli saqlangandan keyin chaqiriladi
 const RoomAssignmentModal = ({ isOpen, onClose, patientId, onSuccess }) => {
     const [rooms, setRooms] = useState([])
     const [loading, setLoading] = useState(true)

@@ -6,25 +6,11 @@ import styles from "./CashierHome.module.scss";
 const fmt = (n) =>
   Number(n || 0).toLocaleString("uz-UZ", { maximumFractionDigits: 0 });
 
-const METHOD_LABELS = {
-  CASH: "Naqd",
-  CARD: "Karta",
-  TRANSFER: "Bank",
-  ONLINE: "Online",
-};
-
-const METHOD_COLORS = {
-  CASH: "green",
-  CARD: "blue",
-  TRANSFER: "yellow",
-  ONLINE: "purple",
-};
-
-const METHOD_CLASS = {
-  CASH: "cash",
-  CARD: "card",
-  TRANSFER: "bank",
-  ONLINE: "online",
+const METHODS = {
+  CASH: { label: "Naqd", color: "green", icon: "bi-cash-stack", cls: "cash" },
+  CARD: { label: "Karta", color: "blue", icon: "bi-credit-card-2-front", cls: "card" },
+  TRANSFER: { label: "Bank", color: "yellow", icon: "bi-bank", cls: "bank" },
+  ONLINE: { label: "Online", color: "purple", icon: "bi-globe2", cls: "online" },
 };
 
 const initials = (name) =>
@@ -34,6 +20,13 @@ const initials = (name) =>
     .slice(0, 2)
     .join("")
     .toUpperCase();
+
+const todayLabel = () =>
+  new Date().toLocaleDateString("uz-UZ", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
 export default function CashierHome() {
   const [data, setData] = useState(null);
@@ -61,18 +54,28 @@ export default function CashierHome() {
   }, []);
 
   if (loading) return <LoadingSkeleton />;
-  if (error) return <div className={styles.error}>❌ {error}</div>;
+  if (error) {
+    return (
+      <div className={styles.error}>
+        <i className="bi bi-exclamation-triangle-fill"></i>
+        {error}
+      </div>
+    );
+  }
   if (!data) return null;
 
   const { today, month, unpaid, recent } = data;
 
   return (
     <div className={styles.page}>
-      {/* ============ HEADER ============ */}
       <div className={styles.header}>
         <div className={styles.titleBlock}>
+          <span className={styles.dateChip}>
+            <i className="bi bi-calendar3"></i>
+            {todayLabel()}
+          </span>
           <h1>Bosh sahifa</h1>
-          <p>Bugungi to‘lovlar va umumiy statistika</p>
+          <p>Bugungi to'lovlar va umumiy statistika</p>
         </div>
 
         <button
@@ -80,41 +83,32 @@ export default function CashierHome() {
           onClick={() => load(true)}
           disabled={refreshing}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path
-              d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <i className="bi bi-arrow-clockwise"></i>
           Yangilash
         </button>
       </div>
 
-      {/* ============ STAT CARDS ============ */}
       <div className={styles.stats}>
         <StatCard
           title="Bugungi tushum"
           value={`${fmt(today.total)} so'm`}
           sub={`${today.count} ta to'lov`}
           color="blue"
-          icon="💰"
+          icon="bi-wallet2"
         />
         <StatCard
           title="Bu oy"
           value={`${fmt(month.total)} so'm`}
           sub={`${month.count} ta to'lov`}
           color="green"
-          icon="📅"
+          icon="bi-calendar2-check"
         />
         <StatCard
           title="To'lanmagan tashrif"
           value={unpaid.visits}
           sub="Doktor ko'riklari"
           color="orange"
-          icon="⏳"
+          icon="bi-hourglass-split"
           onClick={() => navigate("/cashier/unpaid-visits")}
         />
         <StatCard
@@ -122,80 +116,72 @@ export default function CashierHome() {
           value={unpaid.examinations}
           sub="Examination requestlar"
           color="red"
-          icon="🩺"
+          icon="bi-clipboard2-pulse"
           onClick={() => navigate("/cashier/unpaid-examinations")}
         />
       </div>
 
-      {/* ============ BREAKDOWNS ============ */}
       <div className={styles.grid2}>
-        <Card
-          title="Bugun — to'lov turi bo'yicha"
-          icon="📊"
-        >
+        <Card title="Bugun — to'lov turi bo'yicha" icon="bi-pie-chart">
           <SourceRow
             label="Doktor ko'rik to'lovlari"
-            dotColor="#3b82f6"
+            icon="bi-heart-pulse"
             value={today.by_source.medical_visit}
             total={today.total}
-            fillClass="blue"
+            color="blue"
             onClick={() => navigate("/cashier/doctor-visits")}
           />
           <SourceRow
             label="Doktor ko'rik (examination)"
-            dotColor="#6366f1"
+            icon="bi-clipboard2-check"
             value={today.by_source.examination_request}
             total={today.total}
-            fillClass="indigo"
+            color="indigo"
             onClick={() => navigate("/cashier/examination-requests")}
           />
           <SourceRow
             label="Tashqi bemor to'lovlari"
-            dotColor="#a855f7"
+            icon="bi-person-vcard"
             value={today.by_source.direct_service}
             total={today.total}
-            fillClass="purple"
+            color="purple"
             onClick={() => navigate("/cashier/direct-services")}
           />
           <SourceRow
             label="Davolanish to'lovlari"
-            dotColor="#10b981"
+            icon="bi-capsule-pill"
             value={today.by_source.treatment_plan}
             total={today.total}
-            fillClass="green"
+            color="green"
             onClick={() => navigate("/cashier/treatment-plans")}
           />
         </Card>
 
-        <Card title="Bugun — to'lov usuli bo'yicha" icon="💳">
-          {Object.entries(today.by_method).map(([code, amount]) => (
-            <SourceRow
-              key={code}
-              label={METHOD_LABELS[code] || code}
-              dotColor={
-                code === "CASH"
-                  ? "#10b981"
-                  : code === "CARD"
-                  ? "#3b82f6"
-                  : code === "TRANSFER"
-                  ? "#eab308"
-                  : "#a855f7"
-              }
-              value={amount}
-              total={today.total}
-              fillClass={METHOD_COLORS[code] || "blue"}
-            />
-          ))}
+        <Card title="Bugun — to'lov usuli bo'yicha" icon="bi-credit-card-2-back">
+          {Object.entries(today.by_method).map(([code, amount]) => {
+            const m = METHODS[code];
+            return (
+              <SourceRow
+                key={code}
+                label={m?.label || code}
+                icon={m?.icon || "bi-cash"}
+                value={amount}
+                total={today.total}
+                color={m?.color || "blue"}
+              />
+            );
+          })}
         </Card>
       </div>
 
-      {/* ============ RECENT ============ */}
-      <Card title="Oxirgi to'lovlar" icon="🕒">
+      <Card title="Oxirgi to'lovlar" icon="bi-clock-history" flush>
         {recent.length === 0 ? (
           <div className={styles.emptyBox}>
-            <div className={styles.emptyIcon}>📭</div>
+            <div className={styles.emptyIcon}>
+              <i className="bi bi-inbox"></i>
+            </div>
             <div className={styles.emptyText}>
-              Hozircha to‘lovlar mavjud emas
+              Hozircha to'lovlar mavjud emas
             </div>
           </div>
         ) : (
@@ -211,44 +197,44 @@ export default function CashierHome() {
                 </tr>
               </thead>
               <tbody>
-                {recent.map((p) => (
-                  <tr key={p.id}>
-                    <td>
-                      <div className={styles.patientCell}>
-                        <div className={styles.avatar}>
-                          {initials(p.patient?.full_name)}
+                {recent.map((p) => {
+                  const m = METHODS[p.payment_method] || METHODS.CASH;
+                  return (
+                    <tr key={p.id}>
+                      <td>
+                        <div className={styles.patientCell}>
+                          <div className={styles.avatar}>
+                            {initials(p.patient?.full_name)}
+                          </div>
+                          <span className={styles.name}>
+                            {p.patient?.full_name || "—"}
+                          </span>
                         </div>
-                        <span className={styles.name}>
-                          {p.patient?.full_name || "—"}
+                      </td>
+                      <td>
+                        <span className={styles.badge}>{p.source}</span>
+                      </td>
+                      <td>
+                        <span className={`${styles.methodBadge} ${styles[m.cls]}`}>
+                          <i className={`bi ${m.icon}`}></i>
+                          {p.payment_method_display}
                         </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={styles.badge}>{p.source}</span>
-                    </td>
-                    <td>
-                      <span
-                        className={`${styles.methodBadge} ${
-                          styles[METHOD_CLASS[p.payment_method] || "cash"]
-                        }`}
-                      >
-                        {p.payment_method_display}
-                      </span>
-                    </td>
-                    <td className={`${styles.right} ${styles.amount}`}>
-                      {fmt(p.amount)} so‘m
-                    </td>
-                    <td className={styles.muted}>
-                      {new Date(p.created_at).toLocaleString("uz-UZ", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className={`${styles.right} ${styles.amount}`}>
+                        {fmt(p.amount)} so'm
+                      </td>
+                      <td className={styles.muted}>
+                        {new Date(p.created_at).toLocaleString("uz-UZ", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -257,10 +243,6 @@ export default function CashierHome() {
     </div>
   );
 }
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
 
 function StatCard({ title, value, sub, color, icon, onClick }) {
   return (
@@ -271,30 +253,39 @@ function StatCard({ title, value, sub, color, icon, onClick }) {
       onClick={onClick}
     >
       <div className={styles.statTop}>
-        <div className={styles.statLabel}>{title}</div>
-        <div className={`${styles.statIconBox} ${styles[color]}`}>{icon}</div>
+        <div className={`${styles.statIconBox} ${styles[color]}`}>
+          <i className={`bi ${icon}`}></i>
+        </div>
+        {onClick && <i className={`bi bi-arrow-up-right ${styles.statArrow}`}></i>}
       </div>
+      <div className={styles.statLabel}>{title}</div>
       <div className={styles.statValue}>{value}</div>
       <div className={styles.statSub}>{sub}</div>
     </div>
   );
 }
 
-function Card({ title, icon, children }) {
+function Card({ title, icon, flush, children }) {
   return (
     <div className={styles.card}>
       <div className={styles.cardHead}>
         <h3>
-          {icon && <span className={styles.icon}>{icon}</span>}
+          {icon && (
+            <span className={styles.icon}>
+              <i className={`bi ${icon}`}></i>
+            </span>
+          )}
           {title}
         </h3>
       </div>
-      <div className={styles.cardBody}>{children}</div>
+      <div className={flush ? styles.cardBodyFlush : styles.cardBody}>
+        {children}
+      </div>
     </div>
   );
 }
 
-function SourceRow({ label, value, total, fillClass, dotColor, onClick }) {
+function SourceRow({ label, icon, value, total, color, onClick }) {
   const pct = total > 0 ? (Number(value) / Number(total)) * 100 : 0;
 
   return (
@@ -302,28 +293,29 @@ function SourceRow({ label, value, total, fillClass, dotColor, onClick }) {
       className={`${styles.sourceRow} ${onClick ? styles.clickable : ""}`}
       onClick={onClick}
     >
-      <div className={styles.sourceHeader}>
-        <span className={styles.sourceLabel}>
-          <span className={styles.dot} style={{ background: dotColor }} />
-          {label}
-        </span>
-        <span className={styles.sourceValue}>
-          {Number(value || 0).toLocaleString("uz-UZ")} so‘m
-        </span>
+      <div className={`${styles.chip} ${styles[color]}`}>
+        <i className={`bi ${icon}`}></i>
       </div>
-      <div className={styles.sourceBar}>
-        <div
-          className={`${styles.fill} ${styles[fillClass]}`}
-          style={{ width: `${pct}%` }}
-        />
+
+      <div className={styles.sourceMain}>
+        <div className={styles.sourceHeader}>
+          <span className={styles.sourceLabel}>{label}</span>
+          <span className={styles.sourceValue}>
+            {Number(value || 0).toLocaleString("uz-UZ")} so'm
+          </span>
+        </div>
+        <div className={styles.sourceBar}>
+          <div
+            className={`${styles.fill} ${styles[color]}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <span className={styles.sourcePct}>{pct.toFixed(0)}%</span>
       </div>
     </div>
   );
 }
 
-/* =========================================================
-   SKELETON
-   ========================================================= */
 function LoadingSkeleton() {
   return (
     <div className={styles.page}>
@@ -344,17 +336,11 @@ function LoadingSkeleton() {
         {[1, 2].map((i) => (
           <div key={i} className={styles.card}>
             <div className={styles.cardHead}>
-              <div
-                className={styles.skeleton}
-                style={{ width: 180, height: 20 }}
-              />
+              <div className={styles.skeleton} style={{ width: 180, height: 20 }} />
             </div>
             <div className={styles.cardBody}>
               {[1, 2, 3, 4].map((j) => (
-                <div
-                  key={j}
-                  className={`${styles.skeleton} ${styles.skeletonRow}`}
-                />
+                <div key={j} className={`${styles.skeleton} ${styles.skeletonRow}`} />
               ))}
             </div>
           </div>

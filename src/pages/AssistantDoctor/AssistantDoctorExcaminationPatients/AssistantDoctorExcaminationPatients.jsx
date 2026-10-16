@@ -3,13 +3,10 @@ import s from "./AssistantDoctorExcaminationPatients.module.scss"
 import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../../../App';
 import { useToast } from '../../../context/ToastContext';
-
 import Pagination from '../../../components/shared/Pagination/Pagination';
 import usePagination from '../../../components/shared/Pagination/usePagination';
 
-// GET /doctor/my-direct-tasks/  (ixtiyoriy: ?service=ID)
 const ASSIGNED_PATH = '/doctor/my-direct-tasks/'
-// ⚠️ Qatorga bosilganda ochiladigan detail sahifa marshruti (App'dagi Route bilan bir xil bo'lsin)
 const taskRoute = (id) => `/doctor/patients/examination/${id}`
 
 const calcAge = (birthDate) => {
@@ -32,14 +29,12 @@ const STATUS_LABELS = {
     CANCELLED: 'Bekor qilingan',
 }
 
-// Bemor: obyekt bo'lsa olamiz. `patient: null` kelsa — bo'sh qoladi.
 const pickPatient = (t) => {
     if (t.patient_detail) return t.patient_detail
     if (t.patient && typeof t.patient === 'object') return t.patient
     return t.medical_visit?.patient || null
 }
 
-// Backend javobi (direct task) shu yerda bitta joyda moslanadi.
 const normalizeTask = (t, index) => {
     const patient = pickPatient(t) || {}
     const raw = String(t.status || '').toUpperCase()
@@ -49,7 +44,6 @@ const normalizeTask = (t, index) => {
     else if (['COMPLETED', 'DONE'].includes(raw)) statusKey = 'done'
     else if (['CANCELLED', 'NO_SHOW'].includes(raw)) statusKey = 'cancelled'
 
-    // ⚠️ To'lov holati: avval t.is_paid, keyin service_detail orqali tekshiramiz
     const isPaid = !!(
         t.is_paid ||
         t.result?.examination_request_detail?.is_paid ||
@@ -69,7 +63,7 @@ const normalizeTask = (t, index) => {
         statusRaw: t.status,
         statusKey,
         statusLabel: STATUS_LABELS[raw] || t.status || 'Kutilmoqda',
-        isPaid, // ⚠️ qo'shildi
+        isPaid, 
     }
 }
 
@@ -77,16 +71,16 @@ const genderLabel = (g) => (g === 'erkak' ? 'Erkak' : g === 'ayol' ? 'Ayol' : '�
 
 const AssistantDoctorExcaminationPatients = () => {
     const navigate = useNavigate()
-    const { serviceId } = useParams() // ixtiyoriy
-    const [view, setView] = useState('table') // 'table' | 'card'
+    const { serviceId } = useParams()
+    const [view, setView] = useState('table')
     const [search, setSearch] = useState('')
-    const { showToast } = useToast() // ⚠️ qo'shildi
+    const { showToast } = useToast() 
 
     const [items, setItems] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-    const [payFilter, setPayFilter] = useState('ALL')       // ALL | PAID | UNPAID
-    const [statusFilter, setStatusFilter] = useState('ALL') // ALL | pending | progress | done | cancelled
+    const [payFilter, setPayFilter] = useState('ALL')
+    const [statusFilter, setStatusFilter] = useState('ALL')
 
     useEffect(() => {
         const fetchAssigned = async () => {
@@ -145,8 +139,6 @@ const AssistantDoctorExcaminationPatients = () => {
         setPageSize,
         total,
     } = usePagination(filtered, 100)
-
-    // ⚠️ Qatorga bosish: faqat to'langan bo'lsa detail sahifaga o'tadi
     const handleRowClick = (p) => {
         if (!p.isPaid) {
             showToast("Bu bemor hali to'lov qilmagan. Avval to'lovni qabul qiling.", 'warning')

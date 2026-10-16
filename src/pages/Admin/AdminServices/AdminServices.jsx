@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import s from './AdminServices.module.scss';
-// ⚠️ Fayllar qaysi papkada joylashishiga qarab yo'llarni to'g'rilang:
 import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
 
@@ -17,22 +16,15 @@ const AdminServices = () => {
     const [services, setServices] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
-
     const [search, setSearch] = useState('')
-
     const [modalOpen, setModalOpen] = useState(false)
-    const [editingId, setEditingId] = useState(null) // null => yangi qo'shish, aks holda tahrirlash
+    const [editingId, setEditingId] = useState(null)
     const [form, setForm] = useState(emptyForm)
-
     const [saving, setSaving] = useState(false)
     const [formError, setFormError] = useState('')
-
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
-
-    // ---------- Toast (window.alert o'rniga) ----------
-
-    const [toast, setToast] = useState(null) // { type: 'error' | 'success', message }
+    const [toast, setToast] = useState(null)
     const toastTimer = useRef(null)
 
     const showToast = (type, message) => {
@@ -47,14 +39,10 @@ const AdminServices = () => {
         }
     }, [])
 
-    // ---- Xizmatga xodim (shifokor) biriktirish ----
-    // ⚠️ "/doctors/assists/" endpoint mavjudligi taxmin qilindi, javob
-    // {id, first_name, last_name, specialty} ko'rinishida bo'lishi kutiladi
-    // (agar boshqacha bo'lsa, doctorLabel() funksiyasini moslang).
     const [doctors, setDoctors] = useState([])
     const [doctorsLoading, setDoctorsLoading] = useState(true)
 
-    const [assignments, setAssignments] = useState([]) // barcha service-employee yozuvlari
+    const [assignments, setAssignments] = useState([])
     const [assignmentsLoading, setAssignmentsLoading] = useState(true)
 
     const [assignModalOpen, setAssignModalOpen] = useState(false)
@@ -104,7 +92,6 @@ const AdminServices = () => {
         }
     }
 
-    // service/employee maydonlari backendda id yoki to'liq object bo'lib kelishi mumkin — ikkisini ham qo'llab-quvvatlaymiz
     const serviceIdOf = (assignment) => {
         return typeof assignment.service === 'object'
             ? assignment.service?.id
@@ -118,17 +105,13 @@ const AdminServices = () => {
     }
 
     const getEmployeeDoctor = (assignment) => {
-        // Backend employee_detail orqali doktor ma'lumotlarini yuboryapti
         if (assignment?.employee_detail) {
             return assignment.employee_detail
         }
 
-        // Agar keyinchalik employee object ko'rinishida kelsa
         if (typeof assignment?.employee === 'object') {
             return assignment.employee
         }
-
-        // Fallback: doctors endpointidan qidirish
         return doctors.find(
             doctor => Number(doctor.id) === Number(assignment?.employee)
         ) || null
@@ -137,12 +120,10 @@ const AdminServices = () => {
     const doctorLabel = (doctor) => {
         if (!doctor) return 'Nomaʼlum xodim'
 
-        // service-employees dagi employee_detail
         if (doctor.full_name) {
             return doctor.full_name
         }
 
-        // /doctors/ endpointidan keladigan format
         const fullName = [
             doctor.first_name,
             doctor.last_name,
@@ -235,9 +216,6 @@ const AdminServices = () => {
             showToast('error', "Holatni o'zgartirishda xatolik yuz berdi")
         }
     }
-
-    // ---------- Biriktirishni uzish (tasdiqlash modali) ----------
-
     const askRemoveAssignment = (assignment) => {
         setRemoveTarget(assignment)
     }
@@ -396,9 +374,6 @@ const AdminServices = () => {
             showToast('error', "Holatni o'zgartirishda xatolik yuz berdi")
         }
     }
-
-    // ---------- Xizmatni o'chirish (tasdiqlash modali) ----------
-
     const askDelete = (service) => {
         setDeleteTarget(service)
     }

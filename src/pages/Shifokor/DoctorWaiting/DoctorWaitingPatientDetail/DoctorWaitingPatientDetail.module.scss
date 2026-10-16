@@ -2306,3 +2306,52 @@ $success-bg: rgba(14, 27, 51, 0.06);
         &:hover { background: #fee2e2; }
     }
 }
+
+.ActionSwitch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 4px;
+    margin-bottom: 18px;
+    background: #eef1f6;
+    border-radius: 12px;
+}
+
+.ActionSwitchBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover { color: #0e1b33; }
+}
+
+.ActionSwitchBtnActive {
+    background: #fff;
+    color: #0e1b33;
+    font-weight: 700;
+    box-shadow: 0 1px 4px rgba(14, 27, 51, 0.1);
+}
+
+.FinishBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #16a34a, #15803d);
+    box-shadow: 0 6px 16px rgba(22, 163, 74, 0.3);
+
+    &:hover:not(:disabled) {
+        box-shadow: 0 8px 20px rgba(22, 163, 74, 0.38);
+    }
+}

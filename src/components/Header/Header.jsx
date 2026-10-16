@@ -27,8 +27,6 @@ const menuLinks = {
                 title: 'XODIMLAR',
                 links: [
                     { to: '/admin/doctors', icon: 'bi-people', text: 'Barcha xodimlar' },
-                    // { to: '/admin-nurses', icon: 'bi-people', text: 'Hamshiralar' },
-                    // { to: '/admin-res-nurses', icon: 'bi-people', text: 'Qabul Hamshiralari' },
                 ],
             },
             {
@@ -70,6 +68,12 @@ const menuLinks = {
                     { to: '/cashier/payments/services', icon: 'bi-cash-coin', text: 'Tashqi bemor to\'lovlari' },
                     { to: '/cashier/payments/doctor-services', icon: 'bi-cash-coin', text: 'Biriktirilgan bemor to\'lovlari' },
                 ]
+            },
+            {
+                title: "BEKOR QILINGANLAR",
+                links: [
+                    { to: '/cashier/payments/cancelled', text: 'BEKOR QILINGANLAR', icon: 'bi-x-circle' }
+                ]
             }
         ],
         patientsTitle: null,
@@ -92,7 +96,6 @@ const menuLinks = {
                 icon: 'bi-hourglass',
                 text: 'Kutilayotgan bemorlar',
                 countKey: 'waiting',
-                // Bosilganda ochiladigan dropdown ichidagi 2 link:
                 children: [
                     { to: '/doctor/patients/waitings?flow=diagnostics', icon: 'bi-camera', text: 'Diagnostikaga yuborish' },
                     { to: '/doctor/patients/waitings?flow=treatments', icon: 'bi-clipboard2-pulse', text: 'Davolash rejasi' },
@@ -193,9 +196,6 @@ const Header = () => {
     const location = useLocation()
     const [openMenu, setOpenMenu] = useState(null)
 
-    // Sahifa ochilganda (yoki F5 bosilganda) localStorage'dagi holatni
-    // tiklaymiz. useLayoutEffect ishlatilmoqda — bu birinchi bo'yashdan
-    // oldin ishlaydi, shu bilan ochiq -> yopiq "milt etish"ni kamaytiradi.
     useLayoutEffect(() => {
         const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY)
         if (stored === null) return
@@ -203,8 +203,6 @@ const Header = () => {
         if (storedValue !== collapsed) {
             setCollapsed(storedValue)
         }
-        // faqat mount paytida — collapsed/setCollapsed'ni deps'ga qo'shmaymiz
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     const toggleSidebar = () => {
@@ -283,10 +281,6 @@ const Header = () => {
         else return "Aniqlanmadi"
     }
 
-    // ✅ Profil rasmi bo'lsa shuni, bo'lmasa avvalgidek bosh harfni
-    // ko'rsatish uchun ajratildi. Doctor/Nurse/ResNurse/AssistantDoctor
-    // hammasi `user?.doctor` obyektidan foydalanadi (yuqoridagi
-    // userName/userRole bilan bir xil naqsh), Patient esa `user?.patient`.
     const profileImage = user?.doctor?.profile_image || user?.patient?.profile_image || null
 
     const profileInitial = () => {

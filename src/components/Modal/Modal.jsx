@@ -20,7 +20,6 @@ const Modal = ({ isOpen, onClose, children, fullWidth = false }) => {
         }
     }, [isOpen]);
 
-    // ESC bilan yopish
     useEffect(() => {
         if (!isOpen) return;
         const onKey = (e) => {

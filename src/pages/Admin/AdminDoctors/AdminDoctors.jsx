@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import s from './AdminDoctors.module.scss';
-// ⚠️ Fayllar qaysi papkada joylashishiga qarab yo'llarni to'g'rilang:
 import Modal from '../../../components/Modal/Modal';
 import { api } from '../../../App';
 import { IMaskInput } from 'react-imask';
@@ -10,21 +9,6 @@ const authHeaders = (token, json = true) => ({
     ...(json ? { 'Content-Type': 'application/json' } : {}),
 })
 
-// ✅ Maydon nomlari DoctorProfileSerializer'ga mos:
-//   - specialty / department -> FK ID (yozish uchun), specialty_detail /
-//     department_detail -> {id, name} (o'qish uchun)
-//   - user -> majburiy FK (PATIENT bo'lmagan user)
-//   - is_active -> serializerda YO'Q, shuning uchun yo'q
-// ✅ user / specialty / department tanlash uchun select ro'yxatlari
-// quyidagi endpointlardan olinadi:
-//   GET /doctor-users/        -> [{ id, detail: "username (ROLE)" }, ...]
-//   GET /departments-select/  -> [{ id, name/detail }, ...]
-//   GET /specialties-select/  -> [{ id, name/detail }, ...]
-// ℹ️ Yangilash (update) uchun PUT ishlatiladi (to'liq update), shuning
-// uchun PUT yuborilayotganda barcha maydonlar (bo'sh bo'lsa ham) birga
-// yuboriladi.
-
-// Har xil shakldagi javoblarni ({name} yoki {detail}) bir xilga keltiradi
 const optionLabel = (item) => item.detail || item.name || `#${item.id}`
 
 const emptyForm = {
@@ -67,15 +51,14 @@ const AdminDoctors = () => {
 
     const [search, setSearch] = useState('')
 
-    // ---------- Select ro'yxatlari: userlar, bo'limlar, mutaxassisliklar ----------
     const [doctorUsers, setDoctorUsers] = useState([])
     const [departmentOptions, setDepartmentOptions] = useState([])
     const [specialtyOptions, setSpecialtyOptions] = useState([])
 
     const [modalOpen, setModalOpen] = useState(false)
-    const [editingId, setEditingId] = useState(null) // null => yangi qo'shish, aks holda tahrirlash
+    const [editingId, setEditingId] = useState(null)
     const [form, setForm] = useState(emptyForm)
-    const [imageFile, setImageFile] = useState(null) // yangi tanlangan rasm (agar bo'lsa)
+    const [imageFile, setImageFile] = useState(null)
 
     const [saving, setSaving] = useState(false)
     const [formError, setFormError] = useState('')
@@ -83,9 +66,7 @@ const AdminDoctors = () => {
     const [deleteTarget, setDeleteTarget] = useState(null)
     const [deleting, setDeleting] = useState(false)
 
-    // ---------- Toast (window.alert o'rniga) ----------
-
-    const [toast, setToast] = useState(null) // { type: 'error' | 'success', message }
+    const [toast, setToast] = useState(null)
     const toastTimer = useRef(null)
 
     const showToast = (type, message) => {
@@ -128,7 +109,6 @@ const AdminDoctors = () => {
             const data = await res.json()
             setDoctorUsers(Array.isArray(data) ? data : data.results || [])
         } catch {
-            // jimgina o'tkazib yuboriladi — select bo'sh qoladi
         }
     }
 
@@ -139,7 +119,6 @@ const AdminDoctors = () => {
             const data = await res.json()
             setDepartmentOptions(Array.isArray(data) ? data : data.results || [])
         } catch {
-            // jimgina o'tkazib yuboriladi
         }
     }
 
@@ -150,7 +129,6 @@ const AdminDoctors = () => {
             const data = await res.json()
             setSpecialtyOptions(Array.isArray(data) ? data : data.results || [])
         } catch {
-            // jimgina o'tkazib yuboriladi
         }
     }
 
@@ -162,7 +140,6 @@ const AdminDoctors = () => {
         fetchSpecialtyOptions(token)
     }, [])
 
-    // specialty_detail/department_detail bo'lmasa, select ro'yxatidan nom topamiz
     const specialtyLabel = (d) => d.specialty_name || (
         specialtyOptions.find(o => String(o.id) === String(d.specialty))
             ? optionLabel(specialtyOptions.find(o => String(o.id) === String(d.specialty)))
@@ -178,8 +155,6 @@ const AdminDoctors = () => {
         fullName(d).toLowerCase().includes(search.toLowerCase()) ||
         specialtyLabel(d).toLowerCase().includes(search.toLowerCase())
     )
-
-    // ---------- Create / edit modal ----------
 
     const openCreateModal = () => {
         setEditingId(null)
@@ -247,12 +222,10 @@ const AdminDoctors = () => {
         try {
             const token = localStorage.getItem('hospital_access')
             const url = editingId ? `${api}/doctor-profiles/${editingId}/` : `${api}/doctor-profiles/`
-            // Yangi qo'shishda POST, tahrirlashda to'liq update sifatida PUT
             const method = editingId ? 'PUT' : 'POST'
 
             let res
             if (imageFile) {
-                // Rasm bilan yuborilganda multipart/form-data ishlatiladi
                 const fd = new FormData()
                 const payload = buildPayload()
                 Object.entries(payload).forEach(([key, val]) => {
@@ -262,7 +235,7 @@ const AdminDoctors = () => {
 
                 res = await fetch(url, {
                     method,
-                    headers: { 'Authorization': `Bearer ${token}` }, // Content-Type qo'yilmaydi, brauzer o'zi qo'yadi
+                    headers: { 'Authorization': `Bearer ${token}` },
                     body: fd,
                 })
             } else {
@@ -294,8 +267,6 @@ const AdminDoctors = () => {
             setSaving(false)
         }
     }
-
-    // ---------- Delete confirm modal ----------
 
     const askDelete = (doctor) => {
         setDeleteTarget(doctor)
@@ -418,7 +389,6 @@ const AdminDoctors = () => {
                 </div>
             )}
 
-            {/* Shifokor qo'shish / tahrirlash */}
             <Modal isOpen={modalOpen} onClose={closeModal}>
                 <div className={s.modalContent}>
                     <h3>{editingId ? 'Shifokorni tahrirlash' : "Yangi shifokor qo'shish"}</h3>
@@ -518,13 +488,6 @@ const AdminDoctors = () => {
 
                             <label>
                                 Telefon
-                                {/* <input
-                                    type="text"
-                                    placeholder="+998 90 123 45 67"
-                                    value={form.contact_number}
-                                    onChange={(e) => handleFieldChange('contact_number', e.target.value)}
-                                    disabled={saving}
-                                /> */}
                                 <IMaskInput
                                     mask="+998 00 000 00 00"
                                     name="contact_number"
@@ -589,7 +552,6 @@ const AdminDoctors = () => {
                 </div>
             </Modal>
 
-            {/* O'chirishni tasdiqlash */}
             <Modal isOpen={!!deleteTarget} onClose={closeDeleteModal}>
                 <div className={s.confirmContent}>
                     <h3>Shifokorni o'chirish</h3>

@@ -287,11 +287,7 @@
     }
 }
 
-/* ---- Modal ichidagi kontent (Modal komponenti overlay/pozitsiyani o'zi boshqaradi) ---- */
-
 .modalContent {
-    // Modal komponentida CloseBtn yuqori-o'ngda absolute turadi —
-    // sarlavha u bilan qoplanib qolmasligi uchun yetarli padding beramiz.
     width: 100%;
     padding: 40px 24px 24px;
 

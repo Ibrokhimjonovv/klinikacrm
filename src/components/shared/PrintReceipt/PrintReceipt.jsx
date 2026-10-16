@@ -12,18 +12,12 @@ const pad = (n) => String(n).padStart(2, '0');
 const formatDate = (d) => `${pad(d.getDate())}.${pad(d.getMonth() + 1)}.${d.getFullYear()}`;
 const formatTime = (d) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
-// Uzun qiymatlar (masalan manzil) butun qatorni egallaydi.
-// Majburlash uchun patientInfo elementida `wide: true/false` berish mumkin.
 const isWide = (row) => row.wide ?? String(row.value ?? '').length > 30;
 
-// ---- A4'ga "to'liq sig'dirish" uchun sozlamalar ----
-// @page { margin: 0 } + .PrintOnly { padding: 8mm } bilan mos keladi.
 const PAGE_HEIGHT_MM = 297;
 const PAGE_PADDING_MM = 8;
 const MAX_CONTENT_HEIGHT_MM = PAGE_HEIGHT_MM - PAGE_PADDING_MM * 2;
 
-// Berilgan mm qiymatini joriy render kontekstidagi (ekran yoki chop etish)
-// haqiqiy piksel qiymatiga aylantiradi — shunda o'lchov chek bilan bir xil birlikda bo'ladi.
 const mmToPx = (mm) => {
     const probe = document.createElement('div');
     probe.style.position = 'absolute';
@@ -35,35 +29,14 @@ const mmToPx = (mm) => {
     return px;
 };
 
-// Modul yuklangan zahoti logotipni oldindan yuklab/keshlab qo'yamiz —
-// shunda "Chop etish" bosilganda u allaqachon brauzer xotirasida tayyor
-// bo'ladi. PatientAdmission kabi ekranlarda muammo sezilmaydi, chunki u
-// yerda finished holati o'rnatilgandan keyin foydalanuvchi tugmani
-// bosguncha vaqt o'tadi (rasm shu orada tabiiy yuklanib ulguradi).
-// PatientDetail'dagi kabi "birinchi marta chiqarish + darhol print()"
-// holatida esa bu vaqt yo'q, shuning uchun chaqiruvchi tomon shu
-// promise'ni kutib turishi kerak (handlePrint'ga qarang).
 export const logoReady = new Promise((resolve) => {
     const img = new Image();
     img.onload = () => resolve(true);
-    img.onerror = () => resolve(false); // xato bo'lsa ham chop etishni to'smaymiz
+    img.onerror = () => resolve(false); 
     img.src = logo;
 });
 
-/**
- * Chop etish uchun umumiy shablon — American Orthopedic Center.
- *
- * Props:
- *  - title:       sarlavha (default: "Bemor qabul varaqasi")
- *  - patientName: bemor F.I.O
- *  - patientInfo: qo'shimcha bemor ma'lumotlari (massiv: { label, value, wide? })
- *  - credentials: { username, password } — ixtiyoriy
- *  - complaintId: shikoyat ID raqami
- *  - complaint:   shikoyat matni
- *  - notes:       izoh
- *  - qrUrl:       QR code ichidagi link (default: https://aoc.uz)
- *  - qrCaption:   QR ostidagi yozuv (default: "aoc.uz")
- */
+
 const PrintReceipt = ({
     title = 'Bemor qabul varaqasi',
     patientName,
@@ -78,14 +51,12 @@ const PrintReceipt = ({
     const now = new Date();
     const sheetRef = useRef(null);
 
-    // ---- Chek balandligi A4'dan oshib ketsa, avtomatik kichraytiramiz ----
     useEffect(() => {
         const sheetEl = sheetRef.current;
         if (!sheetEl) return;
 
         const applyFitScale = () => {
             try {
-                // Avval haqiqiy (tabiiy) balandlikni o'lchash uchun scale'ni tozalaymiz
                 sheetEl.style.transform = 'none';
                 sheetEl.style.width = '';
 
@@ -96,11 +67,9 @@ const PrintReceipt = ({
                     const scale = maxHeightPx / naturalHeightPx
                     sheetEl.style.transformOrigin = 'top left'
                     sheetEl.style.transform = `scale(${scale})`
-                    // Kenglikni ham kompensatsiya qilamiz, aks holda chek torayib qoladi
                     sheetEl.style.width = `${100 / scale}%`
                 }
             } catch (err) {
-                // O'lchashda muammo bo'lsa — hech narsa qilmaymiz, chek tabiiy holida chop etiladi
                 console.error('Chekni A4ga moslashtirishda xatolik:', err)
             }
         }
@@ -143,7 +112,6 @@ const PrintReceipt = ({
                 </div>
 
                 <section className={s.Body}>
-                    {/* BEMOR MA'LUMOTLARI */}
                     {patientName && (
                         <div className={s.Patient}>
                             <span>F.I.O</span>
@@ -165,7 +133,6 @@ const PrintReceipt = ({
                         </div>
                     )}
 
-                    {/* SHIKOYAT ID — chipta */}
                     {complaintId && (
                         <div className={s.Ticket}>
                             <div className={s.TicketNumber}>
@@ -182,7 +149,6 @@ const PrintReceipt = ({
                         </div>
                     )}
 
-                    {/* SHIKOYAT VA IZOH */}
                     {complaint && (
                         <div className={s.Entry}>
                             <span>Shikoyat</span>
@@ -198,11 +164,9 @@ const PrintReceipt = ({
                     )}
                 </section>
 
-                {/* LOGIN / PAROL — kesish chizig'idan keyin */}
                 {credentials && (
                     <>
                         <div className={s.Cut}>
-                            {/* <i className="bi bi-scissors"></i> */}
                         </div>
                         <div className={s.Credentials}>
                             <div className={s.CredentialsHead}>
@@ -224,7 +188,6 @@ const PrintReceipt = ({
                     </>
                 )}
 
-                {/* FOOTER */}
                 <footer className={s.Footer}>
                     <p className={s.Thanks}>
                         <i className="bi bi-heart-fill"></i>

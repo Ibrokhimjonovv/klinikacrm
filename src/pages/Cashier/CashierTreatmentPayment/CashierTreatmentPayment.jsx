@@ -1,15 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import s from './CashierTreatmentPayment.module.scss';
-import { api } from '../../../App'; // yo'lni loyihangizga moslang
+import { api } from '../../../App';
 import Modal from '../../../components/Modal/Modal';
 import { printPlanReceipt } from '../../../components/shared/CashierReceipt/PlanReceipt';
 
-
-// ============================================================
-// Yordamchi funksiyalar
-// ============================================================
-
-// ⚠️ To'langanlar API manzili (o'zingizdagiga moslang)
 const UNPAID_PATH = '/treatment-plans/unpaid/';
 const PAID_PATH = '/treatment-plans/paid/';
 
@@ -33,12 +27,9 @@ const formatDateTime = (iso) => {
   });
 };
 
-// Qo'shimcha summa inputi uchun
 const onlyDigits = (v) => v.replace(/\D/g, '');
 const formatInput = (v) => (v ? Number(v).toLocaleString('uz-UZ') : '');
 
-// ⚠️ Backend "status" qiymatlari (PAID / PARTIAL) ma'lum. To'lanmagan
-// holat nomi (masalan UNPAID) taxmin — boshqacha bo'lsa shu yerni tuzating.
 const PAY_STATUS = {
   UNPAID: { label: "To'lanmagan", className: 'unpaid' },
   PARTIAL: { label: 'Qisman', className: 'partial' },
@@ -51,8 +42,6 @@ const CARE_TYPE = {
   OUTPATIENT: 'Ambulator',
 };
 
-// ⚠️ To'lov usullari backend'dagi Payment.payment_method choices'iga
-// mos bo'lishi kerak. Faqat "CASH" aniq ma'lum, qolganlari taxmin.
 const PAYMENT_METHODS = [
   { value: 'CASH', label: 'Naqd', icon: 'bi-cash-stack' },
   { value: 'CARD', label: 'Karta', icon: 'bi-credit-card' },
@@ -62,9 +51,6 @@ const PAYMENT_METHODS = [
 const methodLabel = (v) =>
   PAYMENT_METHODS.find((m) => m.value === v)?.label || v;
 
-// ⚠️ Backend "day_remaining", "day_total", "day_paid", "day_status"
-// yuboradi. Bizning UI esa "remaining", "total", "paid", "status"
-// ishlatadi. Shu funksiya ikkala nomni ham qo'llab-quvvatlaydi.
 const normalizeDay = (d) => ({
   ...d,
   day_id: d.day_id ?? d.id,
@@ -74,30 +60,24 @@ const normalizeDay = (d) => ({
   status: d.status ?? d.day_status ?? 'UNPAID',
 });
 
-// ============================================================
-// Komponent
-// ============================================================
-
 const CashierTreatmentPayment = () => {
-  const [tab, setTab] = useState('unpaid'); // unpaid | paid
+  const [tab, setTab] = useState('unpaid');
   const [view, setView] = useState('table');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
-  const [plans, setPlans] = useState([]);           // to'lanmaganlar
-  const [paidPlans, setPaidPlans] = useState(null); // to'langanlar (null = hali yuklanmagan)
+  const [plans, setPlans] = useState([]);
+  const [paidPlans, setPaidPlans] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paidLoading, setPaidLoading] = useState(false);
   const [error, setError] = useState(null);
   const [paidError, setPaidError] = useState(null);
 
-  // Modal
   const [selectedPlan, setSelectedPlan] = useState(null);
-  const [detail, setDetail] = useState(null);   // payment-days javobi
-  const [history, setHistory] = useState([]);   // payment-status.payments
+  const [detail, setDetail] = useState(null);
+  const [history, setHistory] = useState([]);
   const [detailLoading, setDetailLoading] = useState(false);
 
-  // To'lov formasi: { [dayId]: amountString } — kalit bor = kun tanlangan
   const [picked, setPicked] = useState({});
   const [method, setMethod] = useState('CASH');
   const [comment, setComment] = useState('');
@@ -107,7 +87,6 @@ const CashierTreatmentPayment = () => {
   const [formSuccess, setFormSuccess] = useState('');
   const [printingId, setPrintingId] = useState(null);
 
-  // Qo'shimcha to'lov
   const [showExtra, setShowExtra] = useState(false);
   const [extraAmount, setExtraAmount] = useState('');
   const [extraNote, setExtraNote] = useState('');
@@ -120,9 +99,6 @@ const CashierTreatmentPayment = () => {
     setExtraNote('');
   };
 
-  // ------------------------------------------------------------
-  // Ro'yxatlar
-  // ------------------------------------------------------------
   const fetchList = async (path) => {
     const res = await fetch(`${api}${path}`, {
       headers: authHeaders(getToken()),
@@ -130,7 +106,6 @@ const CashierTreatmentPayment = () => {
     if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
     const data = await res.json();
     const list = Array.isArray(data) ? data : data.results || [];
-    // plan_id o'rniga id kelsa ham ishlashi uchun
     return list.map((p) => ({ ...p, plan_id: p.plan_id ?? p.id }));
   };
 
@@ -165,15 +140,11 @@ const CashierTreatmentPayment = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // "To'langan" tabi ochilganda har safar yangidan so'raymiz
   useEffect(() => {
     if (tab === 'paid') fetchPaid();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab]);
 
-  // ------------------------------------------------------------
-  // Modal ma'lumotlari
-  // ------------------------------------------------------------
   const fetchPlanDetail = async (planId) => {
     try {
       setDetailLoading(true);
@@ -219,9 +190,6 @@ const CashierTreatmentPayment = () => {
     resetExtra();
   };
 
-  // ------------------------------------------------------------
-  // Chek chop etish (faqat to'langan rejalar uchun)
-  // ------------------------------------------------------------
   const handlePrint = async (plan) => {
     try {
       setPrintingId(plan.plan_id);
@@ -248,7 +216,7 @@ const CashierTreatmentPayment = () => {
           statusData?.queue_number ??
           plan.queue_number ??
           daysData?.queue_number ??
-          null,                                   // <-- YANGI
+          null,
       });
     } catch (err) {
       console.error('Chek chiqarishda xatolik:', err);
@@ -257,12 +225,6 @@ const CashierTreatmentPayment = () => {
     }
   };
 
-  // ------------------------------------------------------------
-  // Kunlarni tanlash / summa
-  // ------------------------------------------------------------
-
-  // ⚠️ MUHIM: detail.days dagi har bir kunni normalize qilamiz
-  // Backend "day_remaining" yuboradi, biz "remaining" ishlatamiz.
   const daysList = useMemo(
     () => (detail?.days || []).map(normalizeDay),
     [detail]
@@ -273,8 +235,6 @@ const CashierTreatmentPayment = () => {
     [daysList]
   );
 
-  // Haqiqatan to'liq to'langan: ma'lumot yuklangan, kunlar bor,
-  // qoldiq kunlarda ham, reja bo'yicha ham 0, jami summa > 0
   const isFullyPaid =
     !!detail &&
     daysList.length > 0 &&
@@ -317,21 +277,15 @@ const CashierTreatmentPayment = () => {
     }
   };
 
-  // Tanlangan kunlar bo'yicha summa
   const daysTotal = Object.values(picked).reduce(
     (sum, v) => sum + (Number(v) || 0),
     0
   );
 
-  // Qo'shimcha summa (faqat "Qo'shimcha" ochiq bo'lsa hisoblanadi)
   const extraValue = showExtra ? Number(extraAmount) || 0 : 0;
 
-  // Jami to'lanadigan summa = kunlar + qo'shimcha
   const totalToPay = daysTotal + extraValue;
 
-  // ------------------------------------------------------------
-  // To'lov qabul qilish
-  // ------------------------------------------------------------
   const handlePay = async () => {
     if (!selectedPlan) return;
 
@@ -346,7 +300,6 @@ const CashierTreatmentPayment = () => {
 
     const note = showExtra ? extraNote.trim() : '';
 
-    // ⚠️ Backend maydon nomlariga moslang (extra_amount / extra_note)
     const payload = {
       allocations,
       payment_method: method,
@@ -390,9 +343,6 @@ const CashierTreatmentPayment = () => {
     }
   };
 
-  // ------------------------------------------------------------
-  // Davolash rejasini bekor qilish
-  // ------------------------------------------------------------
   const handleCancel = async () => {
     if (!selectedPlan) return;
     if (!window.confirm("Davolash rejasini bekor qilishni xohlaysizmi?")) return;
@@ -425,9 +375,6 @@ const CashierTreatmentPayment = () => {
     }
   };
 
-  // ------------------------------------------------------------
-  // Filtr + statistika
-  // ------------------------------------------------------------
   const source = tab === 'unpaid' ? plans : paidPlans || [];
 
   const filtered = source.filter((p) => {
@@ -451,9 +398,6 @@ const CashierTreatmentPayment = () => {
   const isPaidTab = tab === 'paid';
   const paidBusy = isPaidTab && paidLoading;
 
-  // ------------------------------------------------------------
-  // Loading / Error
-  // ------------------------------------------------------------
   if (loading) {
     return (
       <div className={s.PatientsPage}>
@@ -470,9 +414,6 @@ const CashierTreatmentPayment = () => {
     );
   }
 
-  // ------------------------------------------------------------
-  // Render
-  // ------------------------------------------------------------
   return (
     <div className={s.PatientsPage}>
       <div className={s.TopRow}>
@@ -501,7 +442,6 @@ const CashierTreatmentPayment = () => {
         </div>
       </div>
 
-      {/* STATISTIKA */}
       {isPaidTab ? (
         <div className={s.StatsRow}>
           <div className={s.StatCard}>
@@ -564,7 +504,6 @@ const CashierTreatmentPayment = () => {
         </div>
       )}
 
-      {/* QIDIRUV + TAB + FILTR */}
       <div className={s.SearchRow}>
         <div className={s.SearchBox}>
           <i className="bi bi-search"></i>
@@ -610,7 +549,6 @@ const CashierTreatmentPayment = () => {
         )}
       </div>
 
-      {/* To'langanlar yuklanmoqda / xatolik */}
       {paidBusy && <p className={s.Muted}>Yuklanmoqda...</p>}
       {isPaidTab && !paidLoading && paidError && (
         <p className={s.FormError}>
@@ -625,7 +563,6 @@ const CashierTreatmentPayment = () => {
         </p>
       )}
 
-      {/* JADVAL */}
       {!paidBusy && view === 'table' && filtered.length > 0 && (
         <div className={s.TableWrap}>
           <table className={s.Table}>
@@ -688,7 +625,6 @@ const CashierTreatmentPayment = () => {
         </div>
       )}
 
-      {/* KARTALAR */}
       {!paidBusy && view === 'card' && filtered.length > 0 && (
         <div className={s.CardsGrid}>
           {filtered.map((p) => {
@@ -748,7 +684,6 @@ const CashierTreatmentPayment = () => {
         </div>
       )}
 
-      {/* TO'LOV MODALI */}
       <Modal isOpen={!!selectedPlan} onClose={closePlan} side="right">
         {selectedPlan && (
           <>
@@ -770,7 +705,6 @@ const CashierTreatmentPayment = () => {
 
               {detail && (
                 <>
-                  {/* XULOSA */}
                   <div className={s.SummaryBox}>
                     <div>
                       <span>Jami</span>
@@ -794,7 +728,6 @@ const CashierTreatmentPayment = () => {
                       </p>
                     )}
 
-                  {/* KUNLAR */}
                   <div className={s.SectionHead}>
                     <p className={s.DrawerSectionTitle}>To'lanadigan kunlar</p>
                     {unpaidDays.length > 0 && (
@@ -856,10 +789,8 @@ const CashierTreatmentPayment = () => {
                     </div>
                   )}
 
-                  {/* QO'SHIMCHA + TO'LOV USULI + IZOH */}
                   {unpaidDays.length > 0 && (
                     <>
-                      {/* QO'SHIMCHA */}
                       <button
                         type="button"
                         className={`${s.ExtraToggle} ${showExtra ? s.ExtraToggleActive : ''}`}
@@ -950,7 +881,6 @@ const CashierTreatmentPayment = () => {
                     </>
                   )}
 
-                  {/* Chek — faqat haqiqatan to'liq to'langan bo'lsa */}
                   {isFullyPaid && (
                     <button
                       type="button"
@@ -964,7 +894,6 @@ const CashierTreatmentPayment = () => {
                     </button>
                   )}
 
-                  {/* Xatolik kunlar yo'q holatda ham ko'rinsin */}
                   {unpaidDays.length === 0 && formError && (
                     <p className={s.FormError}>
                       <i className="bi bi-exclamation-circle-fill"></i> {formError}
@@ -977,7 +906,6 @@ const CashierTreatmentPayment = () => {
                     </p>
                   )}
 
-                  {/* TARIX */}
                   {history.length > 0 && (
                     <>
                       <p className={`${s.DrawerSectionTitle} ${s.HistoryTitle}`}>

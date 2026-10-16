@@ -9,6 +9,13 @@ import ImageZoomViewer from '../../../../components/shared/ImageZoomViewer/Image
 
 import Select from 'react-select';
 
+const FINISH_METHOD = 'PATCH'
+const finishUrl = (visitId) => `${api}/medical-visits/${visitId}/`
+const finishBody = (note) => ({
+    status: 'COMPLETED',
+    doctor_conclusion: note,
+})
+
 const calcAge = (birthDate) => {
     if (!birthDate) return '?'
     const diff = Date.now() - new Date(birthDate).getTime()
@@ -141,6 +148,7 @@ const DoctorWaitingPatientTreatmentDetail = () => {
     const [requestsLoading, setRequestsLoading] = useState(false)
 
     const [selectedComplaintId, setSelectedComplaintId] = useState(null)
+    const [actionMode, setActionMode] = useState('plan')
     const [planDiagnosis, setPlanDiagnosis] = useState('')
 
     const [planMedia, setPlanMedia] = useState([])
@@ -156,6 +164,10 @@ const DoctorWaitingPatientTreatmentDetail = () => {
     const [planSaving, setPlanSaving] = useState(false)
     const [planError, setPlanError] = useState('')
     const [planSuccess, setPlanSuccess] = useState(false)
+
+    const [finishNote, setFinishNote] = useState('')
+    const [finishing, setFinishing] = useState(false)
+    const [finishError, setFinishError] = useState('')
 
     const [medicines, setMedicines] = useState([])
     const [medicinesLoading, setMedicinesLoading] = useState(true)
@@ -311,15 +323,12 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         if (patient?.complaints?.length > 0) fetchDiagnosticRequests()
     }, [patient])
 
-    // ✅ YANGI: oynaga qaytilganda to'lov holatini yangilaydi
     useEffect(() => {
         const onFocus = () => fetchPatient(true)
         window.addEventListener('focus', onFocus)
         return () => window.removeEventListener('focus', onFocus)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id])
 
-    // ✅ YANGI: silent rejim
     const fetchPatient = async (silent = false) => {
         try {
             const token = localStorage.getItem('hospital_access')
@@ -353,10 +362,17 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         setCareType('OUTPATIENT')
         setSelectedRoomId('')
         setSelectedBedId('')
+        setFinishNote('')
+        setFinishError('')
+        setActionMode('plan')
+    }
+
+    const closePanel = () => {
+        setSelectedComplaintId(null)
+        resetPlanState()
     }
 
     const handleSelectComplaint = (complaint) => {
-        // ✅ YANGI: ko'rik to'lovi qilinmagan bo'lsa ochilmaydi
         if (!complaint.is_paid) return
 
         if (selectedComplaintId === complaint.id) {
@@ -515,7 +531,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             setPlanError("Avval shikoyatni tanlang")
             return
         }
-        // ✅ YANGI: to'lov himoyasi
         if (!selectedComplaint.is_paid) {
             setPlanError("Doktor ko'rigi to'lovi hali qilinmagan")
             return
@@ -674,6 +689,51 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             setPlanError("Serverga ulanishda xatolik yuz berdi. Qaytadan urinib ko'ring.")
         } finally {
             setPlanSaving(false)
+        }
+    }
+
+    const handleFinish = async (e) => {
+        e.preventDefault()
+        setFinishError('')
+
+        if (!selectedComplaint) {
+            setFinishError('Avval shikoyatni tanlang')
+            return
+        }
+        if (!selectedComplaint.is_paid) {
+            setFinishError("Doktor ko'rigi to'lovi hali qilinmagan")
+            return
+        }
+
+        setFinishing(true)
+
+        try {
+            const token = localStorage.getItem('hospital_access')
+
+            const res = await fetch(finishUrl(selectedComplaint.id), {
+                method: FINISH_METHOD,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(finishBody(finishNote.trim())),
+            })
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}))
+                throw new Error(
+                    errorData.detail || errorData.error || `HTTP error! status: ${res.status}`
+                )
+            }
+
+            closePanel()
+            await fetchPatient(true)
+            fetchDoctorCounts()
+        } catch (err) {
+            console.error('Yakunlashda xatolik:', err)
+            setFinishError(err.message || "Ko'rikni yakunlab bo'lmadi")
+        } finally {
+            setFinishing(false)
         }
     }
 
@@ -899,14 +959,79 @@ const DoctorWaitingPatientTreatmentDetail = () => {
         )
     }
 
+    const renderActionSwitch = () => (
+        <div className={s.ActionSwitch}>
+            <button
+                type="button"
+                className={`${s.ActionSwitchBtn} ${actionMode === 'plan' ? s.ActionSwitchBtnActive : ''}`}
+                onClick={() => setActionMode('plan')}
+            >
+                <i className="bi bi-journal-medical"></i>
+                Davolash rejasi
+            </button>
+            <button
+                type="button"
+                className={`${s.ActionSwitchBtn} ${actionMode === 'finish' ? s.ActionSwitchBtnActive : ''}`}
+                onClick={() => setActionMode('finish')}
+            >
+                <i className="bi bi-check2-circle"></i>
+                Izoh bilan yakunlash
+            </button>
+        </div>
+    )
+
+    const renderFinishForm = () => (
+        <form className={s.ComplaintForm} onSubmit={handleFinish}>
+            <div className={s.PlanFormHead}>
+                <h2>Ko'rikni yakunlash</h2>
+                <button type="button" className={s.CancelSelectBtn} onClick={closePanel}>
+                    <i className="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            {renderActionSwitch()}
+
+            <div className={s.Field}>
+                <label>Xulosa / izoh</label>
+                <textarea
+                    rows={4}
+                    placeholder="Ko'rik bo'yicha xulosa yoki izoh yozing..."
+                    value={finishNote}
+                    onChange={(e) => setFinishNote(e.target.value)}
+                    disabled={finishing}
+                />
+                <span className={s.FieldHint}>
+                    Yakunlangach bu shikoyat ro'yxatdan chiqadi
+                </span>
+            </div>
+
+            {finishError && (
+                <p className={s.FormError}>
+                    <i className="bi bi-exclamation-circle-fill"></i> {finishError}
+                </p>
+            )}
+
+            <button
+                type="submit"
+                className={`${s.SubmitPlanBtn} ${s.FinishBtn}`}
+                disabled={finishing}
+            >
+                <i className="bi bi-check2-circle"></i>
+                {finishing ? 'Yakunlanmoqda...' : 'Yakunlash'}
+            </button>
+        </form>
+    )
+
     const renderPlanForm = () => (
         <form className={s.ComplaintForm} onSubmit={handleSubmitPlan}>
             <div className={s.PlanFormHead}>
                 <h2>Davolash rejasi</h2>
-                <button type="button" className={s.CancelSelectBtn} onClick={() => setSelectedComplaintId(null)}>
+                <button type="button" className={s.CancelSelectBtn} onClick={closePanel}>
                     <i className="bi bi-x-lg"></i>
                 </button>
             </div>
+
+            {renderActionSwitch()}
 
             <div className={s.Field}>
                 <label>Tashxis nomi *</label>
@@ -1264,7 +1389,9 @@ const DoctorWaitingPatientTreatmentDetail = () => {
             {visibleComplaints.length > 0 && (
                 <div className={s.ComplaintsSection}>
                     <h2>Shikoyatlar</h2>
-                    <p className={s.ComplaintsHint}>Davolash rejasi qo'shish uchun shikoyatni tanlang</p>
+                    <p className={s.ComplaintsHint}>
+                        Davolash rejasi qo'shish yoki yakunlash uchun shikoyatni tanlang
+                    </p>
 
                     <div className={s.ComplaintsList}>
                         {visibleComplaints.map((c) => {
@@ -1283,7 +1410,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                                     key={c.id}
                                     className={`${s.ComplaintGroup} ${isSelected ? s.ComplaintGroupSelected : ''} ${isDimmed ? s.ComplaintGroupBlurred : ''}`}
                                 >
-                                    {/* ✅ YANGI: to'lanmagan bo'lsa qulflangan */}
                                     <button
                                         type="button"
                                         className={`${s.ComplaintCard} ${!c.is_paid ? s.ComplaintCardLocked : ''}`}
@@ -1327,7 +1453,6 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                                         </div>
                                     </button>
 
-                                    {/* ✅ YANGI: to'lov xabari */}
                                     {!c.is_paid && (
                                         <div className={s.PayLockBox}>
                                             <i className="bi bi-wallet2"></i>
@@ -1335,7 +1460,7 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                                                 <strong>Ko'rik to'lovi qilinmagan</strong>
                                                 <p>
                                                     Bemor kassaga {Number(c.price || 0).toLocaleString('uz-UZ')} so'm
-                                                    to'lagach, reja qo'shish ochiladi.
+                                                    to'lagach, reja qo'shish va yakunlash ochiladi.
                                                 </p>
                                             </div>
                                             <button type="button" onClick={() => fetchPatient(true)}>
@@ -1364,7 +1489,9 @@ const DoctorWaitingPatientTreatmentDetail = () => {
                                         )
                                     )}
 
-                                    {isSelected && c.is_paid && renderPlanForm()}
+                                    {isSelected && c.is_paid && (
+                                        actionMode === 'finish' ? renderFinishForm() : renderPlanForm()
+                                    )}
                                 </div>
                             )
                         })}

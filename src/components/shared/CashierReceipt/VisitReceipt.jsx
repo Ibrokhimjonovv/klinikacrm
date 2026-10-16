@@ -21,9 +21,7 @@ const formatBirth = (raw) => {
 const money = (n) =>
     Math.round(Number(n) || 0).toLocaleString('uz-UZ').replace(/\s/g, ' ');
 
-// Chek kengligi (mm) — printerning haqiqiy chop etish maydoni 76mm
 const PAPER_MM = 110;
-// Matn o'lchami (mm)
 const FONT_MM = 4;
 
 const RECEIPT_CSS = `
@@ -53,7 +51,6 @@ p{margin:0}
   width:45%;
   aspect-ratio:1/1;
   margin:2em auto 0;
-//   border:.8mm solid #000;
   display:flex;
   flex-direction:column;
   align-items:center;
@@ -150,9 +147,6 @@ const ReceiptContent = ({ visit, cashier }) => (
     </div>
 );
 
-// ------------------------------------------------------------
-// Chop etish: yashirin iframe orqali
-// ------------------------------------------------------------
 export const printReceipt = (visit, cashier = 'Kassa') => {
     if (!visit) return;
 
@@ -161,8 +155,6 @@ export const printReceipt = (visit, cashier = 'Kassa') => {
         <ReceiptContent visit={visit} cashier={cashier} />
     );
 
-    // MUHIM: iframe ichida kontent balandligi bo'yicha sahifa o'lchamini
-    // dinamik ravishda o'lchaymiz va @page size ni shunga moslab beramiz.
     const html = `<!DOCTYPE html>
 <html>
 <head>
@@ -188,8 +180,6 @@ ${RECEIPT_CSS}
 
     const iframe = document.createElement('iframe');
     iframe.id = 'rc-print-frame';
-    // MUHIM: height:1px emas — aks holda Chrome kontentni kesib tashlaydi.
-    // Ko'rinmas qilib, lekin yetarlicha baland qilib qo'yamiz.
     iframe.style.cssText = [
         'position:fixed',
         'right:0',
@@ -214,8 +204,6 @@ ${RECEIPT_CSS}
     setTimeout(remove, 60000);
 
     const go = () => {
-        // Kontentning haqiqiy balandligini o'lchab, @page size ni yangilaymiz.
-        // Bu Chrome'ga "bu bitta uzun chek" ekanligini bildiradi.
         try {
             const rc = doc.querySelector('.rc');
             if (rc) {
@@ -229,7 +217,7 @@ ${RECEIPT_CSS}
                 styleEl.textContent = `@page { size: ${PAPER_MM}mm ${hMm}mm; margin: 0; }`;
             }
         } catch (e) {
-            // e'tiborsiz
+            // pass
         }
 
         win.focus();
