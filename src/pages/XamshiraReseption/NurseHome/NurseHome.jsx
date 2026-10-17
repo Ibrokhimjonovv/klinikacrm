@@ -207,7 +207,7 @@ const ResNurseHome = () => {
 
                 <div className={s.TopActions}>
                     {/* 1. Navbat olish */}
-                    <button
+                    {/* <button
                         className={s.QueueBtn}
                         onClick={handleTakeQueue}
                         disabled={queueLoading}
@@ -217,10 +217,10 @@ const ResNurseHome = () => {
                         ) : (
                             <><i className="bi bi-ticket-perforated"></i> Navbat olish</>
                         )}
-                    </button>
+                    </button> */}
 
                     {/* 2. Navbatni yangilash (noldan boshlash) */}
-                    <button
+                    {/* <button
                         className={s.RefreshQueueBtn}
                         onClick={handleRefreshQueueClick}
                         disabled={queueRefreshLoading}
@@ -231,7 +231,7 @@ const ResNurseHome = () => {
                         ) : (
                             <><i className="bi bi-arrow-clockwise"></i> Navbatni yangilash</>
                         )}
-                    </button>
+                    </button> */}
 
                     {/* 3. Bemor qabul qilish */}
                     <button
@@ -244,7 +244,7 @@ const ResNurseHome = () => {
             </div>
 
             {/* Navbat holati paneli */}
-            {queueInfo && (
+            {/* {queueInfo && (
                 <div className={s.QueuePanel}>
                     <div className={s.QueueItem}>
                         <i className="bi bi-ticket-perforated-fill"></i>
@@ -268,7 +268,7 @@ const ResNurseHome = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            )} */}
 
             <div className={s.StatsRow}>
                 {stats.map((stat, i) => (
