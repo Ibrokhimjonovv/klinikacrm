@@ -9,8 +9,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;   // ← qo'shing
-    gap: 12px;         // ← qo'shing
+    flex-wrap: wrap; // ← qo'shing
+    gap: 12px; // ← qo'shing
     margin-bottom: 16px;
 
     h3 {
@@ -23,6 +23,47 @@
     display: flex;
     align-items: center;
     gap: 8px;
+}
+
+.ListHeadRight {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.PeriodTabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    background-color: #eaf0f7;
+    padding: 4px;
+    border-radius: 10px;
+}
+
+.PeriodBtn {
+    border: none;
+    background: transparent;
+    color: #1b3050;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background-color: rgba(255, 255, 255, 0.6);
+    }
+}
+
+.PeriodActive {
+    background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    color: #fff;
+
+    &:hover {
+        background: linear-gradient(135deg, #4a7bb5, #1b3050);
+    }
 }
 
 .SearchBox {
@@ -88,6 +129,7 @@
         &:last-child {
             border-bottom: none;
         }
+
         a {
             display: flex;
             align-items: center;
