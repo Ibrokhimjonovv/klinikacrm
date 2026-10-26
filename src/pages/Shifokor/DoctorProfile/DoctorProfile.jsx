@@ -29,7 +29,7 @@ const DoctorProfile = () => {
               {doctor?.first_name} {doctor?.last_name}
             </h1>
 
-            <p>{doctor?.department_detail?.name}</p>
+            <p>{doctor?.department_name}</p>
           </div>
         </div>
 
@@ -84,7 +84,7 @@ const DoctorProfile = () => {
 
           <div className={s.InfoRow}>
             <span>Mutaxassislik</span>
-            <p>{doctor?.department_detail?.name}</p>
+            <p>{doctor?.specialty_name}</p>
           </div>
 
           {/* <div className={s.InfoRow}>

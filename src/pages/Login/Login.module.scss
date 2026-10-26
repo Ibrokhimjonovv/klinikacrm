@@ -305,33 +305,97 @@
 }
 
 // RESPONSIVE
+// RESPONSIVE
 
 @media (max-width: 850px) {
-    .BrandPanel {
-        display: none;
+    .LoginSection {
+        min-height: 100dvh; // mobil brauzer va Telegram uchun to'g'ri balandlik
+        padding: 20px;
+        align-items: flex-start;
     }
 
     .LoginWrap {
-        max-width: 420px;
+        flex-direction: column; // panellar ustma-ust
+        max-width: 480px;
         height: auto;
         max-height: none;
+        margin: auto;
+    }
+
+    // Chap panel yashirilmaydi, tepada turadi
+    .BrandPanel {
+        flex: none;
+        padding: 30px 25px;
+    }
+
+    .BrandContent {
+        h2 {
+            font-size: 22px;
+            line-height: 1.3;
+        }
+
+        p {
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0.85;
+        }
+    }
+
+    .Circle1 {
+        width: 220px;
+        height: 220px;
+    }
+
+    .Circle2 {
+        width: 160px;
+        height: 160px;
+    }
+
+    .Circle3 {
+        width: 100px;
+        height: 100px;
+        bottom: 60px;
+    }
+
+    .Features {
+        margin-top: 22px;
+        gap: 10px;
     }
 
     .FormPanel {
-        padding: 35px 25px;
+        flex: none;
+        padding: 30px 25px;
+        overflow: visible;
     }
 
+    .FormInner {
+        max-width: 100%;
+    }
+
+    // Brend panel ko'rinib turgani uchun alohida mobil logo kerak emas
     .MobileLogo {
-        display: flex;
+        display: none;
     }
 }
 
 @media (max-width: 480px) {
     .LoginSection {
-        padding: 15px;
+        padding: 12px;
     }
 
     .LoginWrap {
         border-radius: 18px;
+    }
+
+    .BrandPanel {
+        padding: 24px 20px;
+    }
+
+    .FormPanel {
+        padding: 25px 20px;
+    }
+
+    .FormInner h1 {
+        font-size: 22px;
     }
 }

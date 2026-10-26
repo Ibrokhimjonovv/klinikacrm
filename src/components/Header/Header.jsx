@@ -546,7 +546,7 @@ const Header = () => {
                     </div>
                     <div className={s.ProfileDatas}>
                         <p>{userName()}</p>
-                        <p>{user?.doctor ? user?.doctor?.department_detail?.name : user?.patient ? "Bemor" : "Boshqa"}</p>
+                        <p>{user?.doctor ? user?.doctor?.department_name : user?.patient ? "Bemor" : "Boshqa"}</p>
                         {/* <p>{userRole()}</p> */}
                     </div>
                 </div>

@@ -26,10 +26,10 @@ const AssistantDoctorProfile = () => {
 
           <div>
             <h1>
-              {doctor?.first_name} {doctor?.last_name}
+              {doctor?.first_name} {doctor?.lastdepartment_name_name}
             </h1>
 
-            <p>{doctor?.department_detail?.name}</p>
+            <p>{doctor?.department_name}</p>
           </div>
         </div>
 
@@ -84,7 +84,7 @@ const AssistantDoctorProfile = () => {
 
           <div className={s.InfoRow}>
             <span>Mutaxassislik</span>
-            <p>{doctor?.department_detail?.name}</p>
+            <p>{doctor?.specialty_name}</p>
           </div>
 
           {/* <div className={s.InfoRow}>

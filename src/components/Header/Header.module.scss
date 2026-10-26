@@ -396,8 +396,8 @@
             background: #1b3050;
         }
 
-        scrollbar-width: thin; 
-        scrollbar-color: #4a7bb5 transparent; 
+        scrollbar-width: thin;
+        scrollbar-color: #4a7bb5 transparent;
     }
 
     .AsideBottom {
@@ -442,17 +442,21 @@
                 transition: opacity 0.2s ease 0.1s, max-width 0.2s ease;
 
                 p {
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    min-width: 0;
+                    max-width: 100%;
+
                     &:first-child {
                         color: #fff;
                         font-weight: 600;
                         font-size: 15px;
-                        white-space: nowrap;
                     }
 
                     &:last-child {
                         color: rgba(244, 240, 230, 0.45);
                         font-size: 13px;
-                        white-space: nowrap;
                     }
                 }
             }
