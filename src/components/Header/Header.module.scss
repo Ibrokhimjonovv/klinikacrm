@@ -630,3 +630,40 @@
         }
     }
 }
+
+@media (max-width: 992px) {
+    .aside {
+        width: 100%;
+        min-width: 0;
+        height: 100%;
+        border-radius: 0;
+        float: none;
+        padding: 16px;
+
+        .Logo {
+            transition: none;
+        }
+
+        .Logo .arrow {
+            color: #fff;
+            transition: none;
+            -webkit-tap-highlight-color: transparent;
+
+            &:hover,
+            &:active,
+            &:focus {
+                color: #fff;
+                outline: none;
+            }
+
+            i {
+                font-size: 24px;
+            }
+        }
+
+        .AsideLinks li a {
+            padding: 14px 12px;
+            font-size: 15px;
+        }
+    }
+}

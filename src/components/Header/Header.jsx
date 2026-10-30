@@ -1,562 +1,685 @@
-import s from "./Header.module.scss"
-import { useLocation, Link } from 'react-router-dom';
-import { useAppContext } from '../../context/context'
-import React, { useState, useLayoutEffect } from 'react';
+import s from "./Header.module.scss";
+import { useLocation, Link } from "react-router-dom";
+import { useAppContext } from "../../context/context";
+import React, { useState, useLayoutEffect, useEffect } from "react";
 
-const SIDEBAR_STORAGE_KEY = 'klinika_sidebar_collapsed'
+const SIDEBAR_STORAGE_KEY = "klinika_sidebar_collapsed";
 
 const menuLinks = {
-    admin: {
-        main: [
-            { to: '/admin', icon: 'bi-house-door', text: 'Bosh sahifa' },
+  admin: {
+    main: [{ to: "/admin", icon: "bi-house-door", text: "Bosh sahifa" }],
+    sections: [
+      {
+        title: "XIZMATLAR",
+        links: [
+          { to: "/admin/services", icon: "bi-sliders2", text: "Servislar" },
         ],
-        sections: [
-            {
-                title: 'XIZMATLAR',
-                links: [
-                    { to: '/admin/services', icon: 'bi-sliders2', text: 'Servislar' },
-                ],
-            },
-            {
-                title: 'XONALAR',
-                links: [
-                    { to: '/admin/rooms/all-rooms', icon: 'bi-hospital', text: 'Xonalar' },
-                ],
-            },
-            {
-                title: 'XODIMLAR',
-                links: [
-                    { to: '/admin/doctors', icon: 'bi-people', text: 'Barcha xodimlar' },
-                ],
-            },
-            {
-                title: 'Dori-darmonlar',
-                links: [
-                    { to: '/admin/medicines', icon: 'bi-capsule', text: 'Dorilar' },
-                ],
-            },
+      },
+      {
+        title: "XONALAR",
+        links: [
+          {
+            to: "/admin/rooms/all-rooms",
+            icon: "bi-hospital",
+            text: "Xonalar",
+          },
         ],
-        patientsTitle: null,
-        patients: [
+      },
+      {
+        title: "XODIMLAR",
+        links: [
+          { to: "/admin/doctors", icon: "bi-people", text: "Barcha xodimlar" },
         ],
-        roomsTitle: null,
-        rooms: [
+      },
+      {
+        title: "Dori-darmonlar",
+        links: [
+          { to: "/admin/medicines", icon: "bi-capsule", text: "Dorilar" },
         ],
-        profile: [
-        ]
-    },
-    cashier: {
-        main: [
-            { to: '/cashier', icon: 'bi-house-door', text: 'Bosh sahifa' },
+      },
+    ],
+    patientsTitle: null,
+    patients: [],
+    roomsTitle: null,
+    rooms: [],
+    profile: [],
+  },
+  cashier: {
+    main: [{ to: "/cashier", icon: "bi-house-door", text: "Bosh sahifa" }],
+    sections: [
+      {
+        title: "UMUMIY TO'LOVLAR",
+        links: [
+          {
+            to: "/cashier/payments/treatments",
+            icon: "bi-cash-coin",
+            text: "Davolanish to'lovlari",
+          },
         ],
-        sections: [
-            {
-                title: 'UMUMIY TO\'LOVLAR',
-                links: [
-                    { to: '/cashier/payments/treatments', icon: 'bi-cash-coin', text: 'Davolanish to\'lovlari' },
-                ],
-            },
-            {
-                title: "DOKTOR TO'LOVLARI",
-                links: [
-                    { to: '/cashier/payments/visits', icon: 'bi-cash-coin', text: 'Doktor ko\'rik to\'lovlari' },
-                ],
-            },
-            {
-                title: "XIZMAT TO'LOVLARI",
-                links: [
-                    { to: '/cashier/payments/services', icon: 'bi-cash-coin', text: 'Tashqi bemor to\'lovlari' },
-                    { to: '/cashier/payments/doctor-services', icon: 'bi-cash-coin', text: 'Biriktirilgan bemor to\'lovlari' },
-                ]
-            },
-            {
-                title: "BEKOR QILINGANLAR",
-                links: [
-                    { to: '/cashier/payments/cancelled', text: 'BEKOR QILINGANLAR', icon: 'bi-x-circle' }
-                ]
-            }
+      },
+      {
+        title: "DOKTOR TO'LOVLARI",
+        links: [
+          {
+            to: "/cashier/payments/visits",
+            icon: "bi-cash-coin",
+            text: "Doktor ko'rik to'lovlari",
+          },
         ],
-        patientsTitle: null,
-        patients: [
+      },
+      {
+        title: "XIZMAT TO'LOVLARI",
+        links: [
+          {
+            to: "/cashier/payments/services",
+            icon: "bi-cash-coin",
+            text: "Tashqi bemor to'lovlari",
+          },
+          {
+            to: "/cashier/payments/doctor-services",
+            icon: "bi-cash-coin",
+            text: "Biriktirilgan bemor to'lovlari",
+          },
         ],
-        roomsTitle: null,
-        rooms: [
+      },
+      {
+        title: "BEKOR QILINGANLAR",
+        links: [
+          {
+            to: "/cashier/payments/cancelled",
+            text: "BEKOR QILINGANLAR",
+            icon: "bi-x-circle",
+          },
         ],
-        profile: [
-        ]
-    },
-    doctor: {
-        main: [
-            { to: '/doctor', icon: 'bi-house-door', text: 'Bosh sahifa' },
+      },
+    ],
+    patientsTitle: null,
+    patients: [],
+    roomsTitle: null,
+    rooms: [],
+    profile: [],
+  },
+  doctor: {
+    main: [{ to: "/doctor", icon: "bi-house-door", text: "Bosh sahifa" }],
+    patientsTitle: "BIRIKTIRILGAN BEMORLAR",
+    patients: [
+      {
+        to: "/doctor/patients/waitings",
+        icon: "bi-hourglass",
+        text: "Kutilayotgan bemorlar",
+        countKey: "waiting",
+        children: [
+          {
+            to: "/doctor/patients/waitings?flow=diagnostics",
+            icon: "bi-camera",
+            text: "Diagnostikaga yuborish",
+          },
+          {
+            to: "/doctor/patients/waitings?flow=treatments",
+            icon: "bi-clipboard2-pulse",
+            text: "Davolash rejasi",
+          },
         ],
-        patientsTitle: 'BIRIKTIRILGAN BEMORLAR',
-        patients: [
-            {
-                to: '/doctor/patients/waitings',
-                icon: 'bi-hourglass',
-                text: 'Kutilayotgan bemorlar',
-                countKey: 'waiting',
-                children: [
-                    { to: '/doctor/patients/waitings?flow=diagnostics', icon: 'bi-camera', text: 'Diagnostikaga yuborish' },
-                    { to: '/doctor/patients/waitings?flow=treatments', icon: 'bi-clipboard2-pulse', text: 'Davolash rejasi' },
-                ],
-            },
-            { to: '/doctor/patients/progresses', icon: 'bi-clock', text: 'Jarayondagi bemorlar', countKey: 'process' },
-            { to: '/doctor/patients/completeds', icon: 'bi-check-circle', text: 'Yakunlangan bemorlar', countKey: 'completed' },
-        ],
-        roomsTitle: 'Xonalar',
-        rooms: [
-            { to: '/doctor/rooms/all-rooms', icon: 'bi-hospital', text: 'Xonalar' },
-        ],
-        profile: [
-            { to: '/doctor/profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
-        ]
-    },
-    assistantDoctor: {
-        main: [
-            { to: '/doctor', icon: 'bi-house-door', text: 'Bosh sahifa' },
-        ],
-        patientsTitle: "Bemorlar",
-        patients: [
-            { to: '/doctor/patients/waitings', icon: 'bi-activity', text: 'Diagnostik bemorlar' },
-            { to: '/doctor/patients/tasks', icon: 'bi-people', text: 'Biriktirilgan bemorlar' },
-            { to: '/doctor/patients/examinations', icon: 'bi-building-exclamation', text: 'Ko\'rikdagi bemorlar' },
-        ],
-        roomsTitle: null,
-        rooms: [
-        ],
-        profile: [
-            { to: '/doctor/profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
-        ]
-    },
-    nurseRecieption: {
-        main: [
-            { to: '/nurse', icon: 'bi-house-door', text: 'Bosh sahifa' },
-        ],
-        patientsTitle: 'BEMORLAR',
-        patients: [
-            { to: '/nurse/patients/patients', icon: 'bi-people', text: 'Bemorlar ro\'yxati' },
-        ],
-        services: [
-            { to: '/nurse/services', icon: 'bi-clock', text: 'Xizmatlar' },
-        ],
-        roomsTitle: "Xonalar",
-        rooms: [
-            {
-                to: "/nurse/rooms/all-rooms/", icon: "bi-hospital", text: "Xonalar"
-            }
-        ],
-        profile: [
-            { to: '/nurse/profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
-        ]
-    },
-    nurse: {
-        main: [
-            { to: '/nurse', icon: 'bi-house-door', text: 'Bosh sahifa' },
-        ],
-        patientsTitle: 'BEMORLAR',
-        patients: [
-            { to: '/nurse/patients', icon: 'bi-clock', text: 'Bemor qidirish', countKey: 'process' },
-            { to: '/nurse/inpatients', icon: 'bi-hospital', text: 'Yotib davolanayotgan bemorlar' },
-        ],
-        roomsTitle: null,
-        rooms: [
-        ],
-        profile: [
-            { to: '/nurse/profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
-        ]
-    },
-    patient: {
-        main: [
-            { to: '/me', icon: 'bi-house-door', text: 'Bosh sahifa' },
-        ],
-        patientsTitle: null,
-        patients: [],
-        medicines: [
-            { to: '/me/treatments/progresses', icon: 'bi-clock', text: 'Davolanish jarayonim', countKey: 'process' },
-            { to: '/me/treatments/completeds', icon: 'bi-check-circle', text: 'Yakunlangan davolanishlarim', countKey: 'done' },
-        ],
-        roomsTitle: null,
-        rooms: [
-        ],
-        profile: [
-            { to: '/me/profile', icon: 'bi-person-circle', text: 'Shaxsiy kabinet' }
-        ]
-    },
-}
+      },
+      {
+        to: "/doctor/patients/progresses",
+        icon: "bi-clock",
+        text: "Jarayondagi bemorlar",
+        countKey: "process",
+      },
+      {
+        to: "/doctor/patients/completeds",
+        icon: "bi-check-circle",
+        text: "Yakunlangan bemorlar",
+        countKey: "completed",
+      },
+    ],
+    roomsTitle: "Xonalar",
+    rooms: [
+      { to: "/doctor/rooms/all-rooms", icon: "bi-hospital", text: "Xonalar" },
+    ],
+    profile: [
+      {
+        to: "/doctor/profile",
+        icon: "bi-person-circle",
+        text: "Shaxsiy kabinet",
+      },
+    ],
+  },
+  assistantDoctor: {
+    main: [{ to: "/doctor", icon: "bi-house-door", text: "Bosh sahifa" }],
+    patientsTitle: "Bemorlar",
+    patients: [
+      {
+        to: "/doctor/patients/waitings",
+        icon: "bi-activity",
+        text: "Diagnostik bemorlar",
+      },
+      {
+        to: "/doctor/patients/tasks",
+        icon: "bi-people",
+        text: "Biriktirilgan bemorlar",
+      },
+      {
+        to: "/doctor/patients/examinations",
+        icon: "bi-building-exclamation",
+        text: "Ko'rikdagi bemorlar",
+      },
+    ],
+    roomsTitle: null,
+    rooms: [],
+    profile: [
+      {
+        to: "/doctor/profile",
+        icon: "bi-person-circle",
+        text: "Shaxsiy kabinet",
+      },
+    ],
+  },
+  nurseRecieption: {
+    main: [{ to: "/nurse", icon: "bi-house-door", text: "Bosh sahifa" }],
+    patientsTitle: "BEMORLAR",
+    patients: [
+      {
+        to: "/nurse/patients/patients",
+        icon: "bi-people",
+        text: "Bemorlar ro'yxati",
+      },
+    ],
+    services: [{ to: "/nurse/services", icon: "bi-clock", text: "Xizmatlar" }],
+    roomsTitle: "Xonalar",
+    rooms: [
+      {
+        to: "/nurse/rooms/all-rooms/",
+        icon: "bi-hospital",
+        text: "Xonalar",
+      },
+    ],
+    profile: [
+      {
+        to: "/nurse/profile",
+        icon: "bi-person-circle",
+        text: "Shaxsiy kabinet",
+      },
+    ],
+  },
+  nurse: {
+    main: [{ to: "/nurse", icon: "bi-house-door", text: "Bosh sahifa" }],
+    patientsTitle: "BEMORLAR",
+    patients: [
+      {
+        to: "/nurse/patients",
+        icon: "bi-clock",
+        text: "Bemor qidirish",
+        countKey: "process",
+      },
+      {
+        to: "/nurse/inpatients",
+        icon: "bi-hospital",
+        text: "Yotib davolanayotgan bemorlar",
+      },
+    ],
+    roomsTitle: null,
+    rooms: [],
+    profile: [
+      {
+        to: "/nurse/profile",
+        icon: "bi-person-circle",
+        text: "Shaxsiy kabinet",
+      },
+    ],
+  },
+  patient: {
+    main: [{ to: "/me", icon: "bi-house-door", text: "Bosh sahifa" }],
+    patientsTitle: null,
+    patients: [],
+    medicines: [
+      {
+        to: "/me/treatments/progresses",
+        icon: "bi-clock",
+        text: "Davolanish jarayonim",
+        countKey: "process",
+      },
+      {
+        to: "/me/treatments/completeds",
+        icon: "bi-check-circle",
+        text: "Yakunlangan davolanishlarim",
+        countKey: "done",
+      },
+    ],
+    roomsTitle: null,
+    rooms: [],
+    profile: [
+      { to: "/me/profile", icon: "bi-person-circle", text: "Shaxsiy kabinet" },
+    ],
+  },
+};
 
 const parseTo = (to) => {
-    const [path, query] = to.split('?')
-    const params = new URLSearchParams(query || '')
-    return { path, flow: params.get('flow') }
-}
+  const [path, query] = to.split("?");
+  const params = new URLSearchParams(query || "");
+  return { path, flow: params.get("flow") };
+};
 
-const Header = () => {
-    const { user, loading, logout, collapsed, setCollapsed, patientsCount, doctorCounts, patientCounts } = useAppContext()
-    const location = useLocation()
-    const [openMenu, setOpenMenu] = useState(null)
+const Header = ({ onClose }) => {
+  const {
+    user,
+    loading,
+    logout,
+    collapsed,
+    setCollapsed,
+    patientsCount,
+    doctorCounts,
+    patientCounts,
+  } = useAppContext();
+  const location = useLocation();
+  const [openMenu, setOpenMenu] = useState(null);
 
-    useLayoutEffect(() => {
-        const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY)
-        if (stored === null) return
-        const storedValue = stored === 'true'
-        if (storedValue !== collapsed) {
-            setCollapsed(storedValue)
-        }
-    }, [])
+  const [isMobile, setIsMobile] = useState(
+    () => window.matchMedia("(max-width: 992px)").matches,
+  );
 
-    const toggleSidebar = () => {
-        const next = !collapsed
-        setCollapsed(next)
-        localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next))
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 992px)");
+    const onChange = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  useLayoutEffect(() => {
+    const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    if (stored === null) return;
+    const storedValue = stored === "true";
+    if (storedValue !== collapsed) {
+      setCollapsed(storedValue);
     }
+  }, []);
 
-    if (location.pathname === '/sign-in') {
-        return null
-    }
+  const toggleSidebar = () => {
+    const next = !collapsed;
+    setCollapsed(next);
+    localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
+  };
 
-    if (loading) return null
+  if (location.pathname === "/sign-in") {
+    return null;
+  }
 
-    const specialty = user?.role
+  if (loading) return null;
 
-    let links = null
-    if (specialty === 'Doctor') {
-        links = menuLinks.doctor
-    } else if (specialty === 'ResNurse') {
-        links = menuLinks.nurseRecieption
-    } else if (specialty === 'Patient') {
-        links = menuLinks.patient
-    } else if (specialty === 'Nurse') {
-        links = menuLinks.nurse
-    } else if (specialty === 'Admin') {
-        links = menuLinks.admin
-    } else if (specialty === 'Cashier') {
-        links = menuLinks.cashier
-    }
-    else if (specialty === "AssistantDoctor") {
-        links = menuLinks.assistantDoctor
-    }
+  const specialty = user?.role;
 
-    const normalizePath = (p) => (p.length > 1 ? p.replace(/\/+$/, '') : p)
+  let links = null;
+  if (specialty === "Doctor") {
+    links = menuLinks.doctor;
+  } else if (specialty === "ResNurse") {
+    links = menuLinks.nurseRecieption;
+  } else if (specialty === "Patient") {
+    links = menuLinks.patient;
+  } else if (specialty === "Nurse") {
+    links = menuLinks.nurse;
+  } else if (specialty === "Admin") {
+    links = menuLinks.admin;
+  } else if (specialty === "Cashier") {
+    links = menuLinks.cashier;
+  } else if (specialty === "AssistantDoctor") {
+    links = menuLinks.assistantDoctor;
+  }
 
-    const isActive = (to, exact = false) => {
-        const current = normalizePath(location.pathname)
-        const target = normalizePath(to)
-        if (exact || target === '/') return current === target
-        return current === target || current.startsWith(`${target}/`)
-    }
+  const normalizePath = (p) => (p.length > 1 ? p.replace(/\/+$/, "") : p);
 
-    const isChildActive = (child) => {
-        const { path, flow } = parseTo(child.to)
-        if (location.pathname !== path && !location.pathname.startsWith(`${path}/`)) return false
-        const currentFlow = new URLSearchParams(location.search).get('flow')
-        return flow ? currentFlow === flow : true
-    }
+  const isActive = (to, exact = false) => {
+    const current = normalizePath(location.pathname);
+    const target = normalizePath(to);
+    if (exact || target === "/") return current === target;
+    return current === target || current.startsWith(`${target}/`);
+  };
 
-    const isAnyChildActive = (children) => children?.some(isChildActive)
+  const isChildActive = (child) => {
+    const { path, flow } = parseTo(child.to);
+    if (location.pathname !== path && !location.pathname.startsWith(`${path}/`))
+      return false;
+    const currentFlow = new URLSearchParams(location.search).get("flow");
+    return flow ? currentFlow === flow : true;
+  };
 
-    const toggleMenu = (key) => {
-        setOpenMenu(prev => (prev === key ? null : key))
-    }
+  const isAnyChildActive = (children) => children?.some(isChildActive);
 
-    const userRole = () => {
-        if (user?.role === "Doctor") return user?.doctor?.specialty
-        else if (user?.role === "ResNurse") return "Qabul hamshirasi"
-        else if (user?.role === "Patient") return "Bemor"
-        else if (user?.role === "Nurse") return "Hamshira"
-        else if (user?.role === "Admin") return "Admin"
-        else if (user?.role === "Cashier") return "Cashier"
-        else if (user?.role === "AssistantDoctor") return "Doktor"
-        else return "Aniqlanmadi"
-    }
+  const toggleMenu = (key) => {
+    setOpenMenu((prev) => (prev === key ? null : key));
+  };
 
-    const userName = () => {
-        if (user?.role === "Doctor") return (`${user?.doctor?.first_name} ${user?.doctor?.last_name}`)
-        else if (user?.role === "ResNurse") return (`${user?.doctor?.first_name} ${user?.doctor?.last_name}`)
-        else if (user?.role === "Patient") return (`${user?.patient?.first_name} ${user?.patient?.last_name}`)
-        else if (user?.role === "Nurse") return (`${user?.doctor?.first_name} ${user?.doctor?.last_name}`)
-        else if (user?.role === "AssistantDoctor") return (`${user?.doctor?.first_name} ${user?.doctor?.last_name}`)
-        else if (user?.role === "Admin") return (`Sayt admini!`)
-        else if (user?.role === "Cashier") return (`${user?.doctor?.first_name} ${user?.doctor?.last_name}`)
-        else return "Aniqlanmadi"
-    }
+  const userRole = () => {
+    if (user?.role === "Doctor") return user?.doctor?.specialty;
+    else if (user?.role === "ResNurse") return "Qabul hamshirasi";
+    else if (user?.role === "Patient") return "Bemor";
+    else if (user?.role === "Nurse") return "Hamshira";
+    else if (user?.role === "Admin") return "Admin";
+    else if (user?.role === "Cashier") return "Cashier";
+    else if (user?.role === "AssistantDoctor") return "Doktor";
+    else return "Aniqlanmadi";
+  };
 
-    const profileImage = user?.doctor?.profile_image || user?.patient?.profile_image || null
+  const userName = () => {
+    if (user?.role === "Doctor")
+      return `${user?.doctor?.first_name} ${user?.doctor?.last_name}`;
+    else if (user?.role === "ResNurse")
+      return `${user?.doctor?.first_name} ${user?.doctor?.last_name}`;
+    else if (user?.role === "Patient")
+      return `${user?.patient?.first_name} ${user?.patient?.last_name}`;
+    else if (user?.role === "Nurse")
+      return `${user?.doctor?.first_name} ${user?.doctor?.last_name}`;
+    else if (user?.role === "AssistantDoctor")
+      return `${user?.doctor?.first_name} ${user?.doctor?.last_name}`;
+    else if (user?.role === "Admin") return `Sayt admini!`;
+    else if (user?.role === "Cashier")
+      return `${user?.doctor?.first_name} ${user?.doctor?.last_name}`;
+    else return "Aniqlanmadi";
+  };
 
-    const profileInitial = () => {
-        if (user?.doctor?.first_name) return user.doctor.first_name[0].toUpperCase()
-        if (user?.patient?.first_name) return user.patient.first_name[0].toUpperCase()
-        if (user?.role === "Admin") return "A"
-        return "?"
-    }
+  const profileImage =
+    user?.doctor?.profile_image || user?.patient?.profile_image || null;
 
-    return (
-        <div className={`${s.aside} ${collapsed ? s.collapsed : ''}`}>
-            <div className={s.Logo}>
-                <div className={s.LogoImg}>
-                    <div className={s.LogoMark}>✦</div>
-                    <span className={s.Brand}>AOC CRM</span>
-                </div>
-                <button
-                    className={s.arrow}
-                    onClick={toggleSidebar}
+  const profileInitial = () => {
+    if (user?.doctor?.first_name)
+      return user.doctor.first_name[0].toUpperCase();
+    if (user?.patient?.first_name)
+      return user.patient.first_name[0].toUpperCase();
+    if (user?.role === "Admin") return "A";
+    return "?";
+  };
+
+  return (
+    <div className={`${s.aside} ${collapsed && !isMobile ? s.collapsed : ""}`}>
+      <div className={s.Logo}>
+        <div className={s.LogoImg}>
+          <div className={s.LogoMark}>✦</div>
+          <span className={s.Brand}>AOC CRM</span>
+        </div>
+        <button
+          className={s.arrow}
+          onClick={isMobile ? onClose : toggleSidebar}
+        >
+          {isMobile ? (
+            <i className="bi bi-x-lg"></i>
+          ) : (
+            <i
+              className={`bi ${collapsed ? "bi-caret-right-square-fill" : "bi-caret-left-square-fill"}`}
+            ></i>
+          )}
+        </button>
+      </div>
+
+      <div className={s.LinksWrapper}>
+        <p className={s.asosiy}>ASOSIY</p>
+
+        <ul className={s.AsideLinks}>
+          {links ? (
+            links.main.map((link, index) => (
+              <li key={index}>
+                <Link
+                  to={link.to}
+                  className={isActive(link.to, true) ? s.ActiveLink : ""}
                 >
-                    <i className={`bi ${collapsed ? 'bi-caret-right-square-fill' : 'bi-caret-left-square-fill'}`}></i>
-                </button>
-            </div>
+                  <span className={s.icon}>
+                    <i className={`bi ${link.icon}`}></i>
+                  </span>
+                  <span className={s.text}>{link.text}</span>
+                </Link>
+              </li>
+            ))
+          ) : (
+            <li className={s.NoRole}>
+              <div className={s.NoRoleIcon}>
+                <i className="bi bi-compass"></i>
+              </div>
+              <p className={s.NoRoleTitle}>Menyu topilmadi</p>
+              <p className={s.NoRoleText}>
+                Rolingiz uchun bo'lim biriktirilmagan. Administratorga murojaat
+                qiling.
+              </p>
+            </li>
+          )}
+        </ul>
 
-            <div className={s.LinksWrapper}>
-                <p className={s.asosiy}>ASOSIY</p>
-
-                <ul className={s.AsideLinks}>
-                    {links ? (
-                        links.main.map((link, index) => (
-                            <li key={index}>
-                                <Link
-                                    to={link.to}
-                                    className={isActive(link.to, true) ? s.ActiveLink : ''}
-                                >
-                                    <span className={s.icon}><i className={`bi ${link.icon}`}></i></span>
-                                    <span className={s.text}>{link.text}</span>
-                                </Link>
-                            </li>
-                        ))
-                    ) : (
-                        <li className={s.NoRole}>
-                            <div className={s.NoRoleIcon}>
-                                <i className="bi bi-compass"></i>
-                            </div>
-                            <p className={s.NoRoleTitle}>Menyu topilmadi</p>
-                            <p className={s.NoRoleText}>
-                                Rolingiz uchun bo'lim biriktirilmagan. Administratorga murojaat qiling.
-                            </p>
-                        </li>
-                    )}
-                </ul>
-
-                {/* Umumiy, har biri o'z sarlavhasi bilan chiqadigan
+        {/* Umumiy, har biri o'z sarlavhasi bilan chiqadigan
                     guruhlar (hozircha Admin uchun: XIZMATLAR, XONALAR,
                     XODIMLAR). Boshqa rollarga ham shu tarzda osongina
                     guruh qo'shish mumkin — links.sections massivini
                     to'ldirish kifoya. */}
-                {links?.sections?.map((section, si) => (
-                    <React.Fragment key={si}>
-                        {section.title && (
-                            <p className={s.asosiy}>{section.title}</p>
+        {links?.sections?.map((section, si) => (
+          <React.Fragment key={si}>
+            {section.title && <p className={s.asosiy}>{section.title}</p>}
+
+            <ul className={s.AsideLinks}>
+              {section.links.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    to={link.to}
+                    className={isActive(link.to) ? s.ActiveLink : ""}
+                  >
+                    <span className={s.icon}>
+                      <i className={`bi ${link.icon}`}></i>
+                    </span>
+                    <span className={s.text}>{link.text}</span>
+
+                    {link.countKey && <p>{doctorCounts[link.countKey] ?? 0}</p>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </React.Fragment>
+        ))}
+
+        {links && links.patients.length > 0 && (
+          <>
+            <p className={s.asosiy}>{links.patientsTitle}</p>
+
+            <ul className={s.AsideLinks}>
+              {links.patients.map((link, index) => {
+                if (link.children?.length > 0) {
+                  const childActive = isAnyChildActive(link.children);
+                  const expanded = openMenu === link.to || childActive;
+
+                  return (
+                    <li key={index} className={s.HasSubmenu}>
+                      <button
+                        type="button"
+                        className={`${s.SubmenuToggle} ${childActive ? s.ActiveLink : ""}`}
+                        onClick={() => toggleMenu(link.to)}
+                        aria-expanded={expanded}
+                      >
+                        <span className={s.icon}>
+                          <i className={`bi ${link.icon}`}></i>
+                        </span>
+                        <span className={s.text}>{link.text}</span>
+
+                        {link.countKey && (
+                          <p>{doctorCounts[link.countKey] ?? 0}</p>
                         )}
 
-                        <ul className={s.AsideLinks}>
-                            {section.links.map((link, index) => (
-                                <li key={index}>
-                                    <Link
-                                        to={link.to}
-                                        className={isActive(link.to) ? s.ActiveLink : ''}
-                                    >
-                                        <span className={s.icon}><i className={`bi ${link.icon}`}></i></span>
-                                        <span className={s.text}>{link.text}</span>
+                        <i
+                          className={`bi bi-chevron-down ${s.chevron} ${expanded ? s.chevronOpen : ""}`}
+                        ></i>
+                      </button>
 
-                                        {link.countKey && (
-                                            <p>{doctorCounts[link.countKey] ?? 0}</p>
-                                        )}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </React.Fragment>
-                ))}
-
-                {links && links.patients.length > 0 && (
-                    <>
-                        <p className={s.asosiy}>
-                            {links.patientsTitle}
-                        </p>
-
-                        <ul className={s.AsideLinks}>
-                            {links.patients.map((link, index) => {
-                                if (link.children?.length > 0) {
-                                    const childActive = isAnyChildActive(link.children)
-                                    const expanded = openMenu === link.to || childActive
-
-                                    return (
-                                        <li key={index} className={s.HasSubmenu}>
-                                            <button
-                                                type="button"
-                                                className={`${s.SubmenuToggle} ${childActive ? s.ActiveLink : ''}`}
-                                                onClick={() => toggleMenu(link.to)}
-                                                aria-expanded={expanded}
-                                            >
-                                                <span className={s.icon}><i className={`bi ${link.icon}`}></i></span>
-                                                <span className={s.text}>{link.text}</span>
-
-                                                {link.countKey && (
-                                                    <p>{doctorCounts[link.countKey] ?? 0}</p>
-                                                )}
-
-                                                <i className={`bi bi-chevron-down ${s.chevron} ${expanded ? s.chevronOpen : ''}`}></i>
-                                            </button>
-
-                                            {expanded && (
-                                                <ul className={s.SubLinks}>
-                                                    {link.children.map((child, ci) => (
-                                                        <li key={ci}>
-                                                            <Link
-                                                                to={child.to}
-                                                                className={isChildActive(child) ? s.ActiveLink : ''}
-                                                            >
-                                                                <span className={s.icon}><i className={`bi ${child.icon}`}></i></span>
-                                                                <span className={s.text}>{child.text}</span>
-                                                            </Link>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </li>
-                                    )
+                      {expanded && (
+                        <ul className={s.SubLinks}>
+                          {link.children.map((child, ci) => (
+                            <li key={ci}>
+                              <Link
+                                to={child.to}
+                                className={
+                                  isChildActive(child) ? s.ActiveLink : ""
                                 }
-
-                                return (
-                                    <li key={index}>
-                                        <Link
-                                            to={link.to}
-                                            className={isActive(link.to) ? s.ActiveLink : ''}
-                                        >
-                                            <span className={s.icon}><i className={`bi ${link.icon}`}></i></span>
-                                            <span className={s.text}>{link.text}</span>
-
-                                            {link.countKey && (
-                                                <p>{doctorCounts[link.countKey] ?? 0}</p>
-                                            )}
-
-                                            {user?.role === 'ResNurse' && link.to === '/nurse-patients' && (
-                                                <p>{patientsCount}</p>
-                                            )}
-                                        </Link>
-                                    </li>
-                                )
-                            })}
+                              >
+                                <span className={s.icon}>
+                                  <i className={`bi ${child.icon}`}></i>
+                                </span>
+                                <span className={s.text}>{child.text}</span>
+                              </Link>
+                            </li>
+                          ))}
                         </ul>
-                    </>
-                )}
+                      )}
+                    </li>
+                  );
+                }
 
-                {links && links.medicines?.length > 0 && (
-                    <>
-                        <p className={s.asosiy}>DAVOLANISH</p>
-                        <ul className={s.AsideLinks}>
-                            {links.medicines.map((link, index) => (
-                                <li key={index}>
-                                    <Link
-                                        to={link.to}
-                                        className={isActive(link.to) ? s.ActiveLink : ''}
-                                    >
-                                        <span className={s.icon}><i className={`bi ${link.icon}`}></i></span>
-                                        <span className={s.text}>{link.text}</span>
+                return (
+                  <li key={index}>
+                    <Link
+                      to={link.to}
+                      className={isActive(link.to) ? s.ActiveLink : ""}
+                    >
+                      <span className={s.icon}>
+                        <i className={`bi ${link.icon}`}></i>
+                      </span>
+                      <span className={s.text}>{link.text}</span>
 
-                                        {link.countKey && (
-                                            <p>{patientCounts[link.countKey] ?? 0}</p>
-                                        )}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </>
-                )}
+                      {link.countKey && (
+                        <p>{doctorCounts[link.countKey] ?? 0}</p>
+                      )}
 
-                {links && links.services?.length > 0 && (
-                    <>
-                        <p className={s.asosiy}>XIZMATLAR</p>
-                        <ul className={s.AsideLinks}>
-                            {links.services.map((link, index) => (
-                                <li key={index}>
-                                    <Link
-                                        to={link.to}
-                                        className={isActive(link.to) ? s.ActiveLink : ''}
-                                    >
-                                        <span className={s.icon}><i className={`bi ${link.icon}`}></i></span>
-                                        <span className={s.text}>{link.text}</span>
+                      {user?.role === "ResNurse" &&
+                        link.to === "/nurse-patients" && <p>{patientsCount}</p>}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
 
-                                        {link.countKey && (
-                                            <p>{patientCounts[link.countKey] ?? 0}</p>
-                                        )}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </>
-                )}
+        {links && links.medicines?.length > 0 && (
+          <>
+            <p className={s.asosiy}>DAVOLANISH</p>
+            <ul className={s.AsideLinks}>
+              {links.medicines.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    to={link.to}
+                    className={isActive(link.to) ? s.ActiveLink : ""}
+                  >
+                    <span className={s.icon}>
+                      <i className={`bi ${link.icon}`}></i>
+                    </span>
+                    <span className={s.text}>{link.text}</span>
 
-                {links && links.rooms?.length > 0 && (
-                    <>
-                        <p className={s.asosiy}>
-                            {links.roomsTitle}
-                        </p>
+                    {link.countKey && (
+                      <p>{patientCounts[link.countKey] ?? 0}</p>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
-                        <ul className={s.AsideLinks}>
-                            {links.rooms.map((link, index) => (
-                                <li key={index}>
-                                    <Link
-                                        to={link.to}
-                                        className={isActive(link.to) ? s.ActiveLink : ''}
-                                    >
-                                        <span className={s.icon}><i className={`bi ${link.icon}`}></i></span>
-                                        <span className={s.text}>{link.text}</span>
+        {links && links.services?.length > 0 && (
+          <>
+            <p className={s.asosiy}>XIZMATLAR</p>
+            <ul className={s.AsideLinks}>
+              {links.services.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    to={link.to}
+                    className={isActive(link.to) ? s.ActiveLink : ""}
+                  >
+                    <span className={s.icon}>
+                      <i className={`bi ${link.icon}`}></i>
+                    </span>
+                    <span className={s.text}>{link.text}</span>
 
-                                        {link.countKey && (
-                                            <p>{doctorCounts[link.countKey] ?? 0}</p>
-                                        )}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </>
-                )}
+                    {link.countKey && (
+                      <p>{patientCounts[link.countKey] ?? 0}</p>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
-                {links && links.profile?.length > 0 && (
-                    <>
-                        <p className={s.asosiy}>PROFIL</p>
-                        <ul className={s.AsideLinks}>
-                            {links.profile.map((link, index) => (
-                                <li key={index}>
-                                    <Link
-                                        to={link.to}
-                                        className={isActive(link.to) ? s.ActiveLink : ''}
-                                    >
-                                        <span className={s.icon}>
-                                            <i className={`bi ${link.icon}`}></i>
-                                        </span>
+        {links && links.rooms?.length > 0 && (
+          <>
+            <p className={s.asosiy}>{links.roomsTitle}</p>
 
-                                        <span className={s.text}>
-                                            {link.text}
-                                        </span>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </>
-                )}
-            </div>
+            <ul className={s.AsideLinks}>
+              {links.rooms.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    to={link.to}
+                    className={isActive(link.to) ? s.ActiveLink : ""}
+                  >
+                    <span className={s.icon}>
+                      <i className={`bi ${link.icon}`}></i>
+                    </span>
+                    <span className={s.text}>{link.text}</span>
 
-            <div className={s.AsideBottom}>
-                <div className={s.Me}>
-                    <div className={s.ProfileLogo}>
-                        {profileImage ? (
-                            <img src={profileImage} alt={userName()} className={s.ProfileLogoImg} />
-                        ) : (
-                            profileInitial()
-                        )}
-                    </div>
-                    <div className={s.ProfileDatas}>
-                        <p>{userName()}</p>
-                        <p>{user?.doctor ? user?.doctor?.department_name : user?.patient ? "Bemor" : "Boshqa"}</p>
-                        {/* <p>{userRole()}</p> */}
-                    </div>
-                </div>
-                <button className={s.Logout} onClick={logout}>
-                    <i className="bi bi-box-arrow-left"></i>
-                    <span className={s.text}>Chiqish</span>
-                </button>
-            </div>
+                    {link.countKey && <p>{doctorCounts[link.countKey] ?? 0}</p>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        {links && links.profile?.length > 0 && (
+          <>
+            <p className={s.asosiy}>PROFIL</p>
+            <ul className={s.AsideLinks}>
+              {links.profile.map((link, index) => (
+                <li key={index}>
+                  <Link
+                    to={link.to}
+                    className={isActive(link.to) ? s.ActiveLink : ""}
+                  >
+                    <span className={s.icon}>
+                      <i className={`bi ${link.icon}`}></i>
+                    </span>
+
+                    <span className={s.text}>{link.text}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+
+      <div className={s.AsideBottom}>
+        <div className={s.Me}>
+          <div className={s.ProfileLogo}>
+            {profileImage ? (
+              <img
+                src={profileImage}
+                alt={userName()}
+                className={s.ProfileLogoImg}
+              />
+            ) : (
+              profileInitial()
+            )}
+          </div>
+          <div className={s.ProfileDatas}>
+            <p>{userName()}</p>
+            <p>
+              {user?.doctor
+                ? user?.doctor?.department_name
+                : user?.patient
+                  ? "Bemor"
+                  : "Boshqa"}
+            </p>
+            {/* <p>{userRole()}</p> */}
+          </div>
         </div>
-    )
-}
+        <button className={s.Logout} onClick={logout}>
+          <i className="bi bi-box-arrow-left"></i>
+          <span className={s.text}>Chiqish</span>
+        </button>
+      </div>
+    </div>
+  );
+};
 
-export default Header
+export default Header;
