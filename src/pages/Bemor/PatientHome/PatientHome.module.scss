@@ -639,7 +639,7 @@ $bg-tint: rgba(14, 27, 51, 0.06);
     transition: width 0.3s;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 500px) {
     .VisitCard {
         flex-direction: column;
     }
@@ -653,5 +653,9 @@ $bg-tint: rgba(14, 27, 51, 0.06);
         &::after {
             display: none;
         }
+    }
+
+    .OverallProgress {
+        display: none;
     }
 }

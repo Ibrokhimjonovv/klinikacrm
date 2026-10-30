@@ -148,3 +148,11 @@ $text-muted: #6b7280;
         color: #047857;
     }
 }
+
+@media screen and (max-width: 500px) {
+    .TopRow {
+        h1 {
+            font-size: 16px;
+        }
+    }
+}

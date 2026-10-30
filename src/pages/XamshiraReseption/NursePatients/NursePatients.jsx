@@ -88,7 +88,7 @@ const NursePatients = () => {
     <div className={s.ListCard}>
       <div className={s.ListHead}>
         <div className={s.ListHeadLeft}>
-          <h3>Bemorlar ro'yxati</h3>
+          <h3>Ro'yxatga olingan bemorlar</h3>
           <span className={s.CountBadge}>{total} ta</span>
         </div>
 

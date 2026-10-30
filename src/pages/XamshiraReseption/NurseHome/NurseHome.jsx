@@ -357,7 +357,7 @@ const ResNurseHome = () => {
                 </button>
               ))}
             </div>
-            <Link to="/nurse/patients/all-patients">Barchasini ko'rish</Link>
+            <Link to="/nurse/patients/patients">Barchasini ko'rish</Link>
           </div>
         </div>
 
@@ -396,13 +396,9 @@ const ResNurseHome = () => {
           </ul>
         )}
       </div>
-
-      {/* ===== Bemor qabul qilish modali ===== */}
       <Modal isOpen={showAdmission} onClose={handleCloseAdmission}>
         <PatientAdmission onSuccess={handleCloseAdmission} />
       </Modal>
-
-      {/* ===== 🆕 Tasdiq modali ===== */}
       {confirmModal && (
         <div className={s.Overlay} onClick={() => setConfirmModal(false)}>
           <div className={s.CustomModal} onClick={(e) => e.stopPropagation()}>

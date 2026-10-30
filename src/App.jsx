@@ -6,6 +6,7 @@ import {
   Route,
   Routes,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 import s from "./App.module.scss";
 import WaitingNotification from "./components/Doctor/WaitingNotification/WaitingNotification";
@@ -66,6 +67,7 @@ import NurseRooms from "./pages/XamshiraReseption/NurseRooms/NurseRooms";
 import NurseServiceDetail from "./pages/XamshiraReseption/NurseServiceDetail/NurseServiceDetail";
 import NurseServices from "./pages/XamshiraReseption/NurseServices/NurseServices";
 import NurseServicesDoctors from "./pages/XamshiraReseption/NurseServicesDoctors/NurseServicesDoctors";
+import logo from "./assets/headerLogo.png"
 
 // export const api = 'https://bkapi.aoc.uz/api/v1'
 export const api = "http://192.168.0.189:8000/api/v1";
@@ -289,8 +291,14 @@ function MainLayout() {
     setMobileOpen(false)
   }, [location.pathname, location.search])
 
+  const navigate = useNavigate()
+
   return (
     <div className={s.body}>
+      <div className={s.LogoWrapper} onClick={()=>navigate('/')}>
+        <img src={logo} className={s.Logo} alt="" />
+        <span>AOC.UZ</span>
+      </div>
       <button className={s.BurgerBtn} onClick={() => setMobileOpen(true)}>
         <i className="bi bi-list"></i>
       </button>

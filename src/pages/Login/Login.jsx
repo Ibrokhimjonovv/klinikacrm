@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Loading from '../../components/Loading/Loading';
 import { api } from '../../App';
 import { useAppContext } from '../../context/context';
-import logo from "../../assets/images/crm.png"
+import logo from "../../assets/headerLogo.png"
 
 const Login = () => {
     const navigate = useNavigate();
@@ -96,7 +96,9 @@ const Login = () => {
                         <div className={s.LogoImg}>
                             {/* <img src={logo} alt="" />
                                             <span>CRM</span> */}
-                            <div className={s.LogoMark}>✦</div>
+                            <div className={s.LogoMark}>
+                                <img src={logo} alt="" />
+                            </div>
                             <span className={s.Brand}>AOC.UZ</span>
                         </div>
 

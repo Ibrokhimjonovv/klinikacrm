@@ -398,3 +398,36 @@
 .AssignBtn {
     flex-shrink: 0;
 }
+
+
+@media screen and (max-width: 500px) {
+    .TopRow {
+        h1 {
+            font-size: 20px;
+        }
+    }
+
+    .AddPatientBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .ListCard {
+        padding: 10px;
+    }
+
+    .ListHead {
+        .ListHeadLeft {
+            width: 100%;
+            justify-content: space-between;
+        }
+    }
+
+    .AssignBtn {
+        font-size: 12px;
+    }
+
+    .DoctorBadge {
+        display: none;
+    }
+}

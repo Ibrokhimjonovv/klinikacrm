@@ -21,6 +21,8 @@ const PatientProfile = () => {
           </div>
 
           <div>
+
+            <p>Xush kelibsiz</p>
             <h1>
               {patient?.first_name} {patient?.last_name}
             </h1>

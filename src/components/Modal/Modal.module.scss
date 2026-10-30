@@ -125,3 +125,11 @@
         animation: slideInRight 0.3s ease-out forwards;
     }
 }
+
+@media screen and (max-width: 500px) {
+    .ModalBox {
+        top: 10px;
+        left: 10px;
+        width: calc(100% - 20px);
+    }
+}

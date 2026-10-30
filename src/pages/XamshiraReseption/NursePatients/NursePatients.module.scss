@@ -211,3 +211,36 @@
         color: #888;
     }
 }
+
+@media screen and (max-width: 500px) {
+    .TopActions {
+        width: 100%;
+    }
+
+    .ListHeadLeft {
+        width: 100%;
+        justify-content: space-between;
+
+        h3 {
+            font-size: 14px;
+        }
+    }
+
+    .ListHeadRight {
+        width: 100%;
+
+        .PeriodTabs {
+            width: 100%;
+            justify-content: space-between;
+
+            .PeriodBtn {
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+        }
+    }
+
+    .DoctorBadge {
+        display: none;
+    }
+}

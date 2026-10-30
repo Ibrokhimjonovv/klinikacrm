@@ -56,8 +56,6 @@
   }
 }
 
-// STATS
-
 .StatsRow {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -119,8 +117,6 @@
     color: #17643c;
   }
 }
-
-// LIST
 
 .ListCard {
   background-color: #fff;
@@ -659,5 +655,42 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .TopActions {
+    width: 100%;
+  }
+
+  .ListHeadLeft {
+    width: 100%;
+    justify-content: space-between;
+
+    h3 {
+      font-size: 14px;
+    }
+  }
+
+  .ListHeadRight {
+    width: 100%;
+    .PeriodTabs {
+      width: 100%;
+      justify-content: space-between;
+      .PeriodBtn {
+        font-size: 12px;
+        padding: 8px 10px;
+      }
+    }
+  }
+
+  .DoctorBadge {
+    display: none;
+  }
+
+  .HomeContainer {
+    .ListCard {
+      padding: 15px 10px;
+    }
   }
 }

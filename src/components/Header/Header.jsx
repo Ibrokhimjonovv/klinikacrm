@@ -2,6 +2,7 @@ import s from "./Header.module.scss";
 import { useLocation, Link } from "react-router-dom";
 import { useAppContext } from "../../context/context";
 import React, { useState, useLayoutEffect, useEffect } from "react";
+import logo from "../../assets/headerLogo.png"
 
 const SIDEBAR_STORAGE_KEY = "klinika_sidebar_collapsed";
 
@@ -393,8 +394,10 @@ const Header = ({ onClose }) => {
     <div className={`${s.aside} ${collapsed && !isMobile ? s.collapsed : ""}`}>
       <div className={s.Logo}>
         <div className={s.LogoImg}>
-          <div className={s.LogoMark}>✦</div>
-          <span className={s.Brand}>AOC CRM</span>
+          <div className={s.LogoMark}>
+            <img src={logo} alt="" />
+          </div>
+          <span className={s.Brand}>AOC.UZ</span>
         </div>
         <button
           className={s.arrow}
